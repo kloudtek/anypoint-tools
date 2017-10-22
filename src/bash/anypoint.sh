@@ -54,11 +54,14 @@ createEnv() {
 }
 
 listServers() {
+    echo "curl -s -H \"${AUTH}\" -H \"X-ANYPNT-ORG-ID:${1}\" -H \"X-ANYPNT-ENV-ID:${2}\" https://anypoint.mulesoft.com/armui/api/v1/servers"
     JSON=$(curl -s -H "${AUTH}" -H "X-ANYPNT-ORG-ID:${1}" -H "X-ANYPNT-ENV-ID:${2}" https://anypoint.mulesoft.com/armui/api/v1/servers)
+    echo ${JSON}
 }
 
 getServerId() {
     listServers $1 $2
+    echo ${JSON} | jq ".data[0]"
     SERVER_ID=$(echo ${JSON} | jq ".data[0] | select ( .name == \"$3\" ).id ")
 }
 
@@ -84,27 +87,19 @@ listApps() {
     curl -s -H "${AUTH}" -H "Content-Type: application/json" -H "X-ANYPNT-ORG-ID:${1}" -H "X-ANYPNT-ENV-ID:${2}" https://anypoint.mulesoft.com/hybrid/api/v1/applications?targetId=${3} | jq .
 }
 
+getApiId() {
+#    curl -v -s -H "${AUTH}" -G --data-urlencode "query=accessmanagement-prc" https://anypoint.mulesoft.com/apiplatform/repository/v2/organizations/$1/apis?ascending=false&limit=20&offset=0&sort=createdDate
+    JSON=$(curl -s -H "${AUTH}" -G --data-urlencode "query=accessmanagement-prc" https://anypoint.mulesoft.com/apiplatform/repository/v2/organizations/$1/apis?ascending=false&limit=20&offset=0&sort=createdDate)
+}
+
 authenticate
-getOrgId "Integration Group"
-getEnvId ${ORG_ID} "tst"
-getServerId ${ORG_ID} ${ENV_ID} "tstGroup"
-echo ${SERVER_ID}
-listApps ${ORG_ID} ${ENV_ID} ${SERVER_ID}
-
-# create server group
-#getServerId ${ORG_ID} ${ENV_ID} "tst"
-#createServerGroup ${ORG_ID} ${ENV_ID} "testgroup" ${SERVER_ID}
-
-# delete server group
-#getServerId ${ORG_ID} ${ENV_ID} "testgroup"
-#listServersInGroup ${ORG_ID} ${ENV_ID} ${SERVER_ID}
-#deleteServerGroup  ${ORG_ID} ${ENV_ID} ${SERVER_ID}
-
-
-#getServerRegistrationKey ${ORG_ID} ${ENV_ID}
-#echo "Registration key=${ARM_REG_KEY}"
-#createEnv ${ORG_ID} "delmenow" "sandbox"
-#echo "Created env ${ENV_ID}"
-#getApiId "accessmanagement-wcs-exp-api" "v1"
-
-#echo "API ID=${API_ID}"
+#getOrgId "Integration Group"
+#getEnvId ${ORG_ID} "tst"
+#echo "ORGID= ${ORG_ID}
+#echo "ENV_ID= ${ENV_ID}
+#getServerId ${ORG_ID} ${ENV_ID} "tstGroup"
+#echo "> ${SERVER_ID}"
+#listApps ${ORG_ID} ${ENV_ID} ${SERVER_ID}
+#getApiId ${ORG_ID}
+#echo ${JSON} | jq .
+#curl 'https://anypoint.mulesoft.com/armui/api/v1/servers' -H 'Authorization: bearer 72f90e49-d33c-491a-bf75-4c21ca9f5612' -H 'X-ANYPNT-ORG-ID: 05b1584e-e9b4-46c5-abd3-34ce07282fa1' -H 'X-ANYPNT-ENV-ID: 81ccea30-2ba3-4bf6-bc3e-09c8076ba8ac'
