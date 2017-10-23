@@ -9,16 +9,40 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SuppressWarnings("SameParameterValue")
 public class AnypointClient implements Closeable {
     static final String LOGIN_PATH = "/accounts/login";
     private JsonHelper jsonHelper;
     private HttpHelper httpHelper;
+    private int maxParallelDeployments;
+    private ExecutorService deploymentThreadPool;
 
     public AnypointClient(String username, String password) {
+        this(username, password, 3);
+    }
+
+    public AnypointClient(String username, String password, int maxParallelDeployments) {
         jsonHelper = new JsonHelper(this);
         httpHelper = new HttpHelper(this, username, password);
+        this.maxParallelDeployments = maxParallelDeployments;
+    }
+
+    public int getMaxParallelDeployments() {
+        return maxParallelDeployments;
+    }
+
+    public synchronized void setMaxParallelDeployments(int maxParallelDeployments) {
+        if (maxParallelDeployments <= 0) {
+            throw new IllegalArgumentException("maxParallelDeployments " + maxParallelDeployments + " is invalid (must be greater than 0)");
+        }
+        this.maxParallelDeployments = maxParallelDeployments;
+        if (deploymentThreadPool != null) {
+            deploymentThreadPool.shutdown();
+        }
+        deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
     }
 
     @Override
@@ -36,7 +60,7 @@ public class AnypointClient implements Closeable {
     }
 
     @NotNull
-    public Organization getOrganizationByName(String name) throws NotFoundException, HttpException {
+    public Organization findOrganization(String name) throws NotFoundException, HttpException {
         for (Organization organization : getOrganizations()) {
             if (organization.getName().equals(name)) {
                 return organization;

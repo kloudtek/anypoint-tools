@@ -4,8 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypointlib.AnypointObject;
 import com.kloudtek.anypointlib.Environment;
 import com.kloudtek.anypointlib.HttpException;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Server extends AnypointObject<Environment> {
     protected String id;
@@ -42,6 +48,20 @@ public class Server extends AnypointObject<Environment> {
     }
 
     public void delete() throws HttpException {
-        client.getHttpHelper().httpDelete("https://anypoint.mulesoft.com/hybrid/api/v1/servers/"+id,parent);
+        client.getHttpHelper().httpDelete("/hybrid/api/v1/servers/" + id, parent);
+    }
+
+    public Application deploy(String name, File file) throws IOException, HttpException {
+        try (FileInputStream is = new FileInputStream(file)) {
+            return deploy(name, file.getName(), is);
+        }
+    }
+
+    public Application deploy(String name, String filename, InputStream stream) throws HttpException {
+        HttpEntity entity = MultipartEntityBuilder.create().addTextBody("targetId", id)
+                .addTextBody("artifactName", name)
+                .addBinaryBody("file", stream, ContentType.APPLICATION_OCTET_STREAM, filename).build();
+        String json = httpHelper.httpPost("/hybrid/api/v1/applications", entity, parent);
+        return jsonHelper.readJson(new Application(this), json, "/data");
     }
 }

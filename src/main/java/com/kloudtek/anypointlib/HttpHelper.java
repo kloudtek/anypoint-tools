@@ -2,6 +2,7 @@ package com.kloudtek.anypointlib;
 
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -65,8 +66,12 @@ public class HttpHelper implements Closeable {
     }
 
     private String execute(@NotNull HttpEntityEnclosingRequestBase method, @NotNull Object data) throws HttpException {
-        method.setHeader("Content-Type", "application/json");
-        method.setEntity(new ByteArrayEntity(client.getJsonHelper().toJson(data)));
+        if (data instanceof HttpEntity) {
+            method.setEntity((HttpEntity) data);
+        } else {
+            method.setHeader("Content-Type", "application/json");
+            method.setEntity(new ByteArrayEntity(client.getJsonHelper().toJson(data)));
+        }
         return execute(method);
     }
 

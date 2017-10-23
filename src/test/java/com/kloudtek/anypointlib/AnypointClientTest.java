@@ -3,12 +3,15 @@ package com.kloudtek.anypointlib;
 import com.kloudtek.anypointlib.api.*;
 import com.kloudtek.anypointlib.api.policy.ClientIdEnforcementPolicy;
 import com.kloudtek.anypointlib.api.policy.Policy;
+import com.kloudtek.anypointlib.runtime.Application;
 import com.kloudtek.anypointlib.runtime.Server;
 import com.kloudtek.anypointlib.runtime.ServerGroup;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +32,10 @@ public class AnypointClientTest {
     public static final String API_DESC = "DELETE ME IF YOU SEE ME";
     public static final String PORTAL_NAME = "testportal";
     public static final String CLIENTAPPNAME = "test-delete-me-now";
+    public static final String DEPLOYAPP = "testdeployapplication";
+    private static String deployOrg = System.getProperty("org");
+    private static String deployEnv = System.getProperty("env");
+    private static String deployServer = System.getProperty("server");
     private static AnypointClient client = new AnypointClient(System.getProperty("username"), System.getProperty("password"));
     private static User user;
     private static Organization org;
@@ -37,7 +44,7 @@ public class AnypointClientTest {
     public static void init() throws HttpException {
         user = client.getUser();
         try {
-            org = client.getOrganizationByName(ORG_NAME);
+            org = client.findOrganization(ORG_NAME);
             logger.info("Found org " + ORG_NAME + " deleting");
             org.delete();
             logger.info("Deleted " + ORG_NAME);
@@ -75,12 +82,12 @@ public class AnypointClientTest {
 
     @Test
     public void testRuntimeManagement() throws Exception {
-        Organization org = client.getOrganizationByName(ORG_NAME);
+        Organization org = client.findOrganization(ORG_NAME);
         Environment cenv = org.createEnvironment(ENV_NAME, Environment.Type.SANDBOX);
         assertNotNull(cenv.getOrganization());
         String envName = cenv.getName();
         assertTrue(envName.startsWith(ENV_NAME));
-        Environment env = org.getEnvironmentByName(envName);
+        Environment env = org.findEnvironment(envName);
         assertNotNull(env.getOrganization());
         assertEquals(env.getId(), cenv.getId());
         String key = env.getServerRegistrationKey();
@@ -88,7 +95,7 @@ public class AnypointClientTest {
         ServerGroup serverGroup = env.createServerGroup(SERVER_GROUP);
         assertNotNull(serverGroup.getParent());
         assertNotNull(serverGroup.getId());
-        Server serverGroup2 = env.getServerByName(SERVER_GROUP);
+        Server serverGroup2 = env.findServer(SERVER_GROUP);
         assertNotNull(serverGroup2.getParent());
         assertNotNull(serverGroup2.getId());
         assertTrue(serverGroup2 instanceof ServerGroup);
@@ -135,5 +142,13 @@ public class AnypointClientTest {
         assertNotNull(contract);
         assertNotNull(contract.getId());
         assertEquals("APPROVED", contract.getStatus());
+    }
+
+    @Test
+    public void testDeployment() throws NotFoundException, IOException, HttpException {
+        Server server = client.findOrganization(deployOrg).findEnvironment(deployEnv).findServer(deployServer);
+        InputStream is = getClass().getResourceAsStream("/deletemeapp-1.0.0-SNAPSHOT.zip");
+        Application app = server.deploy(DEPLOYAPP, "deletemeapp-1.0.0-SNAPSHOT.zip", is);
+        System.out.println();
     }
 }

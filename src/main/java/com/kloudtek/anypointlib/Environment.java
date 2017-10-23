@@ -119,7 +119,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     @NotNull
-    public Server getServerByName(@NotNull String name) throws IOException, NotFoundException, HttpException {
+    public Server findServer(@NotNull String name) throws IOException, NotFoundException, HttpException {
         for (Server server : getServers()) {
             if (name.equals(server.getName())) {
                 return server;

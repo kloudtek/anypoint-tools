@@ -48,7 +48,7 @@ public class Organization extends AnypointObject {
     }
 
     @NotNull
-    public Environment getEnvironmentByName(@NotNull String name) throws IOException, NotFoundException, HttpException {
+    public Environment findEnvironment(@NotNull String name) throws IOException, NotFoundException, HttpException {
         return Environment.getEnvironmentByName(name, client, this);
     }
 
