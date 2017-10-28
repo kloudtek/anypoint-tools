@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypointlib.AnypointObject;
 import com.kloudtek.anypointlib.Environment;
 import com.kloudtek.anypointlib.HttpException;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import com.kloudtek.anypointlib.NotFoundException;
+import com.kloudtek.anypointlib.util.FileStreamSource;
+import com.kloudtek.anypointlib.util.HttpHelper;
+import com.kloudtek.anypointlib.util.StreamSource;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.List;
 
 public class Server extends AnypointObject<Environment> {
     protected String id;
@@ -52,16 +52,32 @@ public class Server extends AnypointObject<Environment> {
     }
 
     public Application deploy(String name, File file) throws IOException, HttpException {
-        try (FileInputStream is = new FileInputStream(file)) {
-            return deploy(name, file.getName(), is);
-        }
+        return deploy(name, new FileStreamSource(file));
     }
 
-    public Application deploy(String name, String filename, InputStream stream) throws HttpException {
-        HttpEntity entity = MultipartEntityBuilder.create().addTextBody("targetId", id)
-                .addTextBody("artifactName", name)
-                .addBinaryBody("file", stream, ContentType.APPLICATION_OCTET_STREAM, filename).build();
-        String json = httpHelper.httpPost("/hybrid/api/v1/applications", entity, parent);
+    public Application deploy(String name, StreamSource stream) throws HttpException, IOException {
+        HttpHelper.MultiPartRequest request;
+        try {
+            Application application = findApplication(name);
+            request = httpHelper.createMultiPartPatchRequest("/hybrid/api/v1/applications/" + application.getId(), parent);
+        } catch (NotFoundException e) {
+            request = httpHelper.createMultiPartPostRequest("/hybrid/api/v1/applications", parent);
+        }
+        json = request.addText("targetId", id).addText("artifactName", name).addBinary("file", stream).execute();
         return jsonHelper.readJson(new Application(this), json, "/data");
+    }
+
+    public List<Application> listApplication() throws HttpException {
+        String json = httpHelper.httpGet("/hybrid/api/v1/applications?targetId=" + id, parent);
+        return jsonHelper.readJsonList(Application.class, json, this, "/data");
+    }
+
+    public Application findApplication(String name) throws NotFoundException, HttpException {
+        for (Application application : listApplication()) {
+            if (name.equals(application.getName())) {
+                return application;
+            }
+        }
+        throw new NotFoundException("Unable to find application " + name + " in server " + parent.getId());
     }
 }

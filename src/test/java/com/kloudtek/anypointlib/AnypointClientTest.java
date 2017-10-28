@@ -4,14 +4,15 @@ import com.kloudtek.anypointlib.api.*;
 import com.kloudtek.anypointlib.api.policy.ClientIdEnforcementPolicy;
 import com.kloudtek.anypointlib.api.policy.Policy;
 import com.kloudtek.anypointlib.runtime.Application;
+import com.kloudtek.anypointlib.runtime.ApplicationDeploymentFailedException;
 import com.kloudtek.anypointlib.runtime.Server;
 import com.kloudtek.anypointlib.runtime.ServerGroup;
+import com.kloudtek.anypointlib.util.ClassPathStreamSource;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -145,10 +146,9 @@ public class AnypointClientTest {
     }
 
     @Test
-    public void testDeployment() throws NotFoundException, IOException, HttpException {
+    public void testDeployment() throws NotFoundException, IOException, HttpException, ApplicationDeploymentFailedException {
         Server server = client.findOrganization(deployOrg).findEnvironment(deployEnv).findServer(deployServer);
-        InputStream is = getClass().getResourceAsStream("/deletemeapp-1.0.0-SNAPSHOT.zip");
-        Application app = server.deploy(DEPLOYAPP, "deletemeapp-1.0.0-SNAPSHOT.zip", is);
-        System.out.println();
+        Application app = server.deploy(DEPLOYAPP, new ClassPathStreamSource(this.getClass(), "/deletemeapp-1.0.0-SNAPSHOT.zip"));
+        app.waitDeployed();
     }
 }

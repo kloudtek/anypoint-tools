@@ -1,7 +1,7 @@
 package com.kloudtek.anypointlib.api.policy;
 
-import com.kloudtek.anypointlib.JsonHelper;
 import com.kloudtek.anypointlib.api.APIVersion;
+import com.kloudtek.anypointlib.util.JsonHelper;
 
 import java.util.Map;
 

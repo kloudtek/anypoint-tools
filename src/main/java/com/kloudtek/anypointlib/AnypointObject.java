@@ -2,6 +2,8 @@ package com.kloudtek.anypointlib;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kloudtek.anypointlib.util.HttpHelper;
+import com.kloudtek.anypointlib.util.JsonHelper;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AnypointObject<X extends AnypointObject> {

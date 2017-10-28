@@ -128,7 +128,7 @@ public class Environment extends AnypointObject<Organization> {
         throw new NotFoundException("Cannot find server : " + name);
     }
 
-    void addHeaders(HttpRequestBase method) {
+    public void addHeaders(HttpRequestBase method) {
         method.setHeader("X-ANYPNT-ORG-ID", parent.getId());
         method.setHeader("X-ANYPNT-ENV-ID", id);
     }

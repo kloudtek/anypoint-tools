@@ -1,10 +1,15 @@
-package com.kloudtek.anypointlib;
+package com.kloudtek.anypointlib.util;
 
+import com.kloudtek.anypointlib.AnypointClient;
+import com.kloudtek.anypointlib.Environment;
+import com.kloudtek.anypointlib.HttpException;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpHelper implements Closeable {
     private static final String HEADER_AUTH = "Authorization";
@@ -38,7 +45,7 @@ public class HttpHelper implements Closeable {
     }
 
     public String httpGet(String path) throws HttpException {
-        return execute(new HttpGet(convertPath(path)));
+        return executeWrapper(new HttpGet(convertPath(path)), null);
     }
 
     public String httpPost(String path, Object data, Environment env) throws HttpException {
@@ -58,11 +65,23 @@ public class HttpHelper implements Closeable {
     }
 
     public String httpDelete(String path) throws HttpException {
-        return execute(new HttpDelete(convertPath(path)));
+        return executeWrapper(new HttpDelete(convertPath(path)), null);
     }
 
     public String httpDelete(@NotNull String path, @NotNull Environment env) throws HttpException {
         return execute(new HttpDelete(convertPath(path)), env);
+    }
+
+    public MultiPartRequest createMultiPartPostRequest(String url, Environment environment) {
+        HttpPost request = new HttpPost(convertPath(url));
+        environment.addHeaders(request);
+        return new MultiPartRequest(request);
+    }
+
+    public MultiPartRequest createMultiPartPatchRequest(String url, Environment environment) {
+        HttpPatch request = new HttpPatch(convertPath(url));
+        environment.addHeaders(request);
+        return new MultiPartRequest(request);
     }
 
     private String execute(@NotNull HttpEntityEnclosingRequestBase method, @NotNull Object data) throws HttpException {
@@ -72,7 +91,7 @@ public class HttpHelper implements Closeable {
             method.setHeader("Content-Type", "application/json");
             method.setEntity(new ByteArrayEntity(client.getJsonHelper().toJson(data)));
         }
-        return execute(method);
+        return executeWrapper(method, null);
     }
 
     private String execute(@NotNull HttpEntityEnclosingRequestBase method, @NotNull Object data, @NotNull Environment env) throws HttpException {
@@ -82,14 +101,17 @@ public class HttpHelper implements Closeable {
 
     private String execute(@NotNull HttpRequestBase method, @NotNull Environment env) throws HttpException {
         env.addHeaders(method);
-        return execute(method);
+        return executeWrapper(method, null);
     }
 
-    private String execute(@NotNull HttpRequestBase method) throws HttpException {
+    private String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest) throws HttpException {
         if (auth == null && !method.getURI().getPath().equals(AnypointClient.LOGIN_PATH)) {
             client.authenticate(username, password);
         }
         try {
+            if (multiPartRequest != null) {
+                ((HttpEntityEnclosingRequestBase) method).setEntity(multiPartRequest.toEntity());
+            }
             return doExecute(method);
         } catch (HttpException e) {
             if (e.getStatusCode() == 403 || e.getStatusCode() == 401) {
@@ -126,7 +148,7 @@ public class HttpHelper implements Closeable {
                 return null;
             }
         } catch (IOException e) {
-            throw new HttpException(e.getMessage(), e);
+            throw new RuntimeIOException(e);
         }
     }
 
@@ -136,5 +158,63 @@ public class HttpHelper implements Closeable {
 
     public void setAuth(String auth) {
         this.auth = auth;
+    }
+
+    public class MultiPartRequest {
+        private Map<String, Object> parts = new HashMap<>();
+        private HttpEntityEnclosingRequestBase request;
+
+        MultiPartRequest(HttpEntityEnclosingRequestBase request) {
+            this.request = request;
+        }
+
+        public MultiPartRequest addText(@NotNull String name, @NotNull String value) {
+            parts.put(name, value);
+            return this;
+        }
+
+        public MultiPartRequest addBinary(@NotNull String name, @NotNull StreamSource streamSource) {
+            parts.put(name, streamSource);
+            return this;
+        }
+
+        HttpEntity toEntity() throws HttpException {
+            try {
+                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                for (Map.Entry<String, Object> e : parts.entrySet()) {
+                    if (e.getValue() instanceof String) {
+                        builder.addTextBody(e.getKey(), (String) e.getValue());
+                    } else if (e.getValue() instanceof StreamSource) {
+                        builder.addBinaryBody(e.getKey(), ((StreamSource) e.getValue()).createInputStream(),
+                                ContentType.APPLICATION_OCTET_STREAM, ((StreamSource) e.getValue()).getFileName());
+                    }
+                }
+                return builder.build();
+            } catch (IOException e) {
+                throw new HttpException("Failed to read data to send: " + e.getMessage(), e);
+            }
+        }
+
+        public String execute() throws HttpException, IOException {
+            try {
+                return HttpHelper.this.executeWrapper(request, this);
+            } catch (RuntimeIOException e) {
+                throw e.getIOException();
+            }
+        }
+    }
+
+    public class RuntimeIOException extends RuntimeException {
+        @NotNull
+        private IOException e;
+
+        RuntimeIOException(@NotNull IOException ioException) {
+            this.e = ioException;
+        }
+
+        @NotNull
+        IOException getIOException() {
+            return e;
+        }
     }
 }

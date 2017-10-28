@@ -1,6 +1,8 @@
 package com.kloudtek.anypointlib;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.kloudtek.anypointlib.util.HttpHelper;
+import com.kloudtek.anypointlib.util.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
@@ -14,7 +16,7 @@ import java.util.concurrent.Executors;
 
 @SuppressWarnings("SameParameterValue")
 public class AnypointClient implements Closeable {
-    static final String LOGIN_PATH = "/accounts/login";
+    public static final String LOGIN_PATH = "/accounts/login";
     private JsonHelper jsonHelper;
     private HttpHelper httpHelper;
     private int maxParallelDeployments;
@@ -87,7 +89,7 @@ public class AnypointClient implements Closeable {
         return httpHelper;
     }
 
-    void authenticate(String username, String password) throws HttpException {
+    public void authenticate(String username, String password) throws HttpException {
         Map<String, String> request = new HashMap<>();
         request.put("username", username);
         request.put("password", password);
