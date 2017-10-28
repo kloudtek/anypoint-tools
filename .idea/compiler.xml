@@ -6,10 +6,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="anypoint-cli" />
+        <module name="anypoint-lib" />
         <module name="anypointlib" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="anypoint-cli" target="1.8" />
+      <module name="anypoint-lib" target="1.8" />
+      <module name="anypoint-tools" target="1.8" />
       <module name="anypointlib" target="1.8" />
     </bytecodeTargetLevel>
   </component>
