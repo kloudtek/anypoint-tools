@@ -13,23 +13,23 @@ public class UpdateConfigCmd {
     public void execute(AnypointCli cli) {
         this.cli = cli;
         Config config = cli.getConfig();
-        String profileName = read("Profile", config.getDefaultProfileName());
+        String profileName = cli.read("Profile", config.getDefaultProfileName());
         ConfigProfile cp = config.getProfile(profileName);
-        cp.setUsername(read("Username", cp.getUsername()));
-        cp.setPassword(read("Password", cp.getPassword(), true));
-        if (confirm("Do you wish to set a default organization ?", cp.getDefaultOrganization() != null)) {
-            cp.setDefaultOrganization(read("Default Organization", cp.getDefaultOrganization()));
+        cp.setUsername(cli.read("Username", cp.getUsername()));
+        cp.setPassword(cli.read("Password", cp.getPassword(), true));
+        if (cli.confirm("Do you wish to set a default organization ?", cp.getDefaultOrganization() != null)) {
+            cp.setDefaultOrganization(cli.read("Default Organization", cp.getDefaultOrganization()));
         } else {
             cp.setDefaultOrganization(null);
         }
-        if (confirm("Do you wish to set a default environment ?", cp.getDefaultEnvironment() != null)) {
-            cp.setDefaultEnvironment(read("Default Environment", cp.getDefaultEnvironment()));
+        if (cli.confirm("Do you wish to set a default environment ?", cp.getDefaultEnvironment() != null)) {
+            cp.setDefaultEnvironment(cli.read("Default Environment", cp.getDefaultEnvironment()));
         } else {
             cp.setDefaultEnvironment(null);
         }
-        config.setDefaultProfileName(read("Default profile", profileName));
+        config.setDefaultProfileName(cli.read("Default profile", profileName));
         boolean valid = validate(cp);
-        if (confirm("Confirm you wish to update your configuration with those value", valid)) {
+        if (cli.confirm("Confirm you wish to update your configuration with those value", valid)) {
             try {
                 config.save();
                 System.out.println("Updated configuration file " + config.getFilePath());
@@ -68,62 +68,6 @@ public class UpdateConfigCmd {
                 System.out.println("failed\nWARNING: Failed to validate username/password, due to server error response: " + e.getMessage());
             }
             return false;
-        }
-    }
-
-    private String read(String txt, String defVal) {
-        return read(txt, defVal, false);
-    }
-
-    private String read(String txt, String defVal, boolean password) {
-        for (; ; ) {
-            System.out.print(txt);
-            if (defVal != null) {
-                System.out.print(" [" + (password ? "********" : defVal) + "]");
-            }
-            System.out.print(": ");
-            System.out.flush();
-            String val = password ? cli.readPassword() : cli.readLine();
-            if (val != null) {
-                val = val.trim();
-                if (!val.isEmpty()) {
-                    return val;
-                }
-                if (defVal != null) {
-                    return defVal;
-                }
-            }
-        }
-    }
-
-    private boolean confirm(String txt) {
-        return confirm(txt, null);
-    }
-
-    private boolean confirm(String txt, Boolean defaultValue) {
-        for (; ; ) {
-            String defValStr = null;
-            if (defaultValue != null && defaultValue) {
-                defValStr = "yes";
-            } else if (defaultValue != null && !defaultValue) {
-                defValStr = "no";
-            }
-            String val = read(txt, defValStr);
-            if (val != null) {
-                val = val.trim().toLowerCase();
-                switch (val) {
-                    case "yes":
-                    case "y":
-                    case "true":
-                        return true;
-                    case "no":
-                    case "n":
-                    case "false":
-                        return false;
-                    default:
-                        System.out.println("Response must be either: yes, no, n, y, true, false");
-                }
-            }
         }
     }
 }

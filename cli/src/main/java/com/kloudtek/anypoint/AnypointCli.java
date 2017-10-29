@@ -14,14 +14,15 @@ import java.util.Scanner;
 public class AnypointCli {
     public static final String GETREGKEY = "getregkey";
     public static final String CONFIG = "config";
-    @Parameter(description = "Profile to get configuration from", names = {"-p", "--profile"})
-    private String profileName = "default";
+    @Parameter(description = "Profile", names = {"-p", "--profile"})
+    private String profileName;
     @Parameter(description = "Configuration file", names = {"-c", "--config"})
-    private String configFile = System.getProperty("user.home") + File.separator + ".anypoint";
+    private String configFile = System.getProperty("user.home") + File.separator + ".anypoint.cfg";
     @Parameter(description = "Anypoint username", names = {"-u", "--username"})
     private String username;
     @Parameter(description = "Anypoint password", names = {"-pw", "--password"})
     private String password;
+    private boolean configExists;
     private Config config;
     private AnypointClient client;
     private final GetRegistrationKeyCmd getRegistrationKeyCmd;
@@ -46,13 +47,14 @@ public class AnypointCli {
 
     void loadConfig() throws IOException {
         File cfgFile = new File(configFile);
-        if (cfgFile.exists()) {
+        configExists = cfgFile.exists();
+        if (configExists) {
             config = new Config(cfgFile);
             config = new ObjectMapper().readerForUpdating(config).readValue(cfgFile);
         } else {
             config = new Config(cfgFile, new ConfigProfile());
         }
-        profile = config.getDefaultProfile();
+        profile = profileName != null ? config.getProfile(profileName) : config.getDefaultProfile();
         if (profile != null) {
             if (username == null) {
                 username = profile.getUsername();
@@ -156,6 +158,63 @@ public class AnypointCli {
             }
         } else {
             return override;
+        }
+    }
+
+
+    public String read(String txt, String defVal) {
+        return read(txt, defVal, false);
+    }
+
+    public String read(String txt, String defVal, boolean password) {
+        for (; ; ) {
+            System.out.print(txt);
+            if (defVal != null) {
+                System.out.print(" [" + (password ? "********" : defVal) + "]");
+            }
+            System.out.print(": ");
+            System.out.flush();
+            String val = password ? readPassword() : readLine();
+            if (val != null) {
+                val = val.trim();
+                if (!val.isEmpty()) {
+                    return val;
+                }
+                if (defVal != null) {
+                    return defVal;
+                }
+            }
+        }
+    }
+
+    private boolean confirm(String txt) {
+        return confirm(txt, null);
+    }
+
+    public boolean confirm(String txt, Boolean defaultValue) {
+        for (; ; ) {
+            String defValStr = null;
+            if (defaultValue != null && defaultValue) {
+                defValStr = "yes";
+            } else if (defaultValue != null && !defaultValue) {
+                defValStr = "no";
+            }
+            String val = read(txt, defValStr);
+            if (val != null) {
+                val = val.trim().toLowerCase();
+                switch (val) {
+                    case "yes":
+                    case "y":
+                    case "true":
+                        return true;
+                    case "no":
+                    case "n":
+                    case "false":
+                        return false;
+                    default:
+                        System.out.println("Response must be either: yes, no, n, y, true, false");
+                }
+            }
         }
     }
 }
