@@ -161,7 +161,6 @@ public class AnypointCli {
         }
     }
 
-
     public String read(String txt, String defVal) {
         return read(txt, defVal, false);
     }
