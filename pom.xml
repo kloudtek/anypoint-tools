@@ -61,7 +61,8 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <keyname>${gpg.key}</keyname>
+                                    <secretkey>keyfile:${gpgfile}</secretkey>
+                                    <passphrase>literal:${gpgpass}</passphrase>
                                 </configuration>
                             </execution>
                         </executions>
