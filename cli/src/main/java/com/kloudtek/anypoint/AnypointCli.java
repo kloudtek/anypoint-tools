@@ -14,6 +14,7 @@ import java.util.Scanner;
 public class AnypointCli {
     public static final String GETREGKEY = "getregkey";
     public static final String CONFIG = "config";
+    public static final String ADDSERVERTOGROUP = "addservertogroup";
     @Parameter(description = "Profile", names = {"-p", "--profile"})
     private String profileName;
     @Parameter(description = "Configuration file", names = {"-c", "--config"})
@@ -25,8 +26,9 @@ public class AnypointCli {
     private boolean configExists;
     private Config config;
     private AnypointClient client;
-    private final GetRegistrationKeyCmd getRegistrationKeyCmd;
-    private final UpdateConfigCmd updateConfigCmd;
+    private final GetRegistrationKeyCmd getRegistrationKeyCmd = new GetRegistrationKeyCmd();
+    private final UpdateConfigCmd updateConfigCmd = new UpdateConfigCmd();
+    private final AddServerToGroupCmd addServerToGroupCmd = new AddServerToGroupCmd();
     private static final Console console;
     private static Scanner scanner;
 
@@ -41,8 +43,6 @@ public class AnypointCli {
     private ConfigProfile profile;
 
     public AnypointCli() {
-        getRegistrationKeyCmd = new GetRegistrationKeyCmd();
-        updateConfigCmd = new UpdateConfigCmd();
     }
 
     void loadConfig() throws IOException {
@@ -71,6 +71,7 @@ public class AnypointCli {
             JCommander jc = JCommander.newBuilder().addObject(cli)
                     .addCommand(GETREGKEY, cli.getRegistrationKeyCmd)
                     .addCommand(CONFIG, cli.updateConfigCmd)
+                    .addCommand(ADDSERVERTOGROUP, cli.addServerToGroupCmd)
                     .build();
             jc.setProgramName("anypoint");
             if (args != null && args.length > 0) {
