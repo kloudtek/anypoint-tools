@@ -11,6 +11,10 @@
 
     <artifactId>anypoint-lib</artifactId>
 
+    <properties>
+        <skipTests>true</skipTests>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.kloudtek.ktutils</groupId>
@@ -46,6 +50,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>RELEASE</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
