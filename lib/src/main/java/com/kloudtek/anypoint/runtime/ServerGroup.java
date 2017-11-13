@@ -19,4 +19,8 @@ public class ServerGroup extends Server {
     public void delete() throws HttpException {
         httpHelper.httpDelete("https://anypoint.mulesoft.com/hybrid/api/v1/serverGroups/"+id,parent);
     }
+
+    public void addServer(Server server) {
+
+    }
 }
