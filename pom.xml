@@ -6,8 +6,40 @@
 
     <groupId>com.kloudtek.anypoint-tools</groupId>
     <artifactId>anypoint-tools</artifactId>
+    <name>Anypoint tools</name>
+    <description>Various tools and library for interacting with anypoint server</description>
+    <url>https://github.com/Kloudtek/anypoint-tools</url>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+
+    <organization>
+        <name>Kloudtek</name>
+        <url>http://www.kloudtek.com</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>Dev Team</name>
+            <organization>Kloudtek</organization>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/Kloudtek/anypoint-tools/issues</url>
+    </issueManagement>
+    <scm>
+        <url>scm:git:git@github.com:Kloudtek/anypoint-tools.git</url>
+        <connection>scm:git:git@github.com:Kloudtek/anypoint-tools.git</connection>
+        <developerConnection>scm:git:git@github.com:Kloudtek/anypoint-tools.git</developerConnection>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>CPAL 1.0</name>
+            <url>https://opensource.org/licenses/CPAL-1.0</url>
+        </license>
+    </licenses>
+
     <modules>
         <module>lib</module>
         <module>cli</module>
@@ -18,8 +50,52 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+            </plugin>
+        </plugins>
+    </reporting>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
