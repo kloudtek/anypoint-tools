@@ -30,19 +30,17 @@ public class AddServerToGroupCmd {
             System.out.println("Unable to find server " + serverName + " in org " + organization + " and env " + environment);
             System.exit(-1);
         }
-        ServerGroup group = null;
         try {
-            Server groupTmp = env.findServer(groupName);
-            if (groupTmp instanceof ServerGroup) {
-                group = (ServerGroup) groupTmp;
+            Server group = env.findServer(groupName);
+            if (group instanceof ServerGroup) {
+                ((ServerGroup) group).addServer(server);
             } else {
-                System.out.println("Server group " + groupName + " is a server, not a group or cluster");
+                System.out.println(groupName + " is not a group or cluster");
                 System.exit(-1);
             }
         } catch (NotFoundException e) {
-            System.out.println("Unable to find server group/cluster " + groupName + " in org " + organization + " and env " + environment);
-            System.exit(-1);
+            System.out.println("Server group "+groupName+" does not not exist, creating");
+            env.createServerGroup(groupName,server.getId());
         }
-        group.addServer(server);
     }
 }

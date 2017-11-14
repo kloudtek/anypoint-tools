@@ -85,6 +85,8 @@ public class AnypointCli {
                 cli.updateConfig();
             } else if (GETREGKEY.equals(cmd)) {
                 cli.getRegistrationKey();
+            } else if (ADDSERVERTOGROUP.equals(cmd)) {
+                cli.addServerToGroup();
             }
         } catch (Exception e) {
             System.out.print("An error has occurred: ");
@@ -94,6 +96,10 @@ public class AnypointCli {
 
     private void getRegistrationKey() throws IOException, NotFoundException, HttpException {
         getRegistrationKeyCmd.execute(this);
+    }
+
+    private void addServerToGroup() throws IOException, NotFoundException, HttpException {
+        addServerToGroupCmd.execute(this);
     }
 
     private void updateConfig() {
