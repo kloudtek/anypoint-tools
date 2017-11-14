@@ -4,6 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.runtime.ServerGroup;
+import com.kloudtek.util.UserDisplayableException;
 
 import java.io.IOException;
 
@@ -22,25 +23,25 @@ public class AddServerToGroupCmd {
         AnypointClient client = cli.getClient();
         organization = cli.getOrganization(organization);
         environment = cli.getEnvironment(environment);
+        cli.print("Adding server "+serverName+" to server group/cluster "+groupName+" within env "+environment+" of org "+organization+" ... ");
         Environment env = client.findOrganization(organization).findEnvironment(this.environment);
-        Server server = null;
+        Server server;
         try {
             server = env.findServer(serverName);
         } catch (NotFoundException e) {
-            System.out.println("Unable to find server " + serverName + " in org " + organization + " and env " + environment);
-            System.exit(-1);
+            throw new UserDisplayableException("Unable to find server " + serverName + " in org '" + organization + "' and env '" + environment+"'");
         }
         try {
             Server group = env.findServer(groupName);
             if (group instanceof ServerGroup) {
                 ((ServerGroup) group).addServer(server);
             } else {
-                System.out.println(groupName + " is not a group or cluster");
-                System.exit(-1);
+                throw new UserDisplayableException(groupName + " is not a group or cluster");
             }
         } catch (NotFoundException e) {
             System.out.println("Server group "+groupName+" does not not exist, creating");
             env.createServerGroup(groupName,server.getId());
         }
+        cli.println("done");
     }
 }

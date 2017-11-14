@@ -5,6 +5,7 @@ import com.beust.jcommander.Parameter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kloudtek.anypoint.cfg.Config;
 import com.kloudtek.anypoint.cfg.ConfigProfile;
+import com.kloudtek.util.UserDisplayableException;
 
 import java.io.Console;
 import java.io.File;
@@ -23,6 +24,8 @@ public class AnypointCli {
     private String username;
     @Parameter(description = "Anypoint password", names = {"-pw", "--password"})
     private String password;
+    @Parameter(description = "If true informational messages will be suppressed", names = {"-q","--quiet"})
+    private boolean quiet = false;
     private boolean configExists;
     private Config config;
     private AnypointClient client;
@@ -88,9 +91,16 @@ public class AnypointCli {
             } else if (ADDSERVERTOGROUP.equals(cmd)) {
                 cli.addServerToGroup();
             }
+        } catch( UserDisplayableException e ) {
+            System.out.println(e.getMessage());
+            System.exit(-1);
+        } catch (HttpException e ) {
+            System.out.print("Failed to contact anypoint servers: "+e.getMessage());
+            System.exit(-1);
         } catch (Exception e) {
             System.out.print("An error has occurred: ");
-            System.out.println(e.getMessage());
+            e.printStackTrace();
+            System.exit(-1);
         }
     }
 
@@ -221,6 +231,18 @@ public class AnypointCli {
                         System.out.println("Response must be either: yes, no, n, y, true, false");
                 }
             }
+        }
+    }
+
+    public void print(String message) {
+        if( ! quiet ) {
+            System.out.print(message);
+        }
+    }
+
+    public void println(String message) {
+        if( ! quiet ) {
+            System.out.println(message);
         }
     }
 }
