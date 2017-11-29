@@ -80,8 +80,8 @@ public class AnypointClient implements Closeable, Externalizable {
     public List<Organization> getOrganizations() throws HttpException {
         String json = httpHelper.httpGet("/accounts/api/me");
         ArrayList<Organization> list = new ArrayList<>();
-        for (JsonNode node: jsonHelper.readJsonTree(json).at("/user/memberOfOrganizations")) {
-            list.add(jsonHelper.readJson(new Organization(this),node));
+        for (JsonNode node : jsonHelper.readJsonTree(json).at("/user/memberOfOrganizations")) {
+            list.add(jsonHelper.readJson(new Organization(this), node));
         }
         return list;
     }
@@ -104,6 +104,22 @@ public class AnypointClient implements Closeable, Externalizable {
     public User getUser() throws HttpException {
         String json = httpHelper.httpGet("/accounts/api/me");
         return jsonHelper.readJson(new User(), json, "/user");
+    }
+
+    public Organization createOrganization(String name) throws HttpException {
+        User user = getUser();
+        return user.getOrganization().createSubOrganization(name, user.getId(), false, false);
+    }
+
+    public Organization createOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments) throws HttpException {
+        return getUser().getOrganization().createSubOrganization(name, ownerId, createSubOrgs, createEnvironments);
+    }
+
+    public Organization createOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments,
+                                           boolean globalDeployment, int vCoresProduction, int vCoresSandbox, int vCoresDesign,
+                                           int staticIps, int vpcs, int loadBalancer) throws HttpException {
+        return getUser().getOrganization().createSubOrganization(name, ownerId, createSubOrgs,
+                createEnvironments, globalDeployment, vCoresProduction, vCoresSandbox, vCoresDesign, staticIps, vpcs, loadBalancer);
     }
 
     public JsonHelper getJsonHelper() {
