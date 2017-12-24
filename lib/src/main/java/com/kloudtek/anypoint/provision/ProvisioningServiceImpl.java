@@ -17,7 +17,7 @@ public class ProvisioningServiceImpl extends ProvisioningService {
         ZipEntry entry = zipFile.getEntry("anypoint.json");
         if (entry != null) {
             try (InputStream inputStream = zipFile.getInputStream(entry)) {
-                ProvisioningDescriptor provisioningDescriptor = new ProvisioningDescriptor(zipFile, provisioningParams, envSuffix);
+                ProvisioningDescriptor provisioningDescriptor = new ProvisioningDescriptor(this, zipFile, provisioningParams, envSuffix);
                 String json = IOUtils.toString(inputStream);
                 try {
                     ProvisioningDescriptor descriptor = client.getJsonHelper().readJson(provisioningDescriptor, json);
