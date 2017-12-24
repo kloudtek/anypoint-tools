@@ -18,6 +18,9 @@ public abstract class ProvisioningService {
     public abstract void provision(AnypointClient client, Organization parent, String appName, File file, Map<String, String> provisioningParams, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException;
 
     public String parseEL(String str, Map<String, String> provisioningParams) {
+        if (str == null) {
+            return null;
+        }
         StringWriter result = new StringWriter();
         StringWriter v = null;
         State state = State.NORMAL;

@@ -58,7 +58,7 @@ public class ProvisioningDescriptor {
                 try {
                     api = org.getAPI(apiName);
                     try {
-                        version = api.getVersion(apiVersionName);
+                        version = api.getVersion(apiVersionName, true);
                     } catch (NotFoundException e) {
                         version = api.createVersion(apiVersionName, endpoint, description);
                     }
@@ -66,6 +66,13 @@ public class ProvisioningDescriptor {
                     api = org.createAPI(apiName, apiVersionName, endpoint, description);
                     version = api.getVersion(apiVersionName);
                 }
+
+                if (endpoint != null) {
+                    if (version.getEndpoint() != null && !endpoint.equals(version.getEndpoint().getUri())) {
+                        version.updateEndpoint(endpoint);
+                    }
+                }
+
                 if (provisionedAPI.isSetupPortal() && version.getPortalId() == null) {
                     version.createPortal(parseEL(provisionedAPI.getName()));
                 }

@@ -78,16 +78,20 @@ public class API extends AnypointObject<Organization> {
     @JsonIgnore
     public APIVersion getVersion(String version, boolean fullData) throws NotFoundException, HttpException {
         if( fullData ) {
-            String json = httpHelper.httpGet(getUriPath());
+            String json = httpHelper.httpGet(getUriPath() + "/versions/" + getVersionImpl(version).getId());
             return jsonHelper.readJson(new APIVersion(this), json );
         } else {
-            for (APIVersion v : versions) {
-                if (version.equals(v.getName())) {
-                    return v;
-                }
-            }
-            throw new NotFoundException("Unable to find version " + version);
+            return getVersionImpl(version);
         }
+    }
+
+    private APIVersion getVersionImpl(String version) throws NotFoundException {
+        for (APIVersion v : versions) {
+            if (version.equals(v.getName())) {
+                return v;
+            }
+        }
+        throw new NotFoundException("Unable to find version " + version);
     }
 
     @SuppressWarnings("unchecked")

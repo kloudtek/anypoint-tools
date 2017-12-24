@@ -22,6 +22,7 @@ public class APIVersion extends AnypointObject<API> {
     private String apiId;
     private String organizationId;
     private boolean fullData;
+    private APIVersionEndpoint endpoint;
 
     public APIVersion() {
     }
@@ -73,6 +74,15 @@ public class APIVersion extends AnypointObject<API> {
 
     public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
+    }
+
+    @JsonProperty
+    public APIVersionEndpoint getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(APIVersionEndpoint endpoint) {
+        this.endpoint = endpoint;
     }
 
     @JsonIgnore
