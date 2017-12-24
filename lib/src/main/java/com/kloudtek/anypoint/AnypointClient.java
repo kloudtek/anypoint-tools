@@ -5,8 +5,7 @@ import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Closeable;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,12 +14,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @SuppressWarnings("SameParameterValue")
-public class AnypointClient implements Closeable {
+public class AnypointClient implements Closeable, Externalizable {
     public static final String LOGIN_PATH = "/accounts/login";
     private JsonHelper jsonHelper;
     private HttpHelper httpHelper;
     private int maxParallelDeployments;
     private ExecutorService deploymentThreadPool;
+    private String username;
+    private String password;
+
+    /**
+     * Contructor used for serialization only
+     **/
+    public AnypointClient() {
+    }
 
     public AnypointClient(String username, String password) {
         this(username, password, 3);
@@ -29,7 +36,25 @@ public class AnypointClient implements Closeable {
     public AnypointClient(String username, String password, int maxParallelDeployments) {
         jsonHelper = new JsonHelper(this);
         httpHelper = new HttpHelper(this, username, password);
+        this.username = username;
+        this.password = password;
         this.maxParallelDeployments = maxParallelDeployments;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(username);
+        out.writeUTF(password);
+        out.writeInt(maxParallelDeployments);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        username = in.readUTF();
+        password = in.readUTF();
+        maxParallelDeployments = in.readInt();
+        jsonHelper = new JsonHelper(this);
+        httpHelper = new HttpHelper(this, username, password);
     }
 
     public int getMaxParallelDeployments() {
