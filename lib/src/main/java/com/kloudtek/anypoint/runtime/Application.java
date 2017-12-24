@@ -114,4 +114,8 @@ public class Application extends AnypointObject<Server> {
             }
         }
     }
+
+    public boolean matchDigest(String digest) {
+        return artifact != null && artifact.getFileChecksum().equals(digest);
+    }
 }

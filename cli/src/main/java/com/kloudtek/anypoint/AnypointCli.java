@@ -2,6 +2,7 @@ package com.kloudtek.anypoint;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kloudtek.anypoint.cfg.Config;
 import com.kloudtek.anypoint.cfg.ConfigProfile;
@@ -16,6 +17,8 @@ public class AnypointCli {
     public static final String GETREGKEY = "getregkey";
     public static final String CONFIG = "config";
     public static final String ADDSERVERTOGROUP = "addservertogroup";
+    public static final String REQUESTAPIACCESS = "requestapiaccess";
+    public static final String DEPLOY = "deploy";
     @Parameter(description = "Profile", names = {"-p", "--profile"})
     private String profileName;
     @Parameter(description = "Configuration file", names = {"-c", "--config"})
@@ -29,21 +32,21 @@ public class AnypointCli {
     private boolean configExists;
     private Config config;
     private AnypointClient client;
+    private ConfigProfile profile;
     private final GetRegistrationKeyCmd getRegistrationKeyCmd = new GetRegistrationKeyCmd();
     private final UpdateConfigCmd updateConfigCmd = new UpdateConfigCmd();
     private final AddServerToGroupCmd addServerToGroupCmd = new AddServerToGroupCmd();
+    private final RequestAPIAccessCmd requestAPIAccessCmd = new RequestAPIAccessCmd();
+    private final DeployApplicationCmd deployApplicationCmd = new DeployApplicationCmd();
     private static final Console console;
     private static Scanner scanner;
 
     static {
         console = System.console();
         if (console == null) {
-
+            scanner = new Scanner(System.in);
         }
-        scanner = new Scanner(System.in);
     }
-
-    private ConfigProfile profile;
 
     public AnypointCli() {
     }
@@ -75,6 +78,8 @@ public class AnypointCli {
                     .addCommand(GETREGKEY, cli.getRegistrationKeyCmd)
                     .addCommand(CONFIG, cli.updateConfigCmd)
                     .addCommand(ADDSERVERTOGROUP, cli.addServerToGroupCmd)
+                    .addCommand(REQUESTAPIACCESS, cli.requestAPIAccessCmd)
+                    .addCommand(DEPLOY, cli.deployApplicationCmd)
                     .build();
             jc.setProgramName("anypoint");
             if (args != null && args.length > 0) {
@@ -85,14 +90,21 @@ public class AnypointCli {
             cli.loadConfig();
             String cmd = jc.getParsedCommand();
             if (CONFIG.equals(cmd)) {
-                cli.updateConfig();
+                cli.updateConfigCmd.execute(cli);
             } else if (GETREGKEY.equals(cmd)) {
-                cli.getRegistrationKey();
+                cli.getRegistrationKeyCmd.execute(cli);
             } else if (ADDSERVERTOGROUP.equals(cmd)) {
-                cli.addServerToGroup();
+                cli.addServerToGroupCmd.execute(cli);
+            } else if (REQUESTAPIACCESS.equals(cmd)) {
+                cli.requestAPIAccessCmd.execute(cli);
+            } else if (DEPLOY.equals(cmd)) {
+                cli.deployApplicationCmd.execute(cli);
             }
-        } catch( UserDisplayableException e ) {
+        } catch (UserDisplayableException | NotFoundException e) {
             System.out.println(e.getMessage());
+            System.exit(-1);
+        } catch (ParameterException e) {
+            System.out.print("Invalid parameters: " + e.getMessage());
             System.exit(-1);
         } catch (HttpException e ) {
             System.out.print("Failed to contact anypoint servers: "+e.getMessage());
@@ -102,18 +114,6 @@ public class AnypointCli {
             e.printStackTrace();
             System.exit(-1);
         }
-    }
-
-    private void getRegistrationKey() throws IOException, NotFoundException, HttpException {
-        getRegistrationKeyCmd.execute(this);
-    }
-
-    private void addServerToGroup() throws IOException, NotFoundException, HttpException {
-        addServerToGroupCmd.execute(this);
-    }
-
-    private void updateConfig() {
-        updateConfigCmd.execute(this);
     }
 
     public Config getConfig() {
@@ -152,11 +152,11 @@ public class AnypointCli {
         return client;
     }
 
-    public String getOrganization(String override) {
+    public String getOrganizationName(String override) {
         if (override == null) {
             String org = profile.getDefaultOrganization();
             if (org == null) {
-                throw new IllegalArgumentException("organization parameter missing");
+                throw new UserDisplayableException("organization parameter missing");
             } else {
                 return org;
             }
@@ -165,11 +165,11 @@ public class AnypointCli {
         }
     }
 
-    public String getEnvironment(String override) {
+    public String getEnvironmentName(String override) {
         if (override == null) {
             String envName = profile.getDefaultEnvironment();
             if (envName == null) {
-                throw new IllegalArgumentException("environment parameter missing");
+                throw new UserDisplayableException("environment parameter missing");
             } else {
                 return envName;
             }

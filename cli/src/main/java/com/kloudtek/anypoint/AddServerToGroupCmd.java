@@ -21,8 +21,8 @@ public class AddServerToGroupCmd {
 
     public void execute(AnypointCli cli) throws NotFoundException, HttpException, IOException {
         AnypointClient client = cli.getClient();
-        organization = cli.getOrganization(organization);
-        environment = cli.getEnvironment(environment);
+        organization = cli.getOrganizationName(organization);
+        environment = cli.getEnvironmentName(environment);
         cli.print("Adding server "+serverName+" to server group/cluster "+groupName+" within env "+environment+" of org "+organization+" ... ");
         Environment env = client.findOrganization(organization).findEnvironment(this.environment);
         Server server;

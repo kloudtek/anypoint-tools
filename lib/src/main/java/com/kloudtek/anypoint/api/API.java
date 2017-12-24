@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -125,7 +126,9 @@ public class API extends AnypointObject<Organization> {
             api.getVersion(version).updateEndpoint(endpoint);
         } catch (Exception e) {
             try {
-                api.delete();
+                if (api != null) {
+                    api.delete();
+                }
             } catch (HttpException e2) {
                 logger.log(Level.WARNING, "Unable to rollback API Creation",e);
                 throw new HttpException("Error while setting API endpoint but unable to delete created API",e);
@@ -136,5 +139,16 @@ public class API extends AnypointObject<Organization> {
 
     private void delete() throws HttpException {
         httpHelper.httpDelete(getUriPath());
+    }
+
+    public APIVersion createVersion(String version) throws HttpException {
+        return createVersion(version, null, null);
+    }
+
+    public APIVersion createVersion(String version, String endpointUri, String description) throws HttpException {
+        Map<String, Object> req = jsonHelper.buildJsonMap().set("name", version).set("endpointUri", endpointUri)
+                .set("description", description).toMap();
+        String json = httpHelper.httpPost(getUriPath() + "/versions", req);
+        return jsonHelper.readJson(new APIVersion(this), json);
     }
 }

@@ -35,6 +35,30 @@ public class ClientIdEnforcementPolicy extends Policy {
         return json;
     }
 
+    public String getCredentialsOrigin() {
+        return credentialsOrigin;
+    }
+
+    public void setCredentialsOrigin(String credentialsOrigin) {
+        this.credentialsOrigin = credentialsOrigin;
+    }
+
+    public String getClientIdExpression() {
+        return clientIdExpression;
+    }
+
+    public void setClientIdExpression(String clientIdExpression) {
+        this.clientIdExpression = clientIdExpression;
+    }
+
+    public String getClientSecretExpression() {
+        return clientSecretExpression;
+    }
+
+    public void setClientSecretExpression(String clientSecretExpression) {
+        this.clientSecretExpression = clientSecretExpression;
+    }
+
     public static ClientIdEnforcementPolicy createBasicAuthClientIdEnforcementPolicy(APIVersion parent) {
         ClientIdEnforcementPolicy policy = new ClientIdEnforcementPolicy(parent, "#[authorization = message.inboundProperties['authorization']; if (authorization == null) return ''; base64token = authorization.substring(6); token = new String(org.apache.commons.codec.binary.Base64.decodeBase64(base64token.getBytes())); delim = token.indexOf(':'); clientId = delim == -1 ? '' : token.substring(0, delim); return clientId ]", "#[authorization = message.inboundProperties['authorization']; if (authorization == null) return ''; base64token = authorization.substring(6); token = new String(org.apache.commons.codec.binary.Base64.decodeBase64(base64token.getBytes())); delim = token.indexOf(':'); clientSecret = delim == -1 ? '' : token.substring(delim+1); return clientSecret ]");
         policy.credentialsOrigin = "httpBasicAuthenticationHeader";

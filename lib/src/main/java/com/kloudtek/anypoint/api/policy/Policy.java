@@ -7,7 +7,8 @@ import com.kloudtek.anypoint.util.JsonHelper;
 import java.util.Map;
 
 public abstract class Policy extends AnypointObject<APIVersion> {
-    private Integer id;
+    protected Integer id;
+    protected String policyTemplateId;
 
     public Policy() {
     }
@@ -19,6 +20,7 @@ public abstract class Policy extends AnypointObject<APIVersion> {
     public Policy(APIVersion parent, Map<String,Object> data) {
         super(parent);
         id = (Integer) data.get("id");
+        policyTemplateId = (String) data.get("policyTemplateId");
     }
 
     public Integer getId() {
@@ -29,13 +31,21 @@ public abstract class Policy extends AnypointObject<APIVersion> {
         this.id = id;
     }
 
+    public String getPolicyTemplateId() {
+        return policyTemplateId;
+    }
+
+    public void setPolicyTemplateId(String policyTemplateId) {
+        this.policyTemplateId = policyTemplateId;
+    }
+
     public JsonHelper.MapBuilder toJson() {
         return jsonHelper.buildJsonMap().set("id",id).set("apiVersionId",parent.getId());
     }
 
     public static Policy parseJson( APIVersion apiVersion, Map<String,Object> data ) {
-        String type = (String) data.get("policyTemplateId");
-        if( type.equals("client-id-enforcement") ) {
+        String policyTemplateId = (String) data.get("policyTemplateId");
+        if (policyTemplateId.equals("client-id-enforcement")) {
             return new ClientIdEnforcementPolicy(apiVersion, data);
         } else {
             return new CustomPolicy(apiVersion,data);

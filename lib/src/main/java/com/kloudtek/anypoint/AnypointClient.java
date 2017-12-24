@@ -83,7 +83,7 @@ public class AnypointClient implements Closeable {
 
     public Organization createOrganization(String name) throws HttpException {
         User user = getUser();
-        return user.getOrganization().createSubOrganization(name, user.getId(), false, false);
+        return user.getOrganization().createSubOrganization(name, user.getId(), true, true);
     }
 
     public Organization createOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments) throws HttpException {
@@ -111,5 +111,27 @@ public class AnypointClient implements Closeable {
         request.put("password", password);
         Map data = jsonHelper.toJsonMap(httpHelper.httpPost(LOGIN_PATH, request));
         httpHelper.setAuth(data.get("token_type") + " " + data.get("access_token"));
+    }
+
+    public Environment findEnvironment(String organizationName, String environmentName, boolean createOrganization, boolean createEnvironment, Environment.Type createEnvironmentType) throws NotFoundException, HttpException {
+        Organization organization;
+        try {
+            organization = findOrganization(organizationName);
+        } catch (NotFoundException e) {
+            if (createOrganization) {
+                organization = createOrganization(organizationName);
+            } else {
+                throw e;
+            }
+        }
+        try {
+            return organization.findEnvironment(environmentName);
+        } catch (NotFoundException e) {
+            if (createEnvironment) {
+                return organization.createEnvironment(environmentName, createEnvironmentType);
+            } else {
+                throw e;
+            }
+        }
     }
 }

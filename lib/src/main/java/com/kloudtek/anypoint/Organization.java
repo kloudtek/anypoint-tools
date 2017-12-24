@@ -3,15 +3,13 @@ package com.kloudtek.anypoint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.kloudtek.anypoint.api.API;
-import com.kloudtek.anypoint.api.APIList;
-import com.kloudtek.anypoint.api.ClientApplication;
+import com.kloudtek.anypoint.api.*;
 import com.kloudtek.anypoint.util.JsonHelper;
+import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.*;
 
 public class Organization extends AnypointObject {
@@ -49,7 +47,7 @@ public class Organization extends AnypointObject {
     }
 
     @NotNull
-    public Environment findEnvironment(@NotNull String name) throws IOException, NotFoundException, HttpException {
+    public Environment findEnvironment(@NotNull String name) throws NotFoundException, HttpException {
         return Environment.getEnvironmentByName(name, client, this);
     }
 
@@ -134,7 +132,7 @@ public class Organization extends AnypointObject {
                 return app;
             }
         }
-        throw new NotFoundException();
+        throw new NotFoundException("Client application not found: " + name);
     }
 
 
@@ -162,5 +160,57 @@ public class Organization extends AnypointObject {
     @JsonIgnore
     public String getUriPath() {
         return "/apiplatform/repository/v2/organizations/" + id;
+    }
+
+    public RequestAPIAccessResult requestAPIAccess(String clientApplicationName, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
+        APIVersion version = getAPI(apiName).getVersion(apiVersionName);
+        ClientApplication clientApplication;
+        try {
+            clientApplication = findClientApplication(clientApplicationName);
+        } catch (NotFoundException e) {
+            clientApplication = createClientApplication(clientApplicationName, "", "");
+        }
+        APIAccessContract contract;
+        try {
+            contract = clientApplication.findContract(version);
+        } catch (NotFoundException e) {
+            if (StringUtils.isEmpty(slaTier)) {
+                List<SLATier> tiers = version.getSLATiers();
+                slaTier = tiers.size() == 1 ? tiers.get(0).getName() : null;
+            }
+            SLATier tier = slaTier != null ? version.getSLATier(slaTier) : null;
+            contract = clientApplication.requestAPIAccess(version, tier);
+        }
+        if (contract.isPending()) {
+            if (autoApprove) {
+                contract = contract.approveAccess();
+                if (contract.isApproved()) {
+                    return RequestAPIAccessResult.GRANTED;
+                } else {
+                    throw new RequestAPIAccessException("Failed to auto-approve API access (status: " + contract.getStatus() + " )");
+                }
+            } else {
+                return RequestAPIAccessResult.PENDING;
+            }
+        } else if (contract.isRevoked()) {
+            if (autoRestore) {
+                contract = contract.restoreAccess();
+                if (contract.isApproved()) {
+                    return RequestAPIAccessResult.RESTORED;
+                } else {
+                    throw new RequestAPIAccessException("Failed to restore access to client application");
+                }
+            } else {
+                throw new RequestAPIAccessException("API access is currently revoked, cannot grant access");
+            }
+        } else if (contract.isApproved()) {
+            return RequestAPIAccessResult.GRANTED;
+        } else {
+            throw new RequestAPIAccessException("Unknown contract status: " + contract.getStatus());
+        }
+    }
+
+    public enum RequestAPIAccessResult {
+        GRANTED, RESTORED, PENDING
     }
 }

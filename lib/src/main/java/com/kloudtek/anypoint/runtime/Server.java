@@ -8,6 +8,10 @@ import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.util.FileStreamSource;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.StreamSource;
+import com.kloudtek.kryptotek.DigestAlgorithm;
+import com.kloudtek.kryptotek.DigestUtils;
+import com.kloudtek.util.Hex;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,11 +55,24 @@ public class Server extends AnypointObject<Environment> {
         client.getHttpHelper().httpDelete("/hybrid/api/v1/servers/" + id, parent);
     }
 
-    public Application deploy(String name, File file) throws IOException, HttpException {
+    public boolean checkApplicationExist(@NotNull String name, @NotNull File file, boolean matchDigest) throws HttpException, IOException {
+        try {
+            Application application = findApplication(name);
+            if (application != null) {
+                return !matchDigest || application.matchDigest(new String(Hex.encodeHex(DigestUtils.digest(file, DigestAlgorithm.SHA1))));
+            } else {
+                return true;
+            }
+        } catch (NotFoundException e) {
+            return false;
+        }
+    }
+
+    public Application deploy(@NotNull String name, @NotNull File file) throws IOException, HttpException {
         return deploy(name, new FileStreamSource(file));
     }
 
-    public Application deploy(String name, StreamSource stream) throws HttpException, IOException {
+    public Application deploy(@NotNull String name, @NotNull StreamSource stream) throws HttpException, IOException {
         HttpHelper.MultiPartRequest request;
         try {
             Application application = findApplication(name);

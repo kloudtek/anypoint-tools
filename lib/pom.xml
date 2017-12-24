@@ -27,6 +27,11 @@
             <version>1.2.16</version>
         </dependency>
         <dependency>
+            <groupId>com.kloudtek.kryptotek</groupId>
+            <artifactId>kryptotek-core</artifactId>
+            <version>1.0.24</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.3</version>

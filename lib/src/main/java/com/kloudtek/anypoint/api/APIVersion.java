@@ -3,10 +3,11 @@ package com.kloudtek.anypoint.api;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.kloudtek.anypoint.APIAccessContract;
 import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.HttpException;
+import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.policy.Policy;
+import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -18,6 +19,8 @@ public class APIVersion extends AnypointObject<API> {
     private String id;
     private String name;
     private String portalId;
+    private String apiId;
+    private String organizationId;
     private boolean fullData;
 
     public APIVersion() {
@@ -52,6 +55,24 @@ public class APIVersion extends AnypointObject<API> {
 
     public void setPortalId(String portalId) {
         this.portalId = portalId;
+    }
+
+    @JsonProperty
+    public String getApiId() {
+        return apiId;
+    }
+
+    public void setApiId(String apiId) {
+        this.apiId = apiId;
+    }
+
+    @JsonProperty
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
     }
 
     @JsonIgnore
@@ -90,8 +111,14 @@ public class APIVersion extends AnypointObject<API> {
         httpHelper.httpPost(getUriPath() + "/endpoint", req);
     }
 
-    String getUriPath() {
-        return getParent().getUriPath() + "/versions/" + id;
+    public String getUriPath() {
+        if (parent != null) {
+            return getParent().getUriPath() + "/versions/" + id;
+        } else if (organizationId != null && apiId != null && id != null) {
+            return "https://anypoint.mulesoft.com/apiplatform/repository/v2/organizations/" + organizationId + "/apis/" + apiId + "/versions/" + id;
+        } else {
+            throw new IllegalStateException("Insufficient data available in api version to build uri");
+        }
     }
 
     @JsonIgnore
@@ -104,16 +131,54 @@ public class APIVersion extends AnypointObject<API> {
         return list;
     }
 
+    @JsonIgnore
+    public HashMap<String, Policy> getPoliciesAsMap(boolean fullInfo) throws HttpException {
+        HashMap<String, Policy> map = new HashMap<>();
+        for (Policy policy : getPolicies(fullInfo)) {
+            map.put(policy.getPolicyTemplateId(), policy);
+        }
+        return map;
+    }
+
     public Policy createPolicy(Policy policy) throws HttpException {
         String json = httpHelper.httpPost(getUriPath() + "/policies", policy.toJson().toMap());
-        return null;
+        return Policy.parseJson(this, jsonHelper.toJsonMap(json));
+    }
+
+
+    public Policy updatePolicy(Policy policy) throws HttpException {
+        String json = httpHelper.httpPatch(new URLBuilder(parent.getUriPath()).path("policies/" + id).toString(), policy.toJson().toMap());
+        return Policy.parseJson(this, jsonHelper.toJsonMap(json));
     }
 
     public APIAccessContract requestAPIAccess(ClientApplication clientApplication) throws HttpException {
         return clientApplication.requestAPIAccess(this);
     }
 
-    public APIAccessContract requestAPIAccess(ClientApplication clientApplication, String partyId, String partyName, boolean acceptedTerms) throws HttpException {
-        return clientApplication.requestAPIAccess(this, partyId, partyName, acceptedTerms);
+    public APIAccessContract requestAPIAccess(ClientApplication clientApplication, SLATier tier) throws HttpException {
+        return clientApplication.requestAPIAccess(this, tier);
+    }
+
+    public APIAccessContract requestAPIAccess(ClientApplication clientApplication, SLATier tier, String partyId, String partyName, boolean acceptedTerms) throws HttpException {
+        return clientApplication.requestAPIAccess(this, tier, partyId, partyName, acceptedTerms);
+    }
+
+    @JsonIgnore
+    public String getNameOrId() {
+        return name != null ? name : id;
+    }
+
+    public List<SLATier> getSLATiers() throws HttpException {
+        String json = httpHelper.httpGet(getUriPath() + "/tiers");
+        return jsonHelper.readJsonList(SLATier.class, json, this, "/tiers");
+    }
+
+    public SLATier getSLATier(String name) throws NotFoundException, HttpException {
+        for (SLATier tier : getSLATiers()) {
+            if (name.equalsIgnoreCase(tier.getName())) {
+                return tier;
+            }
+        }
+        throw new NotFoundException("Unable to find SLA Tier " + name);
     }
 }

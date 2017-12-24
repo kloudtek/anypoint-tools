@@ -49,11 +49,7 @@ public class UpdateConfigCmd {
                 try {
                     Organization organization = anypointClient.findOrganization(cp.getDefaultOrganization());
                     if (cp.getDefaultEnvironment() != null) {
-                        try {
-                            organization.findEnvironment(cp.getDefaultEnvironment());
-                        } catch (IOException e) {
-                            System.out.println("failed\nWARNING: Default environment " + cp.getDefaultEnvironment() + " not found");
-                        }
+                        organization.findEnvironment(cp.getDefaultEnvironment());
                     }
                 } catch (NotFoundException e) {
                     System.out.println("failed\nWARNING: Default organization " + cp.getDefaultOrganization() + " not found");

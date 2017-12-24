@@ -8,7 +8,6 @@ import com.kloudtek.anypoint.runtime.ServerGroup;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -119,7 +118,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     @NotNull
-    public Server findServer(@NotNull String name) throws IOException, NotFoundException, HttpException {
+    public Server findServer(@NotNull String name) throws NotFoundException, HttpException {
         for (Server server : getServers()) {
             if (name.equals(server.getName())) {
                 return server;
