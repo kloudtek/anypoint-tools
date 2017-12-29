@@ -1,0 +1,55 @@
+{
+  "total": 1,
+  "apis": [
+    {
+      "audit": {
+        "created": {
+          "date": "2017-12-23T20:08:05.237Z"
+        },
+        "updated": {}
+      },
+      "masterOrganizationId": "43d4b721-9062-41e8-953e-12b0dd54d66e",
+      "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
+      "id": 90461112,
+      "name": "testapp",
+      "exchangeAssetName": "testapp",
+      "groupId": null,
+      "assetId": null,
+      "permissions": {
+        "addApiVersion": true
+      },
+      "versions": [
+        {
+          "audit": {
+            "created": {
+              "date": "2017-12-23T20:08:05.237Z"
+            },
+            "updated": {}
+          },
+          "masterOrganizationId": "43d4b721-9062-41e8-953e-12b0dd54d66e",
+          "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
+          "id": 6892172,
+          "apiId": 90461112,
+          "portalId": null,
+          "name": "v1",
+          "instanceLabel": null,
+          "groupId": null,
+          "assetId": null,
+          "assetVersion": null,
+          "productVersion": null,
+          "description": null,
+          "tags": [],
+          "order": 1,
+          "rootFileId": null,
+          "deprecated": false,
+          "lastActiveDate": null,
+          "endpointUri": null,
+          "environmentId": null,
+          "terms": null,
+          "termsDate": null,
+          "pinned": false
+        }
+      ]
+    }
+  ]
+}

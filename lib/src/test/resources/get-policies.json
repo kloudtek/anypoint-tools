@@ -1,0 +1,57 @@
+[
+  {
+    "audit": {
+      "created": {
+        "date": "2017-12-23T23:26:58.945Z"
+      },
+      "updated": {
+        "date": "2017-12-24T00:07:50.016Z"
+      }
+    },
+    "masterOrganizationId": "43d4b721-9062-41e8-953e-12b0dd54d66e",
+    "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
+    "id": 268357,
+    "apiVersionId": 6894188,
+    "policyTemplateId": "xml-threat-protection",
+    "configurationData": {
+      "maxNodeDepth": -1,
+      "maxAttributeCountPerElement": -1,
+      "maxChildCount": -1,
+      "maxTextLength": -1,
+      "maxAttributeLength": -1,
+      "maxCommentLength": -1
+    },
+    "order": 2,
+    "disabled": false,
+    "pointcutData": null,
+    "groupId": null,
+    "assetId": null,
+    "assetVersion": null,
+    "type": "system"
+  },
+  {
+    "audit": {
+      "created": {
+        "date": "2017-12-24T00:07:50.016Z"
+      },
+      "updated": {}
+    },
+    "masterOrganizationId": "43d4b721-9062-41e8-953e-12b0dd54d66e",
+    "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
+    "id": 268360,
+    "apiVersionId": 6894188,
+    "policyTemplateId": "client-id-enforcement",
+    "configurationData": {
+      "credentialsOrigin": "customExpression",
+      "clientSecretExpression": "#[message.inboundProperties[\"client_secret\"]]",
+      "clientIdExpression": "#[message.inboundProperties[\"client_id\"]]"
+    },
+    "order": 3,
+    "disabled": false,
+    "pointcutData": null,
+    "groupId": null,
+    "assetId": null,
+    "assetVersion": null,
+    "type": "system"
+  }
+]

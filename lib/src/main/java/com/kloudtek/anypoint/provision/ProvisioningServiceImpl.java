@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class ProvisioningServiceImpl extends ProvisioningService {
+public class ProvisioningServiceImpl implements ProvisioningService {
     @Override
-    public void provision(AnypointClient client, Organization org, String appName, File file, Map<String, String> provisioningParams, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
+    public TransformList provision(AnypointClient client, Organization org, File file, Map<String, String> provisioningParams, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
         ZipFile zipFile = new ZipFile(file);
         ZipEntry entry = zipFile.getEntry("anypoint.json");
         if (entry != null) {
@@ -22,11 +22,13 @@ public class ProvisioningServiceImpl extends ProvisioningService {
                 try {
                     ProvisioningDescriptor descriptor = client.getJsonHelper().readJson(provisioningDescriptor, json);
                     descriptor.validate();
-                    descriptor.provision(zipFile, org);
+                    descriptor.provision(org);
+                    return descriptor.getTransformList();
                 } catch (InvalidJsonException e) {
                     throw new InvalidAnypointDescriptorException(e.getMessage(), e);
                 }
             }
         }
+        return new TransformList();
     }
 }

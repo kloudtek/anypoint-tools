@@ -1,0 +1,169 @@
+{
+  "audit": {
+    "created": {
+      "date": "2017-12-23T21:31:48.706Z"
+    },
+    "updated": {}
+  },
+  "masterOrganizationId": "43d4b721-9062-41e8-953e-12b0dd54d66e",
+  "id": 154284,
+  "name": "deleteme-sit",
+  "description": "",
+  "coreServicesId": "d6775545f5d34c64a55864823534d525",
+  "url": "",
+  "grantTypes": [],
+  "redirectUri": [],
+  "clientId": "myclientid",
+  "clientSecret": "myclientsecret",
+  "owner": "some guy",
+  "email": "someguy@nowhere.com",
+  "owners": [
+    {
+      "id": "ebd6b032-504b-4c82-971a-a8b1e5abec2a",
+      "createdAt": "2017-01-10T00:11:41.731Z",
+      "updatedAt": "2017-12-29T01:58:32.335Z",
+      "organizationId": "43d4b721-9062-41e8-953e-12b0dd54d66e",
+      "firstName": "some",
+      "lastName": "guy",
+      "email": "someguy@nowhere.com",
+      "phoneNumber": "666 666 6666",
+      "idprovider_id": "mulesoft",
+      "username": "someguy",
+      "enabled": true,
+      "deleted": false,
+      "lastLogin": "2017-12-29T01:58:30.000Z",
+      "type": "host",
+      "organizationPreferences": {
+        "05b1584e-e9b4-46c5-abd3-34ce07282fa1": {
+          "defaultEnvironment": "ac44209d-1987-46cf-bf1c-5a62d7b94bc4"
+        }
+      },
+      "organization": {
+        "name": "Some org.",
+        "id": "43d4b721-9062-41e8-953e-12b0dd54d66e",
+        "createdAt": "2017-01-09T21:42:38.090Z",
+        "updatedAt": "2017-12-22T23:50:29.224Z",
+        "ownerId": "216f5325-169e-4d9b-81e2-16cd91836310",
+        "clientId": "fsadfsafsafdsafdsa",
+        "domain": "fadsf32fasdfvaesrfsadf",
+        "idprovider_id": "mulesoft",
+        "isFederated": false,
+        "parentOrganizationIds": [],
+        "subOrganizationIds": [
+          "sfdafasdfsdafdsafdsafdsa",
+          "asfdfasdfsdafsdafsdafsadfdsasafd"
+        ],
+        "tenantOrganizationIds": [],
+        "isMaster": true,
+        "subscription": {
+          "type": "VIP",
+          "expiration": "2019-12-29T21:42:38.087Z"
+        },
+        "properties": {
+          "exchangeCustomization": {
+            "projectId": "fdsaasfdfwerfw3af2fs",
+            "publishedVersionReferenceId": "fasdv23qwvasfevw3"
+          }
+        },
+        "entitlements": {
+          "objectStoreRequestUnits": {
+            "base": 0,
+            "addOn": 0
+          },
+          "hybrid": {
+            "enabled": true
+          },
+          "mqMessages": {
+            "base": 0,
+            "addOn": 0
+          },
+          "partnersProduction": {
+            "assigned": 0
+          },
+          "createEnvironments": true,
+          "autoscaling": false,
+          "globalDeployment": true,
+          "apis": {
+            "enabled": true
+          },
+          "createSubOrgs": true,
+          "hybridInsight": true,
+          "cam": {
+            "enabled": false
+          },
+          "workerLoggingOverride": {
+            "enabled": false
+          },
+          "mqRequests": {
+            "base": 0,
+            "addOn": 0
+          },
+          "objectStoreKeys": {
+            "base": 0,
+            "addOn": 0
+          },
+          "gateways": {
+            "assigned": 2147483647
+          },
+          "partnersSandbox": {
+            "assigned": 0
+          },
+          "externalIdentity": true,
+          "armAlerts": true,
+          "mqAdvancedFeatures": {
+            "enabled": false
+          },
+          "exchange2": {
+            "enabled": false
+          },
+          "hybridAutoDiscoverProperties": true,
+          "vpcs": {
+            "assigned": 2,
+            "reassigned": 0
+          },
+          "vCoresSandbox": {
+            "assigned": 0,
+            "reassigned": 0
+          },
+          "vCoresProduction": {
+            "assigned": 0,
+            "reassigned": 0
+          },
+          "loadBalancer": {
+            "assigned": 0,
+            "reassigned": 0
+          },
+          "vCoresDesign": {
+            "assigned": 0,
+            "reassigned": 0
+          },
+          "staticIps": {
+            "assigned": 0,
+            "reassigned": 0
+          },
+          "kpiDashboard": {
+            "enabled": false
+          },
+          "designCenter": {
+            "apiVisual": false,
+            "mozart": true,
+            "api": false
+          },
+          "crowd": {
+            "hideApiManagerDesigner": false,
+            "environments": false,
+            "hideFormerApiPlatform": false
+          },
+          "messaging": {
+            "assigned": 0
+          }
+        }
+      },
+      "properties": {
+        "cs_auth": {
+          "activeOrganizationId": "f23weasfasef32qrf3w"
+        }
+      }
+    }
+  ]
+}

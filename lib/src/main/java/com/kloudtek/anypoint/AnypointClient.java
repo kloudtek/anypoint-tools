@@ -1,32 +1,45 @@
 package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.kloudtek.anypoint.provision.InvalidAnypointDescriptorException;
+import com.kloudtek.anypoint.provision.ProvisioningService;
+import com.kloudtek.anypoint.provision.ProvisioningServiceImpl;
+import com.kloudtek.anypoint.provision.TransformList;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @SuppressWarnings("SameParameterValue")
 public class AnypointClient implements Closeable, Externalizable {
     public static final String LOGIN_PATH = "/accounts/login";
-    private JsonHelper jsonHelper;
-    private HttpHelper httpHelper;
+    protected JsonHelper jsonHelper;
+    protected HttpHelper httpHelper;
     private int maxParallelDeployments;
     private ExecutorService deploymentThreadPool;
     private String username;
     private String password;
+    private ProvisioningService provisioningService;
 
     /**
      * Contructor used for serialization only
      **/
     public AnypointClient() {
+        jsonHelper = new JsonHelper(this);
+        ServiceLoader<ProvisioningService> provisioningServiceLoader = ServiceLoader.load(ProvisioningService.class);
+        Iterator<ProvisioningService> provisioningServiceIterator = provisioningServiceLoader.iterator();
+        if (provisioningServiceIterator.hasNext()) {
+            provisioningService = provisioningServiceIterator.next();
+            if (provisioningServiceIterator.hasNext()) {
+                throw new IllegalStateException("Found multiple implementations of ProvisioningService");
+            }
+        } else {
+            provisioningService = new ProvisioningServiceImpl();
+        }
     }
 
     public AnypointClient(String username, String password) {
@@ -34,11 +47,11 @@ public class AnypointClient implements Closeable, Externalizable {
     }
 
     public AnypointClient(String username, String password, int maxParallelDeployments) {
-        jsonHelper = new JsonHelper(this);
-        httpHelper = new HttpHelper(this, username, password);
+        this();
         this.username = username;
         this.password = password;
         this.maxParallelDeployments = maxParallelDeployments;
+        httpHelper = new HttpHelper(this, username, password);
     }
 
     @Override
@@ -55,6 +68,10 @@ public class AnypointClient implements Closeable, Externalizable {
         maxParallelDeployments = in.readInt();
         jsonHelper = new JsonHelper(this);
         httpHelper = new HttpHelper(this, username, password);
+    }
+
+    public TransformList provision(Organization parent, File file, Map<String, String> provisioningParams, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
+        return provisioningService.provision(this, parent, file, provisioningParams, envSuffix);
     }
 
     public int getMaxParallelDeployments() {
@@ -158,5 +175,55 @@ public class AnypointClient implements Closeable, Externalizable {
                 throw e;
             }
         }
+    }
+
+    public static String parseEL(String str, Map<String, String> provisioningParams) {
+        if (str == null) {
+            return null;
+        }
+        StringWriter result = new StringWriter();
+        StringWriter v = null;
+        State state = State.NORMAL;
+        for (char c : str.toCharArray()) {
+            switch (state) {
+                case NORMAL:
+                    if (c == '$') {
+                        state = State.STARTPARSE;
+                        v = new StringWriter();
+                    } else {
+                        result.append(c);
+                    }
+                    break;
+                case STARTPARSE:
+                    if (c == '{') {
+                        state = State.PARSE;
+                    } else {
+                        if (c != '$') {
+                            result.append('$');
+                        }
+                        result.append(c);
+                        state = State.NORMAL;
+                    }
+                    break;
+                case PARSE:
+                    if (c == '}') {
+                        result.append(processElExp(v.toString(), provisioningParams));
+                        v = null;
+                        state = State.NORMAL;
+                    } else {
+                        v.append(c);
+                    }
+            }
+        }
+        return result.toString();
+    }
+
+    private static String processElExp(String exp, Map<String, String> provisioningParams) {
+        String val = provisioningParams.get(exp);
+        return val != null ? val : "";
+    }
+
+    public enum State {
+        NORMAL, STARTPARSE, PARSE
     }
 }

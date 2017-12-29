@@ -1,0 +1,37 @@
+[
+  {
+    "audit": {
+      "created": {
+        "date": "2017-12-23T23:40:02.534Z"
+      },
+      "updated": {}
+    },
+    "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
+    "id": 154284,
+    "status": "APPROVED",
+    "tier": null,
+    "requestedTier": null,
+    "apiVersion": {
+      "audit": {
+        "created": {},
+        "updated": {}
+      },
+      "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
+      "id": 6892172,
+      "apiId": 90461112,
+      "name": "v1",
+      "instanceLabel": null,
+      "deprecated": false,
+      "api": {
+        "audit": {
+          "created": {},
+          "updated": {}
+        },
+        "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
+        "id": 90461112,
+        "name": "testapp",
+        "exchangeAssetName": "testapp"
+      }
+    }
+  }
+]

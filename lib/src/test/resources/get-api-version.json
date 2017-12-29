@@ -1,0 +1,52 @@
+{
+  "audit": {
+    "created": {
+      "date": "2017-12-23T21:32:58.329Z"
+    },
+    "updated": {
+      "date": "2017-12-23T21:32:59.082Z"
+    }
+  },
+  "masterOrganizationId": "43d4b721-9062-41e8-953e-12b0dd54d66e",
+  "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
+  "id": 6894188,
+  "apiId": 90485399,
+  "portalId": 110648,
+  "name": "v1-sit",
+  "instanceLabel": null,
+  "groupId": null,
+  "assetId": null,
+  "assetVersion": null,
+  "productVersion": null,
+  "description": "",
+  "tags": [],
+  "order": 1,
+  "rootFileId": null,
+  "deprecated": false,
+  "lastActiveDate": null,
+  "endpointUri": "",
+  "environmentId": null,
+  "terms": null,
+  "termsDate": "2017-12-23T21:32:59.082Z",
+  "endpoint": {
+    "audit": {
+      "created": {},
+      "updated": {}
+    },
+    "id": 144113,
+    "type": "http",
+    "uri": "http://www.moo.com/xxx",
+    "proxyUri": null,
+    "proxyRegistrationUri": null,
+    "lastActiveDate": null,
+    "isCloudHub": null,
+    "policiesVersion": null,
+    "referencesUserDomain": null,
+    "muleVersion4OrAbove": null,
+    "responseTimeout": null
+  },
+  "deployment": null,
+  "permissions": {
+    "update": true
+  }
+}

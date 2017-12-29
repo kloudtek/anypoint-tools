@@ -24,7 +24,7 @@ public class APIList extends AnypointObject<Organization> implements Iterable<AP
         this.limit = limit;
         this.total = total;
         this.apis = apis;
-        allLoaded = offset + apis.size() > total;
+        allLoaded = offset + apis.size() >= total;
         for (API api : apis) {
             api.setParent(organization);
         }

@@ -1,12 +1,15 @@
 package com.kloudtek.anypoint.provision;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.Organization;
 import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.APIVersion;
+import com.kloudtek.anypoint.api.ClientApplication;
 import com.kloudtek.anypoint.api.policy.Policy;
+import com.kloudtek.anypoint.provision.transformer.SetPropertyTransformer;
 import com.kloudtek.util.StringUtils;
 
 import java.io.IOException;
@@ -22,6 +25,7 @@ public class ProvisioningDescriptor {
     private Map<String, String> provisioningParams;
     private String envSuffix;
     private List<ProvisionedAPI> apis;
+    private TransformList transformList = new TransformList();
 
     public ProvisioningDescriptor(ProvisioningServiceImpl provisioningService, ZipFile zipFile, Map<String, String> provisioningParams,
                                   String envSuffix) {
@@ -31,16 +35,11 @@ public class ProvisioningDescriptor {
         this.envSuffix = envSuffix;
     }
 
-    @JsonProperty
-    public List<ProvisionedAPI> getApis() {
-        return apis != null ? apis : Collections.emptyList();
+    public TransformList getTransformList() {
+        return transformList;
     }
 
-    public void setApis(List<ProvisionedAPI> apis) {
-        this.apis = apis;
-    }
-
-    public void provision(ZipFile zipFile, Organization org) throws NotFoundException, HttpException, IOException {
+    public void provision(Organization org) throws NotFoundException, HttpException, IOException {
         try {
             for (ProvisionedAPI provisionedAPI : apis) {
                 String apiName = parseEL(provisionedAPI.getName());
@@ -73,9 +72,11 @@ public class ProvisioningDescriptor {
                     }
                 }
 
+                // Setup portal
                 if (provisionedAPI.isSetupPortal() && version.getPortalId() == null) {
                     version.createPortal(parseEL(provisionedAPI.getName()));
                 }
+
                 // Create policies
                 HashMap<String, Policy> policies = version.getPoliciesAsMap(false);
                 for (PolicyDescriptor policyDescriptor : provisionedAPI.getPolicies()) {
@@ -86,8 +87,25 @@ public class ProvisioningDescriptor {
                         version.updatePolicy(policyDescriptor.toPolicy(version));
                     }
                 }
+                // Create client application
+                ClientApplication clientApplication;
+                String clientAppUrl = provisionedAPI.getClientAppUrl();
+                String clientAppDescription = provisionedAPI.getClientAppDescription();
+                if (clientAppDescription == null) {
+                    clientAppDescription = provisionedAPI.getDescription();
+                }
+                try {
+                    clientApplication = org.findClientApplication(clientAppName);
+                    // TODO: update clientAppUrl & clientAppDescription
+                } catch (NotFoundException e) {
+                    clientApplication = org.createClientApplication(clientAppName, clientAppUrl, clientAppDescription);
+                }
+                if (StringUtils.isNotEmpty(provisionedAPI.getAddCredsToPropertyFile())) {
+                    transformList.add(provisionedAPI.getAddCredsToPropertyFile(), new SetPropertyTransformer(provisionedAPI.getCredIdPropertyName(), clientApplication.getClientId()));
+                    transformList.add(provisionedAPI.getAddCredsToPropertyFile(), new SetPropertyTransformer(provisionedAPI.getCredSecretPropertyName(), clientApplication.getClientSecret()));
+                }
                 for (ProvisionedAPIAccess access : provisionedAPI.getAccess()) {
-                    org.requestAPIAccess(clientAppName, parseEL(access.getName()), parseEL(access.getVersion()), true, true, null);
+                    org.requestAPIAccess(clientApplication, parseEL(access.getName()), parseEL(access.getVersion()), true, true, null);
                 }
             }
         } catch (ClassCastException e) {
@@ -95,8 +113,17 @@ public class ProvisioningDescriptor {
         }
     }
 
+    @JsonProperty
+    public List<ProvisionedAPI> getApis() {
+        return apis != null ? apis : Collections.emptyList();
+    }
+
+    public void setApis(List<ProvisionedAPI> apis) {
+        this.apis = apis;
+    }
+
     private String parseEL(String str) {
-        return provisioningService.parseEL(str, provisioningParams);
+        return AnypointClient.parseEL(str, provisioningParams);
     }
 
     public void validate() {

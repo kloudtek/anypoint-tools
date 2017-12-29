@@ -127,9 +127,17 @@ public class Organization extends AnypointObject {
     }
 
     public ClientApplication findClientApplication(@NotNull String name) throws HttpException, NotFoundException {
+        return findClientApplication(name, true);
+    }
+
+    public ClientApplication findClientApplication(@NotNull String name, boolean fullData) throws HttpException, NotFoundException {
         for (ClientApplication app : listClientApplications(name)) {
             if( name.equals(app.getName()) ) {
-                return app;
+                if (fullData) {
+                    return jsonHelper.readJson(app, httpHelper.httpGet(app.getUriPath()));
+                } else {
+                    return app;
+                }
             }
         }
         throw new NotFoundException("Client application not found: " + name);
@@ -163,13 +171,17 @@ public class Organization extends AnypointObject {
     }
 
     public RequestAPIAccessResult requestAPIAccess(String clientApplicationName, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
-        APIVersion version = getAPI(apiName).getVersion(apiVersionName);
         ClientApplication clientApplication;
         try {
             clientApplication = findClientApplication(clientApplicationName);
         } catch (NotFoundException e) {
             clientApplication = createClientApplication(clientApplicationName, "", "");
         }
+        return requestAPIAccess(clientApplication, apiName, apiVersionName, autoApprove, autoRestore, slaTier);
+    }
+
+    public RequestAPIAccessResult requestAPIAccess(ClientApplication clientApplication, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
+        APIVersion version = getAPI(apiName).getVersion(apiVersionName);
         APIAccessContract contract;
         try {
             contract = clientApplication.findContract(version);

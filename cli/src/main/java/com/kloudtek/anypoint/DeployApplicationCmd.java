@@ -4,7 +4,6 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.kloudtek.anypoint.provision.InvalidAnypointDescriptorException;
-import com.kloudtek.anypoint.provision.ProvisioningService;
 import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.ApplicationDeploymentFailedException;
 import com.kloudtek.anypoint.runtime.Server;
@@ -41,7 +40,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
             try {
                 if (provisionAnypoint) {
                     cli.print("Provisioning anypoint ... ");
-                    ProvisioningService.getService().provision(cli.getClient(), server.getParent().getParent(), appName, appArch, provisioningParams, envSuffix);
+                    cli.getClient().provision(server.getParent().getParent(), appArch, provisioningParams, envSuffix);
                     cli.println("done");
                 }
                 if (!force) {
@@ -59,7 +58,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
                     cli.println("done");
                 }
             } catch (IOException e) {
-                throw new UserDisplayableException("Error loading application file", e);
+                throw new UserDisplayableException("Error loading application file: " + e.getMessage(), e);
             } catch (ApplicationDeploymentFailedException e) {
                 throw new UserDisplayableException("Application deployment failed: " + e.getMessage(), e);
             }
