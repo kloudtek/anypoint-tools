@@ -1,6 +1,7 @@
 package com.kloudtek.anypoint.provision;
 
 import com.kloudtek.anypoint.AnypointClient;
+import com.kloudtek.anypoint.Organization;
 import com.kloudtek.util.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -58,7 +59,7 @@ class ProvisioningServiceTest {
         File appFile = createApp(type);
         File newZipFile = null;
         try {
-            client.setupDefaultMocks();
+            Organization org = client.setupDefaultMocks();
             HashMap<String, String> params = new HashMap<>();
             params.put("url", "http://www.moo.com");
             TransformList transformList = client.provision(org, appFile, params, "sit");

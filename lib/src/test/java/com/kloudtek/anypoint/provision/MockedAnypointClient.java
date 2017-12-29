@@ -37,7 +37,7 @@ public class MockedAnypointClient extends AnypointClient {
     }
 
     public Organization setupDefaultMocks() {
-        Organization org = new Organization(client, ORGID);
+        Organization org = new Organization(this, ORGID);
         mockGetAPIs(ORGID, API_NAME, "api-list.json");
         mockGetAPIVersion(ORGID, API_ID, API_VERSION_ID, "get-api-version.json");
         mockGetPolicies(ORGID, API_ID, API_VERSION_ID, false, "get-policies.json");
