@@ -25,9 +25,9 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     @Parameter(description = "Force deployment even if app is unchanged", names = {"--force"})
     protected boolean force = false;
     @Parameter(description = "Wait for application start", names = {"-w", "--waitstarted"})
-    private boolean waitAppStarted = true;
+    private boolean waitAppStarted;
     @Parameter(description = "Provision anypoint", names = {"-p", "--provisionanypoint"})
-    private boolean provisionAnypoint = true;
+    private boolean provisionAnypoint;
     @Parameter(description = "Environment suffix (will be appended to API versions and client application names)", names = {"-s", "--envsuffix"})
     private String envSuffix;
     @DynamicParameter(names = "-D", description = "Provisioning parameters")
