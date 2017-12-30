@@ -118,11 +118,11 @@ public class Organization extends AnypointObject {
                 0, 0, 0, 0, 0, 0);
     }
 
-    public List<ClientApplication> listClientApplications() throws HttpException {
+    public ClientApplicationList listClientApplications() throws HttpException {
         return listClientApplications(null);
     }
 
-    public List<ClientApplication> listClientApplications(@Nullable String filter) throws HttpException {
+    public ClientApplicationList listClientApplications(@Nullable String filter) throws HttpException {
         return ClientApplication.find(this, filter);
     }
 

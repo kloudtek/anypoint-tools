@@ -57,13 +57,14 @@ public class MockedAnypointClient extends AnypointClient {
     }
 
     public void mockListApplications(String orgId, String contentPath) {
-        mockHttpGet("/apiplatform/repository/v2/organizations/" + orgId + "/applications", contentPath);
+        mockHttpGet("/apiplatform/repository/v2/organizations/" + orgId + "/applications?limit=100&offset=0&ascending=true", contentPath);
     }
 
     public void mockListContracts(String orgId, String appId, String contentPath) {
         mockHttpGet("/apiplatform/repository/v2/organizations/" + orgId + "/applications/" + appId + "/contracts", contentPath);
     }
 
+    ///apiplatform/repository/v2/organizations/orgid/applications
     public void mockGetClientApplication(String orgId, String appId, String contentPath) {
         mockHttpGet("/apiplatform/repository/v2/organizations/" + orgId + "/applications/" + appId, contentPath);
     }

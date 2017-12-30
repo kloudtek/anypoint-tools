@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.*;
 import com.kloudtek.anypoint.util.JsonHelper;
-import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -99,14 +98,9 @@ public class ClientApplication extends AnypointObject<Organization> {
         return client.getJsonHelper().readJson(new ClientApplication(organization), json);
     }
 
-    public static List<ClientApplication> find(Organization organization, String filter) throws HttpException {
-        URLBuilder url = new URLBuilder(organization.getUriPath() + "/applications");
-// Can't filter because @$#@#$&(@#$&@# anypoint shit API doesn't work properly
-//        if (filter != null) {
-//            url.param("query", filter);
-//        }
-        String json = organization.getClient().getHttpHelper().httpGet(url.toString());
-        List<ClientApplication> list = organization.getClient().getJsonHelper().readJsonList(ClientApplication.class, json, organization, "/applications");
+    public static ClientApplicationList find(Organization organization, String filter) throws HttpException {
+        ClientApplicationList list = new ClientApplicationList(organization, filter);
+        list.download();
         Iterator<ClientApplication> i = list.iterator();
         while (i.hasNext()) {
             ClientApplication clientApplication = i.next();

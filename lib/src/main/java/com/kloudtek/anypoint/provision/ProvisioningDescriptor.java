@@ -66,10 +66,11 @@ public class ProvisioningDescriptor {
                     version = api.getVersion(apiVersionName);
                 }
 
-                if (endpoint != null) {
-                    if (version.getEndpoint() != null && !endpoint.equals(version.getEndpoint().getUri())) {
-                        version.updateEndpoint(endpoint);
-                    }
+                if (endpoint == null) {
+                    endpoint = "http://endpoint";
+                }
+                if (version.getEndpoint() == null || !endpoint.equals(version.getEndpoint().getUri())) {
+                    version.updateEndpoint(endpoint);
                 }
 
                 // Setup portal
