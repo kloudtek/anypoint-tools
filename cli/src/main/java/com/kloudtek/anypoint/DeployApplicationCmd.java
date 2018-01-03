@@ -4,6 +4,7 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.kloudtek.anypoint.provision.InvalidAnypointDescriptorException;
+import com.kloudtek.anypoint.provision.TransformList;
 import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.ApplicationDeploymentFailedException;
 import com.kloudtek.anypoint.runtime.Server;
@@ -40,7 +41,14 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
             try {
                 if (provisionAnypoint) {
                     cli.print("Provisioning anypoint ... ");
-                    cli.getClient().provision(server.getParent().getParent(), appArch, provisioningParams, envSuffix);
+                    TransformList transformList = cli.getClient().provision(server.getParent().getParent(), appArch, provisioningParams, envSuffix);
+                    if (transformList != null) {
+                        try {
+                            appArch = transformList.applyTransforms(appArch, null);
+                        } catch (Exception e) {
+                            throw new UserDisplayableException("An error occured while applying application ctransformations: " + e.getMessage(), e);
+                        }
+                    }
                     cli.println("done");
                 }
                 if (!force) {

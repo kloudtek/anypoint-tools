@@ -7,6 +7,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kloudtek.anypoint.cfg.Config;
 import com.kloudtek.anypoint.cfg.ConfigProfile;
 import com.kloudtek.util.UserDisplayableException;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 import java.io.Console;
 import java.io.File;
@@ -29,6 +38,8 @@ public class AnypointCli {
     private String password;
     @Parameter(description = "If true informational messages will be suppressed", names = {"-q","--quiet"})
     private boolean quiet = false;
+    @Parameter(description = "Enable verbose logging", names = {"-v", "--verbose"})
+    private boolean verbose = false;
     private boolean configExists;
     private Config config;
     private AnypointClient client;
@@ -47,6 +58,8 @@ public class AnypointCli {
             scanner = new Scanner(System.in);
         }
     }
+
+    private LoggerContext logCtx;
 
     public AnypointCli() {
     }
@@ -71,6 +84,30 @@ public class AnypointCli {
         }
     }
 
+    private void setupLogging() {
+        Level lvl;
+        if (verbose) {
+            lvl = Level.DEBUG;
+        } else if (quiet) {
+            lvl = Level.WARN;
+        } else {
+            lvl = Level.INFO;
+        }
+        ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
+        builder.setStatusLevel(Level.ERROR);
+        builder.setConfigurationName("BuilderTest");
+        builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL)
+                .addAttribute("level", lvl));
+        AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").addAttribute("target",
+                ConsoleAppender.Target.SYSTEM_OUT);
+        appenderBuilder.add(builder.newLayout("PatternLayout").addAttribute("pattern", "%msg%n"));
+        builder.add(appenderBuilder);
+        builder.add(builder.newLogger("org.apache.logging.log4j", Level.INFO).add(builder.newAppenderRef("Stdout")).addAttribute("additivity", false));
+        builder.add(builder.newRootLogger(lvl).add(builder.newAppenderRef("Stdout")));
+        logCtx = Configurator.initialize(builder.build());
+    }
+
+
     public static void main(String[] args) {
         try {
             AnypointCli cli = new AnypointCli();
@@ -87,6 +124,7 @@ public class AnypointCli {
             } else {
                 jc.usage();
             }
+            cli.setupLogging();
             cli.loadConfig();
             String cmd = jc.getParsedCommand();
             if (CONFIG.equals(cmd)) {

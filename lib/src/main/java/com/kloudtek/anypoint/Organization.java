@@ -222,6 +222,14 @@ public class Organization extends AnypointObject {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Organization{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                "} " + super.toString();
+    }
+
     public enum RequestAPIAccessResult {
         GRANTED, RESTORED, PENDING
     }

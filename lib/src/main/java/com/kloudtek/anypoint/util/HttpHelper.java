@@ -14,6 +14,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpHelper implements Closeable {
+    private static final Logger logger = LoggerFactory.getLogger(HttpHelper.class);
     private static final String HEADER_AUTH = "Authorization";
     private final CloseableHttpClient httpClient;
     private String auth;
@@ -41,34 +44,42 @@ public class HttpHelper implements Closeable {
     }
 
     public String httpGet(String path, Environment env) throws HttpException {
+        logger.debug("HTTP GET " + path + " env=" + env);
         return execute(new HttpGet(convertPath(path)), env);
     }
 
     public String httpGet(String path) throws HttpException {
+        logger.debug("HTTP GET " + path);
         return executeWrapper(new HttpGet(convertPath(path)), null);
     }
 
     public String httpPost(String path, Object data, Environment env) throws HttpException {
+        logger.debug("HTTP POST " + path + " env=" + env + " data=" + data);
         return execute(new HttpPost(convertPath(path)), data, env);
     }
 
     public String httpPost(String path, Object data) throws HttpException {
+        logger.debug("HTTP POST " + path + " data=" + data);
         return execute(new HttpPost(convertPath(path)), data);
     }
 
     public String httpPatch(String path, Object data) throws HttpException {
+        logger.debug("HTTP PATCH " + path + " data=" + data);
         return execute(new HttpPatch(convertPath(path)), data);
     }
 
     public String httpPut(String path, Object data) throws HttpException {
+        logger.debug("HTTP PUT " + path + " data=" + data);
         return execute(new HttpPut(convertPath(path)), data);
     }
 
     public String httpDelete(String path) throws HttpException {
+        logger.debug("HTTP DELETE " + path);
         return executeWrapper(new HttpDelete(convertPath(path)), null);
     }
 
     public String httpDelete(@NotNull String path, @NotNull Environment env) throws HttpException {
+        logger.debug("HTTP DELETE " + path + " env=" + env);
         return execute(new HttpDelete(convertPath(path)), env);
     }
 

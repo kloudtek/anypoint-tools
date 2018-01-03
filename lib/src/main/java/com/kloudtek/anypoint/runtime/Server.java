@@ -72,8 +72,7 @@ public class Server extends AnypointObject<Environment> {
         return deploy(name, new FileStreamSource(file));
     }
 
-    public Application
-    deploy(@NotNull String name, @NotNull StreamSource stream) throws HttpException, IOException {
+    public Application deploy(@NotNull String name, @NotNull StreamSource stream) throws HttpException, IOException {
         HttpHelper.MultiPartRequest request;
         try {
             Application application = findApplication(name);

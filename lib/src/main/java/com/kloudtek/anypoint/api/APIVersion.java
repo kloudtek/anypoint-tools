@@ -9,6 +9,8 @@ import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.policy.Policy;
 import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class APIVersion extends AnypointObject<API> {
+    private static final Logger logger = LoggerFactory.getLogger(APIVersion.class);
     private String id;
     private String name;
     private String portalId;
@@ -99,6 +102,7 @@ public class APIVersion extends AnypointObject<API> {
     }
 
     public APIPortal createPortal(@Nullable String name) throws HttpException {
+        logger.debug("Creating portal for version " + id + " (" + name + "): " + name);
         String json = httpHelper.httpPost(getUriPath() + "/portal", new HashMap<String, String>());
         APIPortal portal = jsonHelper.readJson(new APIPortal(this), json);
         return portal.updateName(name);
@@ -114,6 +118,7 @@ public class APIVersion extends AnypointObject<API> {
     }
 
     public void updateEndpoint(String type, String uri, Boolean isCloudHub, String proxyUri, String referencesUserDomain, String responseTimeout) throws HttpException {
+        logger.debug("Updating endpoint for version " + id + " (" + name + ") to " + uri);
         Map<String, Object> req = jsonHelper.buildJsonMap().set("type", type).set("uri", uri)
                 .set("isCloudHub", isCloudHub).set("proxyUri", proxyUri)
                 .set("referencesUserDomain", referencesUserDomain)

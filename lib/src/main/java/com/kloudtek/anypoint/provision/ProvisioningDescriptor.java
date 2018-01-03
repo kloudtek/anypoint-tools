@@ -11,6 +11,8 @@ import com.kloudtek.anypoint.api.ClientApplication;
 import com.kloudtek.anypoint.api.policy.Policy;
 import com.kloudtek.anypoint.provision.transformer.SetPropertyTransformer;
 import com.kloudtek.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -20,6 +22,7 @@ import java.util.Map;
 import java.util.zip.ZipFile;
 
 public class ProvisioningDescriptor {
+    private static final Logger logger = LoggerFactory.getLogger(ProvisioningDescriptor.class);
     private ProvisioningServiceImpl provisioningService;
     private ZipFile zipFile;
     private Map<String, String> provisioningParams;
@@ -40,6 +43,7 @@ public class ProvisioningDescriptor {
     }
 
     public void provision(Organization org) throws NotFoundException, HttpException, IOException {
+        logger.debug("Provisioning " + this + " within org " + org);
         try {
             for (ProvisionedAPI provisionedAPI : apis) {
                 String apiName = parseEL(provisionedAPI.getName());
@@ -58,10 +62,13 @@ public class ProvisioningDescriptor {
                     api = org.getAPI(apiName);
                     try {
                         version = api.getVersion(apiVersionName, true);
+                        logger.debug("found version " + apiVersionName);
                     } catch (NotFoundException e) {
+                        logger.debug("Couldn't find version " + apiVersionName + " creating");
                         version = api.createVersion(apiVersionName, endpoint, description);
                     }
                 } catch (NotFoundException e) {
+                    logger.debug("Couldn't find api " + apiName + " creating");
                     api = org.createAPI(apiName, apiVersionName, endpoint, description);
                     version = api.getVersion(apiVersionName);
                 }
@@ -102,6 +109,7 @@ public class ProvisioningDescriptor {
                     clientApplication = org.createClientApplication(clientAppName, clientAppUrl, clientAppDescription);
                 }
                 if (StringUtils.isNotEmpty(provisionedAPI.getAddCredsToPropertyFile())) {
+                    logger.debug("Adding transformer to add credentials to property file: " + provisionedAPI.getAddCredsToPropertyFile());
                     transformList.add(provisionedAPI.getAddCredsToPropertyFile(), new SetPropertyTransformer(provisionedAPI.getCredIdPropertyName(), clientApplication.getClientId()));
                     transformList.add(provisionedAPI.getAddCredsToPropertyFile(), new SetPropertyTransformer(provisionedAPI.getCredSecretPropertyName(), clientApplication.getClientSecret()));
                 }
@@ -137,5 +145,17 @@ public class ProvisioningDescriptor {
                 }
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ProvisioningDescriptor{" +
+                "provisioningService=" + provisioningService +
+                ", zipFile=" + zipFile +
+                ", provisioningParams=" + provisioningParams +
+                ", envSuffix='" + envSuffix + '\'' +
+                ", apis=" + apis +
+                ", transformList=" + transformList +
+                '}';
     }
 }

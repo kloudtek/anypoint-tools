@@ -149,6 +149,17 @@ public class Environment extends AnypointObject<Organization> {
         return jsonHelper.readJson(new Environment(parent),json);
     }
 
+    @Override
+    public String toString() {
+        return "Environment{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", production=" + production +
+                ", type='" + type + '\'' +
+                ", clientId='" + clientId + '\'' +
+                "} " + super.toString();
+    }
+
     public enum Type {
         DESIGN, SANDBOX, PRODUCTION
     }

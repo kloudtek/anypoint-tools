@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
             <groupId>com.kloudtek.ktutils</groupId>
             <artifactId>ktutils-core</artifactId>
             <version>1.2.16</version>

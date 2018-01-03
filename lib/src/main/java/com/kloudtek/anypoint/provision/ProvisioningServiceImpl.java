@@ -2,6 +2,8 @@ package com.kloudtek.anypoint.provision;
 
 import com.kloudtek.anypoint.*;
 import com.kloudtek.util.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +13,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class ProvisioningServiceImpl implements ProvisioningService {
+    private static final Logger logger = LoggerFactory.getLogger(ProvisioningServiceImpl.class);
     @Override
     public TransformList provision(AnypointClient client, Organization org, File file, Map<String, String> provisioningParams, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
         ZipFile zipFile = new ZipFile(file);
