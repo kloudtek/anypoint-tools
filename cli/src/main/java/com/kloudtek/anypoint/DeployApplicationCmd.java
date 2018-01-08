@@ -4,6 +4,7 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.kloudtek.anypoint.provision.InvalidAnypointDescriptorException;
+import com.kloudtek.anypoint.provision.ProvisioningConfig;
 import com.kloudtek.anypoint.provision.TransformList;
 import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.ApplicationDeploymentFailedException;
@@ -31,6 +32,8 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     private boolean provisionAnypoint;
     @Parameter(description = "Environment suffix (will be appended to API versions and client application names)", names = {"-s", "--envsuffix"})
     private String envSuffix;
+    @Parameter(description = "Enable legacy mode for older style anypoint.json", hidden = true, names = {"--legacymode"})
+    private boolean legacyMode;
     @DynamicParameter(names = "-D", description = "Provisioning parameters")
     private Map<String, String> provisioningParams = new HashMap<>();
 
@@ -40,8 +43,13 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
         if (appArch.exists()) {
             try {
                 if (provisionAnypoint) {
+                    ProvisioningConfig provisioningConfig = new ProvisioningConfig(provisioningParams);
+                    if (legacyMode) {
+                        provisioningConfig.setLegacyMode(true);
+                        provisioningConfig.setDescriptorLocation("classes/anypoint.json");
+                    }
                     cli.print("Provisioning anypoint ... ");
-                    TransformList transformList = cli.getClient().provision(server.getParent().getParent(), appArch, provisioningParams, envSuffix);
+                    TransformList transformList = cli.getClient().provision(server.getParent().getParent(), appArch, provisioningConfig, envSuffix);
                     if (transformList != null) {
                         try {
                             appArch = transformList.applyTransforms(appArch, null);

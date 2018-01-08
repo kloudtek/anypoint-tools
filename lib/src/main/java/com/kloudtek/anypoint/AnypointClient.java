@@ -1,10 +1,7 @@
 package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.kloudtek.anypoint.provision.InvalidAnypointDescriptorException;
-import com.kloudtek.anypoint.provision.ProvisioningService;
-import com.kloudtek.anypoint.provision.ProvisioningServiceImpl;
-import com.kloudtek.anypoint.provision.TransformList;
+import com.kloudtek.anypoint.provision.*;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 import org.jetbrains.annotations.NotNull;
@@ -70,8 +67,8 @@ public class AnypointClient implements Closeable, Externalizable {
         httpHelper = new HttpHelper(this, username, password);
     }
 
-    public TransformList provision(Organization parent, File file, Map<String, String> provisioningParams, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
-        return provisioningService.provision(this, parent, file, provisioningParams, envSuffix);
+    public TransformList provision(Organization parent, File file, ProvisioningConfig provisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
+        return provisioningService.provision(this, parent, file, provisioningConfig, envSuffix);
     }
 
     public int getMaxParallelDeployments() {

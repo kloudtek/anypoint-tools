@@ -1,0 +1,27 @@
+{
+  "apis": [
+    {
+      "name": "checkout-prc-api",
+      "version": "v1",
+      "access": [
+        {
+          "name": "checkout-wcs-sys-api",
+          "version": "v1"
+        },
+        {
+          "name": "odm-sys-api",
+          "version": "v1"
+        }
+      ],
+      "endpoint": "http://api/checkout-prc-api",
+      "policies": [
+        {
+          "type": "client-id-enforcement",
+          "clientIdExpr": "#[message.inboundProperties[\\\"client_id\\\"]]",
+          "clientSecretExpr": "#[message.inboundProperties[\\\"client_secret\\\"]]"
+        }
+      ],
+      "addCredsToPropertyFile": "classes/config.properties"
+    }
+  ]
+}

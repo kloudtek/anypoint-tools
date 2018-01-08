@@ -1,0 +1,18 @@
+{
+  "provided-apis": [
+    {
+      "name": "checkout-prc-api",
+      "version": "1",
+      "access": [
+        {
+          "name": "checkout-wcs-sys-api",
+          "version": "1"
+        },
+        {
+          "name": "odm-sys-api",
+          "version": "1"
+        }
+      ]
+    }
+  ]
+}

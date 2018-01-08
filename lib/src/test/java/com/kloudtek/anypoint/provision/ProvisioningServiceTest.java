@@ -62,7 +62,8 @@ class ProvisioningServiceTest {
             Organization org = client.setupDefaultMocks();
             HashMap<String, String> params = new HashMap<>();
             params.put("url", "http://www.moo.com");
-            TransformList transformList = client.provision(org, appFile, params, "sit");
+            ProvisioningConfig cfg = new ProvisioningConfig(params);
+            TransformList transformList = client.provision(org, appFile, cfg, "sit");
             newZipFile = transformList.applyTransforms(appFile, tmpDir);
             Properties p = getPropertyFile(newZipFile, propertyFile);
             Assertions.assertEquals("myclientid", p.getProperty("mule.client.id"));

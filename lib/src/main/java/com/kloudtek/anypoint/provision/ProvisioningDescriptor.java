@@ -18,23 +18,22 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipFile;
 
 public class ProvisioningDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(ProvisioningDescriptor.class);
     private ProvisioningServiceImpl provisioningService;
     private ZipFile zipFile;
-    private Map<String, String> provisioningParams;
+    private ProvisioningConfig provisioningConfig;
     private String envSuffix;
     private List<ProvisionedAPI> apis;
     private TransformList transformList = new TransformList();
 
-    public ProvisioningDescriptor(ProvisioningServiceImpl provisioningService, ZipFile zipFile, Map<String, String> provisioningParams,
+    public ProvisioningDescriptor(ProvisioningServiceImpl provisioningService, ZipFile zipFile, ProvisioningConfig provisioningConfig,
                                   String envSuffix) {
         this.provisioningService = provisioningService;
         this.zipFile = zipFile;
-        this.provisioningParams = provisioningParams;
+        this.provisioningConfig = provisioningConfig;
         this.envSuffix = envSuffix;
     }
 
@@ -132,7 +131,7 @@ public class ProvisioningDescriptor {
     }
 
     private String parseEL(String str) {
-        return AnypointClient.parseEL(str, provisioningParams);
+        return AnypointClient.parseEL(str, provisioningConfig.getProvisioningParams());
     }
 
     public void validate() {
@@ -152,7 +151,7 @@ public class ProvisioningDescriptor {
         return "ProvisioningDescriptor{" +
                 "provisioningService=" + provisioningService +
                 ", zipFile=" + zipFile +
-                ", provisioningParams=" + provisioningParams +
+                ", provisioningConfig=" + provisioningConfig +
                 ", envSuffix='" + envSuffix + '\'' +
                 ", apis=" + apis +
                 ", transformList=" + transformList +

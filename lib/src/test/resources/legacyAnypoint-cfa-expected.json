@@ -1,0 +1,43 @@
+{
+  "apis": [
+    {
+      "name": "checkout-cfa-exp-api",
+      "version": "v1",
+      "access": [
+        {
+          "name": "checkout-prc-api",
+          "version": "v1"
+        },
+        {
+          "name": "checkout-wcs-sys-api",
+          "version": "v1"
+        },
+        {
+          "name": "ncr-sys-api",
+          "version": "v1"
+        },
+        {
+          "name": "odm-sys-api",
+          "version": "v1"
+        },
+        {
+          "name": "addresses-qas-sys-api",
+          "version": "v1"
+        },
+        {
+          "name": "paypal-sys-api",
+          "version": "v1"
+        }
+      ],
+      "endpoint": "http://api/checkout-cfa-exp-api",
+      "policies": [
+        {
+          "type": "client-id-enforcement",
+          "clientIdExpr": "#[message.inboundProperties[\\\"mule_client_id\\\"]]",
+          "clientSecretExpr": "#[message.inboundProperties[\\\"mule_client_secret\\\"]]"
+        }
+      ],
+      "addCredsToPropertyFile": "classes/config.properties"
+    }
+  ]
+}

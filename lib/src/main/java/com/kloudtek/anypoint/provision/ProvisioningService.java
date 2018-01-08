@@ -7,8 +7,7 @@ import com.kloudtek.anypoint.Organization;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
 public interface ProvisioningService {
-    TransformList provision(AnypointClient client, Organization parent, File file, Map<String, String> provisioningParams, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException;
+    TransformList provision(AnypointClient client, Organization parent, File file, ProvisioningConfig provisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException;
 }
