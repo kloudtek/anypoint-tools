@@ -107,10 +107,11 @@ public class ProvisioningDescriptor {
                 } catch (NotFoundException e) {
                     clientApplication = org.createClientApplication(clientAppName, clientAppUrl, clientAppDescription);
                 }
-                if (StringUtils.isNotEmpty(provisionedAPI.getAddCredsToPropertyFile())) {
-                    logger.debug("Adding transformer to add credentials to property file: " + provisionedAPI.getAddCredsToPropertyFile());
-                    transformList.add(provisionedAPI.getAddCredsToPropertyFile(), new SetPropertyTransformer(provisionedAPI.getCredIdPropertyName(), clientApplication.getClientId()));
-                    transformList.add(provisionedAPI.getAddCredsToPropertyFile(), new SetPropertyTransformer(provisionedAPI.getCredSecretPropertyName(), clientApplication.getClientSecret()));
+                String credFile = provisionedAPI.getAddCredsToPropertyFile();
+                if (StringUtils.isNotEmpty(credFile)) {
+                    logger.debug("Adding transformer to add credentials to property file: " + credFile);
+                    transformList.add( new SetPropertyTransformer(credFile,provisionedAPI.getCredIdPropertyName(), clientApplication.getClientId()));
+                    transformList.add( new SetPropertyTransformer(credFile,provisionedAPI.getCredSecretPropertyName(), clientApplication.getClientSecret()));
                 }
                 for (ProvisionedAPIAccess access : provisionedAPI.getAccess()) {
                     org.requestAPIAccess(clientApplication, parseEL(access.getName()), parseEL(access.getVersion()), true, true, null);

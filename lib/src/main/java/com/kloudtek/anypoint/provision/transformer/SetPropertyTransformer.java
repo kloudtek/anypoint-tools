@@ -1,25 +1,38 @@
 package com.kloudtek.anypoint.provision.transformer;
 
 import com.kloudtek.anypoint.provision.Transformer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
-public class SetPropertyTransformer extends Transformer {
+public class SetPropertyTransformer implements Transformer {
+    private String filename;
     private String key;
     private String value;
+    private boolean applied;
 
     public SetPropertyTransformer() {
     }
 
-    public SetPropertyTransformer(String key, String value) {
+    public SetPropertyTransformer(String filename, String key, String value) {
+        this.filename = filename;
         this.key = key;
         this.value = value;
     }
 
     @Override
-    public byte[] doTransform(byte[] data) throws Exception {
+    public boolean appliesTo(String filename) {
+        return this.filename.equals(filename);
+    }
+
+    @Override
+    public byte[] transform(String entryPath, @Nullable byte[] data) throws Exception {
+        applied = true;
         Properties properties = new Properties();
         if (data != null) {
             try (ByteArrayInputStream is = new ByteArrayInputStream(data)) {
@@ -31,6 +44,12 @@ public class SetPropertyTransformer extends Transformer {
         properties.store(os, "Updated by anypoint library");
         os.close();
         return os.toByteArray();
+    }
+
+    @NotNull
+    @Override
+    public List<String> getNewFiles() {
+        return applied ? Collections.emptyList() : Collections.singletonList(filename);
     }
 
     public String getKey() {

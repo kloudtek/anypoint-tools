@@ -5,18 +5,17 @@ import com.kloudtek.util.io.IOUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public class TransformList {
-    private Map<String, Transformer> transformers = new HashMap<>();
-
+public class TransformList extends ArrayList<Transformer> {
     public synchronized File applyTransforms(File appFile, File tmpDir) throws Exception {
-        if (transformers.isEmpty()) {
+        if (isEmpty()) {
             return appFile;
         }
         File tmpFile = File.createTempFile(appFile.getName(), "transformed.zip", tmpDir);
@@ -28,19 +27,36 @@ public class TransformList {
                 try (InputStream is = origZipFile.getInputStream(zipEntry)) {
                     String entryPath = zipEntry.getName();
                     zout.putNextEntry(new ZipEntry(entryPath));
-                    Transformer transformer = transformers.get(entryPath);
-                    if (transformer != null) {
-                        zout.write(transformer.transform(IOUtils.toByteArray(is)));
-                        transformers.remove(entryPath);
+                    if(isTransformable(entryPath)) {
+                        byte[] data = IOUtils.toByteArray(is);
+                        for (Transformer transformer : this) {
+                            if( transformer.appliesTo(entryPath) ) {
+                                data = transformer.transform(entryPath,data);
+                            }
+                        }
+                        zout.write(data);
                     } else {
                         IOUtils.copy(is, zout);
                     }
                 }
             }
-            for (Map.Entry<String, Transformer> e : transformers.entrySet()) {
-                zout.putNextEntry(new ZipEntry(e.getKey()));
-                zout.write(e.getValue().transform(null));
+            HashSet<String> newFiles = new HashSet<>();
+            for (Transformer transformer : this) {
+                newFiles.addAll(transformer.getNewFiles());
             }
+            for (String newFile : newFiles) {
+                zout.putNextEntry(new ZipEntry(newFile));
+                byte[] data = null;
+                for (Transformer transformer : this) {
+                    if( transformer.appliesTo(newFile) ) {
+                        data = transformer.transform(newFile,data);
+                    }
+                }
+                if(data != null) {
+                    zout.write(data);
+                }
+            }
+
             return tmpFile;
         } catch (Exception e) {
             if (tmpFile.exists()) {
@@ -52,12 +68,12 @@ public class TransformList {
         }
     }
 
-    public synchronized void add(String path, Transformer transformer) {
-        Transformer t = transformers.get(path);
-        if (t != null) {
-            t.addNext(transformer);
-        } else {
-            transformers.put(path, transformer);
+    private boolean isTransformable(String entryPath) {
+        for (Transformer transformer : this) {
+            if( transformer.appliesTo(entryPath) ) {
+                return true;
+            }
         }
+        return false;
     }
 }

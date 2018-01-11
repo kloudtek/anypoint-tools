@@ -1,24 +1,13 @@
 package com.kloudtek.anypoint.provision;
 
-public abstract class Transformer {
-    private Transformer next;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-    public void addNext(Transformer transformer) {
-        if (next != null) {
-            next.addNext(transformer);
-        } else {
-            next = transformer;
-        }
-    }
+import java.util.List;
 
-    public final byte[] transform(byte[] data) throws Exception {
-        byte[] converted = doTransform(data);
-        if (next != null) {
-            return next.transform(converted);
-        } else {
-            return converted;
-        }
-    }
-
-    public abstract byte[] doTransform(byte[] data) throws Exception;
+public interface Transformer {
+    boolean appliesTo( String filename );
+    byte[] transform(String entryPath, @Nullable byte[] data) throws Exception;
+    @NotNull
+    List<String> getNewFiles();
 }
