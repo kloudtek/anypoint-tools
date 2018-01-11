@@ -14,6 +14,7 @@ import com.kloudtek.util.UserDisplayableException;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Parameters(commandDescription = "Deploy Application")
@@ -34,6 +35,13 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     private String envSuffix;
     @Parameter(description = "Enable legacy mode for older style anypoint.json", hidden = true, names = {"--legacymode"})
     private boolean legacyMode;
+    @Parameter(description = "Use regex to transform files in the application. " +
+            "This flag must be followed by 4 parameters: the first one a regex that indicate which " +
+            "files should be matched, the second is either the string 'first' or " +
+            "'all' to indicate if the regex replace should apply to first match or " +
+            "all matches, the third is the regex to search for, the fourth to value that " +
+            "to replace matches with, and the fifth is the encoding for the file",arity = 5,names = {"-rg","--regex-tranform"})
+    private List<String> regexTransform;
     @DynamicParameter(names = "-D", description = "Provisioning parameters")
     private Map<String, String> provisioningParams = new HashMap<>();
 
