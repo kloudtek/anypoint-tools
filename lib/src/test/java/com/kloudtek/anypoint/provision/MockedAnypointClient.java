@@ -42,7 +42,8 @@ public class MockedAnypointClient extends AnypointClient {
         mockGetAPIVersion(ORGID, API_ID, API_VERSION_ID, "get-api-version.json");
         mockGetPolicies(ORGID, API_ID, API_VERSION_ID, false, "get-policies.json");
         mockGetAPIs(ORGID, API_NAME_TESTAPP, "api-list-query-testapp.json");
-        mockListApplications(ORGID, "list-applications.json");
+        mockListApplications(ORGID, 0, "list-applications.json");
+        mockListApplications(ORGID, 100, "list-applications-2.json");
         mockListContracts(ORGID, CLIENT_APP_ID, "list-contracts.json");
         mockGetClientApplication(ORGID, CLIENT_APP_ID, "get-clientapp.json");
         return org;
@@ -56,8 +57,8 @@ public class MockedAnypointClient extends AnypointClient {
         mockHttpGet("/apiplatform/repository/v2/organizations/" + orgId + "/apis/" + apiId + "/versions/" + apiVersionId + "/policies?fullInfo=" + fullInfo, contentPath);
     }
 
-    public void mockListApplications(String orgId, String contentPath) {
-        mockHttpGet("/apiplatform/repository/v2/organizations/" + orgId + "/applications?limit=100&offset=0&ascending=true", contentPath);
+    public void mockListApplications(String orgId, int offset, String contentPath) {
+        mockHttpGet("/apiplatform/repository/v2/organizations/" + orgId + "/applications?limit=100&offset=" + offset + "&ascending=true&targetAdminSite=true", contentPath);
     }
 
     public void mockListContracts(String orgId, String appId, String contentPath) {
