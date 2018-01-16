@@ -30,12 +30,18 @@ public class HttpHelper implements Closeable {
     private AnypointClient client;
     private final String username;
     private final String password;
+    private int maxRetries = 4;
+    private long retryDelay = 1000L;
 
     public HttpHelper(AnypointClient client, String username, String password) {
+        this(HttpClients.createMinimal(), client, username, password);
+    }
+
+    public HttpHelper(CloseableHttpClient httpClient, AnypointClient client, String username, String password) {
         this.client = client;
         this.username = username;
         this.password = password;
-        httpClient = HttpClients.createMinimal();
+        this.httpClient = httpClient;
     }
 
     @Override
@@ -116,9 +122,13 @@ public class HttpHelper implements Closeable {
     }
 
     private String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest) throws HttpException {
+        return executeWrapper(method, multiPartRequest, 0);
+    }
+
+    private String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest, int attempt) throws HttpException {
         boolean authenticating = method.getURI().getPath().equals(AnypointClient.LOGIN_PATH);
         if (auth == null && !authenticating) {
-            client.authenticate(username, password);
+            auth = client.authenticate(username, password);
         }
         try {
             if (multiPartRequest != null) {
@@ -129,9 +139,14 @@ public class HttpHelper implements Closeable {
             if (e.getStatusCode() == 403 || e.getStatusCode() == 401 && !authenticating) {
                 client.authenticate(username, password);
                 return doExecute(method);
-            } else if (e.getStatusCode() > 500) {
-                ThreadUtils.sleep(1500);
-                return doExecute(method);
+            } else if (e.getStatusCode() >= 500) {
+                attempt++;
+                if (attempt > maxRetries) {
+                    throw e;
+                } else {
+                    ThreadUtils.sleep(retryDelay);
+                    return executeWrapper(method, multiPartRequest, attempt);
+                }
             } else {
                 throw e;
             }
@@ -166,10 +181,6 @@ public class HttpHelper implements Closeable {
 
     private String convertPath(String path) {
         return path.startsWith("/") ? "https://anypoint.mulesoft.com" + path : path;
-    }
-
-    public void setAuth(String auth) {
-        this.auth = auth;
     }
 
     public class MultiPartRequest {
@@ -215,6 +226,22 @@ public class HttpHelper implements Closeable {
                 throw e.getIOException();
             }
         }
+    }
+
+    public int getMaxRetries() {
+        return maxRetries;
+    }
+
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+    }
+
+    public long getRetryDelay() {
+        return retryDelay;
+    }
+
+    public void setRetryDelay(long retryDelay) {
+        this.retryDelay = retryDelay;
     }
 
     public class RuntimeIOException extends RuntimeException {

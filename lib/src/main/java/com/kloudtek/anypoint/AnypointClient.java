@@ -159,12 +159,12 @@ public class AnypointClient implements Closeable, Externalizable {
         return httpHelper;
     }
 
-    public void authenticate(String username, String password) throws HttpException {
+    public String authenticate(String username, String password) throws HttpException {
         Map<String, String> request = new HashMap<>();
         request.put("username", username);
         request.put("password", password);
         Map data = jsonHelper.toJsonMap(httpHelper.httpPost(LOGIN_PATH, request));
-        httpHelper.setAuth(data.get("token_type") + " " + data.get("access_token"));
+        return data.get("token_type") + " " + data.get("access_token");
     }
 
     public Environment findEnvironment(String organizationName, String environmentName, boolean createOrganization, boolean createEnvironment, Environment.Type createEnvironmentType) throws NotFoundException, HttpException {
