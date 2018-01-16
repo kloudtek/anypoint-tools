@@ -16,6 +16,7 @@
       <module name="anypoint-lib" target="1.8" />
       <module name="anypoint-tools" target="1.8" />
       <module name="anypointlib" target="1.8" />
+      <module name="ktcli" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

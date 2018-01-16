@@ -13,24 +13,25 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>1.72</version>
-        </dependency>
-        <dependency>
             <groupId>com.kloudtek.anypoint-tools</groupId>
             <artifactId>anypoint-lib</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.9.1</version>
+            <groupId>com.kloudtek.devmagic</groupId>
+            <artifactId>devmagic-core</artifactId>
+            <version>0.9.9</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.9.1</version>
+            <groupId>com.kloudtek.ktutils</groupId>
+            <artifactId>ktutils-core</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.1.0-M1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

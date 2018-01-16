@@ -24,12 +24,12 @@
         <dependency>
             <groupId>com.kloudtek.ktutils</groupId>
             <artifactId>ktutils-core</artifactId>
-            <version>1.2.16</version>
+            <version>1.2.17</version>
         </dependency>
         <dependency>
             <groupId>com.kloudtek.ktutils</groupId>
             <artifactId>ktutils-io</artifactId>
-            <version>1.2.16</version>
+            <version>1.2.17</version>
         </dependency>
         <dependency>
             <groupId>com.kloudtek.kryptotek</groupId>
@@ -39,12 +39,12 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
+            <version>4.5.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.5.3</version>
+            <version>4.5.4</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

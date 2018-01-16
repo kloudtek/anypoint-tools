@@ -1,38 +1,37 @@
 package com.kloudtek.anypoint;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-import java.io.IOException;
-
-@Parameters(commandDescription = "Request API Access")
-public class RequestAPIAccessCmd {
-    @Parameter(description = "Organization (if not set will use default in profile)", names = {"-o", "--organizationName"})
-    private String organizationName;
-    @Parameter(description = "Name of the client application", names = {"-p", "--application"}, required = true)
+@Command(name = "reqapiaccess", description = "Request API Access", sortOptions = false)
+public class RequestAPIAccessCmd extends AbstractOrganizationalCmd {
+    private static final Logger logger = LoggerFactory.getLogger(RequestAPIAccessCmd.class);
+    @Option(description = "Name of the client application", names = {"-c", "--client-application"}, required = true)
     private String clientApplicationName;
-    @Parameter(description = "Name of the API to request access from", names = {"-a", "--api"}, required = true)
+    @Option(description = "Name of the API to request access from", names = {"-a", "--api"}, required = true)
     private String apiName;
-    @Parameter(description = "Version of the API", names = {"-v", "--apiversion"}, required = true)
+    @Option(description = "Version of the API", names = {"-v", "--apiversion"}, required = true)
     private String apiVersionName;
-    @Parameter(description = "Automatically approve if required", names = {"-ap", "--approve"})
+    @Option(description = "If flag set it will not automatically approve if required", names = {"-ap", "--approve"})
     private boolean autoApprove = true;
-    @Parameter(description = "Automatically restore access if revoked", names = {"-r", "--restore"})
+    @Option(description = "If flag is set, it will not automatically restore access if revoked", names = {"-r", "--restore"})
     private boolean autoRestore = true;
-    @Parameter(description = "SLA Tier (required if the api version has SLA Tiers assigned)", names = {"-s", "--slatier"})
+    @Option(description = "SLA Tier (required if the api version has SLA Tiers assigned)", names = {"-s", "--slatier"})
     private String slaTier;
 
-    public void execute(AnypointCli cli) throws HttpException, IOException, NotFoundException {
-        Organization organization = cli.getClient().findOrganization(cli.getOrganizationName(organizationName));
+    @Override
+    protected void execute(Organization organization) throws Exception {
         switch (organization.requestAPIAccess(clientApplicationName, apiName, apiVersionName, autoApprove, autoRestore, slaTier)) {
             case RESTORED:
-                cli.println("API access was restored");
+                logger.info("API access was restored");
                 break;
             case GRANTED:
-                cli.println("Access granted");
+                logger.info("Access granted");
                 break;
             case PENDING:
-                cli.println("Access requested and pending approval");
+                logger.info("Access requested and pending approval");
                 break;
         }
     }

@@ -110,6 +110,21 @@ public class AnypointClient implements Closeable, Externalizable {
         throw new NotFoundException("Organization not found: " + name);
     }
 
+    public Organization getOrganization(String id) throws HttpException, NotFoundException {
+        Organization organization = new Organization(this, id);
+        try {
+            String json = httpHelper.httpGet(organization.getUriPath());
+            jsonHelper.readJson(organization, json);
+            return organization;
+        } catch (HttpException e) {
+            if (e.getStatusCode() == 404) {
+                throw new NotFoundException("Enable to find organization " + id, e);
+            } else {
+                throw e;
+            }
+        }
+    }
+
     /**
      * Return details on the account used to administer anypoint
      *

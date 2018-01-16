@@ -30,7 +30,7 @@ public abstract class PaginatedList<X, Z extends AnypointObject> implements Iter
 
     @SuppressWarnings("unchecked")
     public void download() throws HttpException {
-        String url = buildUrl().param("limit", limit).param("offset", "0").param("ascending", "true").toString();
+        String url = buildUrl().param("limit", limit).param("offset", offset).param("ascending", "true").param("targetAdminSite", "true").toString();
         String json = parent.getClient().getHttpHelper().httpGet(url);
         parent.getClient().getJsonHelper().readJson(this, json);
         for (X obj : list) {
@@ -53,32 +53,32 @@ public abstract class PaginatedList<X, Z extends AnypointObject> implements Iter
     @NotNull
     @Override
     public Iterator<X> iterator() {
-        return new PaginatingIterator(list.iterator());
+        return new PaginatingIterator();
     }
 
     public class PaginatingIterator implements Iterator<X> {
         private Iterator<X> iterator;
 
-        public PaginatingIterator(Iterator<X> iterator) {
-            this.iterator = iterator;
+        public PaginatingIterator() {
+            iterator = list.iterator();
         }
 
         @Override
         public boolean hasNext() {
             boolean hasNext = iterator.hasNext();
             if (!hasNext) {
-                int newOffset = offset + limit;
-                if (newOffset < total) {
-                    offset = newOffset;
-                    try {
-                        download();
-                    } catch (HttpException e) {
-                        throw new RuntimeException(e.getMessage(), e);
+                offset = offset + limit;
+                try {
+                    download();
+                    if (list.isEmpty()) {
+                        return false;
                     }
+                    iterator = list.iterator();
+                } catch (HttpException e) {
+                    throw new RuntimeException(e.getMessage(), e);
                 }
-                System.out.println();
             }
-            return hasNext;
+            return true;
         }
 
         @Override

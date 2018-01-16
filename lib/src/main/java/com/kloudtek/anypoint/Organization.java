@@ -17,6 +17,8 @@ public class Organization extends AnypointObject {
     private String id;
     @JsonProperty
     private String name;
+    @JsonProperty
+    private String parentId;
 
     public Organization() {
     }
@@ -84,6 +86,26 @@ public class Organization extends AnypointObject {
         return new APIList(this, nameFilter, offset, limit, total, list);
     }
 
+    public Organization getParentOrganization() throws HttpException {
+        if (parentId != null) {
+            try {
+                return client.getOrganization(parentId);
+            } catch (NotFoundException e) {
+                throw (HttpException) e.getCause();
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public Organization getRootOrganization() throws HttpException {
+        if (parentId != null) {
+            return getParentOrganization().getRootOrganization();
+        } else {
+            return this;
+        }
+    }
+
     public Environment createEnvironment(@NotNull String name, @NotNull Environment.Type type) throws HttpException {
         HashMap<String, String> request = new HashMap<>();
         request.put("name", name);
@@ -106,11 +128,13 @@ public class Organization extends AnypointObject {
     }
 
     public ClientApplication createClientApplication(String name, String url, String description) throws HttpException {
-        return ClientApplication.create(this,name,url,description, Collections.emptyList(), null);
+        // must always create the application in the root org because anypoint is a piece of @#$@#$#@$@#$#@$#@#@$
+        Organization rootOrg = getRootOrganization();
+        return ClientApplication.create(getRootOrganization(), name, url, description, Collections.emptyList(), null);
     }
 
     public ClientApplication createClientApplication(String name, String url, String description, List<String> redirectUri, String apiEndpoints) throws HttpException {
-        return ClientApplication.create(this,name,url,description,redirectUri,apiEndpoints);
+        return ClientApplication.create(getRootOrganization(), name, url, description, redirectUri, apiEndpoints);
     }
 
     public Organization createSubOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments) throws HttpException {
@@ -118,12 +142,12 @@ public class Organization extends AnypointObject {
                 0, 0, 0, 0, 0, 0);
     }
 
-    public ClientApplicationList listClientApplications() throws HttpException {
+    public List<ClientApplication> listClientApplications() throws HttpException {
         return listClientApplications(null);
     }
 
-    public ClientApplicationList listClientApplications(@Nullable String filter) throws HttpException {
-        return ClientApplication.find(this, filter);
+    public List<ClientApplication> listClientApplications(@Nullable String filter) throws HttpException {
+        return ClientApplication.find(getRootOrganization(), filter);
     }
 
     public ClientApplication findClientApplication(@NotNull String name) throws HttpException, NotFoundException {
@@ -142,7 +166,6 @@ public class Organization extends AnypointObject {
         }
         throw new NotFoundException("Client application not found: " + name);
     }
-
 
     public Organization createSubOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments,
                                            boolean globalDeployment, int vCoresProduction, int vCoresSandbox, int vCoresDesign,

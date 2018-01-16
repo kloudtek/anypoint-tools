@@ -110,6 +110,29 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>ossrh-snapshot</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>ossrh-releases</id>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
     <distributionManagement>
         <repository>
             <id>ossrh</id>

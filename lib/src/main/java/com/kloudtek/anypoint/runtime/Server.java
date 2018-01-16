@@ -12,12 +12,15 @@ import com.kloudtek.kryptotek.DigestAlgorithm;
 import com.kloudtek.kryptotek.DigestUtils;
 import com.kloudtek.util.Hex;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 public class Server extends AnypointObject<Environment> {
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
     protected String id;
     protected String name;
 
@@ -75,9 +78,12 @@ public class Server extends AnypointObject<Environment> {
     public Application deploy(@NotNull String name, @NotNull StreamSource stream) throws HttpException, IOException {
         HttpHelper.MultiPartRequest request;
         try {
+            logger.debug("Searching for pre-existing application named " + name);
             Application application = findApplication(name);
+            logger.debug("Found application named {} : {}", name, application.getId());
             request = httpHelper.createMultiPartPatchRequest("/hybrid/api/v1/applications/" + application.getId(), parent);
         } catch (NotFoundException e) {
+            logger.debug("Couldn't find application named {}", name);
             request = httpHelper.createMultiPartPostRequest("/hybrid/api/v1/applications", parent);
         }
         json = request.addText("targetId", id).addText("artifactName", name).addBinary("file", stream).execute();

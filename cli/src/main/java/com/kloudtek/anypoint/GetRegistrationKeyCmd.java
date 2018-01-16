@@ -1,11 +1,12 @@
 package com.kloudtek.anypoint;
 
-import com.beust.jcommander.Parameters;
+import picocli.CommandLine.Command;
 
-@Parameters(commandDescription = "Retrieve a server registration key")
+@Command(name = "getregkey", showDefaultValues = true, sortOptions = false,
+        description = "Retrieve a server registration key (requires organization and environment to be specified)")
 public class GetRegistrationKeyCmd extends AbstractEnvironmentCmd {
     @Override
-    protected void execute(AnypointCli cli, Environment environment) throws HttpException {
+    protected void execute(Environment environment) throws Exception {
         String key = environment.getServerRegistrationKey();
         System.out.println(key);
     }

@@ -102,9 +102,12 @@ public class ProvisioningDescriptor {
                     clientAppDescription = provisionedAPI.getDescription();
                 }
                 try {
+                    logger.debug("Searching for existing client application {}", clientAppName);
                     clientApplication = org.findClientApplication(clientAppName);
+                    logger.debug("Found existing client application {}: {}", clientAppName, clientApplication.getId());
                     // TODO: update clientAppUrl & clientAppDescription
                 } catch (NotFoundException e) {
+                    logger.debug("Couldn't find existing client application {}, creating", clientAppName);
                     clientApplication = org.createClientApplication(clientAppName, clientAppUrl, clientAppDescription);
                 }
                 String credFile = provisionedAPI.getAddCredsToPropertyFile();

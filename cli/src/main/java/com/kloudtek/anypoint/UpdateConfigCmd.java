@@ -1,67 +1,68 @@
 package com.kloudtek.anypoint;
 
-import com.beust.jcommander.Parameters;
-import com.kloudtek.anypoint.cfg.Config;
-import com.kloudtek.anypoint.cfg.ConfigProfile;
+import com.kloudtek.ktcli.CliCommand;
+import com.kloudtek.ktcli.CliHelper;
+import com.kloudtek.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine.Command;
 
-import java.io.IOException;
+@Command(name = "config", description = "Update configuration", sortOptions = false)
+public class UpdateConfigCmd extends CliCommand<AnypointCli> {
+    private static final Logger logger = LoggerFactory.getLogger(UpdateConfigCmd.class);
 
-@Parameters(commandDescription = "Update configuration")
-public class UpdateConfigCmd {
-    private AnypointCli cli;
-
-    public void execute(AnypointCli cli) {
-        this.cli = cli;
-        Config config = cli.getConfig();
-        String profileName = cli.read("Profile", config.getDefaultProfileName());
-        ConfigProfile cp = config.getProfile(profileName);
-        cp.setUsername(cli.read("Username", cp.getUsername()));
-        cp.setPassword(cli.read("Password", cp.getPassword(), true));
-        if (cli.confirm("Do you wish to set a default organization ?", cp.getDefaultOrganization() != null)) {
-            cp.setDefaultOrganization(cli.read("Default Organization", cp.getDefaultOrganization()));
-        } else {
-            cp.setDefaultOrganization(null);
+    @Override
+    protected void execute() throws Exception {
+        String username = CliHelper.read("Anypoint Username", parent.getUsername());
+        String password = CliHelper.read("Anypoint Password", parent.getPassword(), true);
+        if (StringUtils.isEmpty(password)) {
+            password = null;
         }
-        if (cli.confirm("Do you wish to set a default environment ?", cp.getDefaultEnvironment() != null)) {
-            cp.setDefaultEnvironment(cli.read("Default Environment", cp.getDefaultEnvironment()));
-        } else {
-            cp.setDefaultEnvironment(null);
+        String defaultOrg = null;
+        if (CliHelper.confirm("Do you wish to set a default organization ?", parent.getDefaultOrganization() != null)) {
+            defaultOrg = CliHelper.read("Default organization: ", parent.getDefaultOrganization());
         }
-        config.setDefaultProfileName(cli.read("Default profile", profileName));
-        boolean valid = validate(cp);
-        if (cli.confirm("Confirm you wish to update your configuration with those value", valid)) {
-            try {
-                config.save();
-                System.out.println("Updated configuration file " + config.getFilePath());
-            } catch (IOException e) {
-                System.err.println("Unable to save configuration: " + e.getMessage());
-                System.exit(-1);
+        String defaultEnv = null;
+        if (defaultOrg != null && CliHelper.confirm("Do you wish to set a default environment ?", parent.getDefaultEnvironment() != null)) {
+            defaultEnv = CliHelper.read("Default environment: ", parent.getDefaultEnvironment());
+        }
+        boolean valid = validate(username, password, defaultOrg, defaultEnv);
+        if (CliHelper.confirm("Confirm you wish to update your configuration with those value", valid)) {
+            parent.setUsername(username);
+            if (StringUtils.isNotEmpty(password)) {
+                parent.setPassword(password);
             }
+            parent.setDefaultOrganization(defaultOrg);
+            parent.setDefaultEnvironment(defaultEnv);
+            cli.setSaveConfig(true);
         }
     }
 
-    private boolean validate(ConfigProfile cp) {
-        System.out.print("Validating config against anypoint platform...");
-        AnypointClient anypointClient = new AnypointClient(cp.getUsername(), cp.getPassword());
+    private boolean validate(String username, String password, String defaultOrg, String defaultEnv) {
+        logger.info("Validating config against anypoint platform");
+        AnypointClient anypointClient = new AnypointClient(username, password);
         try {
-            anypointClient.authenticate(cp.getUsername(), cp.getPassword());
-            if (cp.getDefaultOrganization() != null) {
+            anypointClient.authenticate(username, password);
+            if (defaultOrg != null) {
                 try {
-                    Organization organization = anypointClient.findOrganization(cp.getDefaultOrganization());
-                    if (cp.getDefaultEnvironment() != null) {
-                        organization.findEnvironment(cp.getDefaultEnvironment());
+                    Organization organization = anypointClient.findOrganization(defaultOrg);
+                    if (defaultEnv != null) {
+                        try {
+                            organization.findEnvironment(defaultEnv);
+                        } catch (NotFoundException e) {
+                            logger.warn("WARNING: Default environment " + defaultEnv + " not found");
+                        }
                     }
                 } catch (NotFoundException e) {
-                    System.out.println("failed\nWARNING: Default organization " + cp.getDefaultOrganization() + " not found");
+                    logger.warn("WARNING: Default organization " + defaultOrg + " not found");
                 }
             }
-            System.out.println("successful");
             return true;
         } catch (HttpException e) {
             if (e.getStatusCode() == 403 || e.getStatusCode() == 401) {
-                System.out.println("failed\nWARNING: Username/Password are unable to login to anypoint");
+                logger.warn("WARNING: Username/Password are unable to login to anypoint");
             } else {
-                System.out.println("failed\nWARNING: Failed to validate username/password, due to server error response: " + e.getMessage());
+                logger.warn("WARNING: Failed to validate username/password, due to server error response: " + e.getMessage());
             }
             return false;
         }

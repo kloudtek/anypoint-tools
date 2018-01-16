@@ -6,6 +6,7 @@ import com.kloudtek.anypoint.*;
 import com.kloudtek.anypoint.util.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -98,17 +99,18 @@ public class ClientApplication extends AnypointObject<Organization> {
         return client.getJsonHelper().readJson(new ClientApplication(organization), json);
     }
 
-    public static ClientApplicationList find(Organization organization, String filter) throws HttpException {
+    public static List<ClientApplication> find(Organization organization, String filter) throws HttpException {
         ClientApplicationList list = new ClientApplicationList(organization, filter);
         list.download();
         Iterator<ClientApplication> i = list.iterator();
+        ArrayList<ClientApplication> matchingClientApplications = new ArrayList<>();
         while (i.hasNext()) {
             ClientApplication clientApplication = i.next();
-            if (!clientApplication.getName().startsWith(filter)) {
-                i.remove();
+            if (clientApplication.getName().contains(filter)) {
+                matchingClientApplications.add(clientApplication);
             }
         }
-        return list;
+        return matchingClientApplications;
     }
 
     public void delete() throws HttpException {
@@ -154,7 +156,6 @@ public class ClientApplication extends AnypointObject<Organization> {
             if (cVersion.getId().equals(version.getId()) && cVersion.getApiId().equals(version.getApiId())) {
                 return contract;
             }
-            System.out.println();
         }
         throw new NotFoundException("Can't find contract for API Version " + version.getNameOrId() + " in client application " + getNameOrId());
     }

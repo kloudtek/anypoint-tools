@@ -129,7 +129,7 @@ public class HttpHelper implements Closeable {
             if (e.getStatusCode() == 403 || e.getStatusCode() == 401 && !authenticating) {
                 client.authenticate(username, password);
                 return doExecute(method);
-            } else if (e.getStatusCode() == 500) {
+            } else if (e.getStatusCode() > 500) {
                 ThreadUtils.sleep(1500);
                 return doExecute(method);
             } else {
@@ -209,6 +209,7 @@ public class HttpHelper implements Closeable {
 
         public String execute() throws HttpException, IOException {
             try {
+                logger.debug("HTTP {}", request);
                 return HttpHelper.this.executeWrapper(request, this);
             } catch (RuntimeIOException e) {
                 throw e.getIOException();
