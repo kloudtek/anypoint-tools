@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.kloudtek.ktutils</groupId>
             <artifactId>ktutils-core</artifactId>
-            <version>1.2.17</version>
+            <version>1.2.18</version>
         </dependency>
         <dependency>
             <groupId>com.kloudtek.ktutils</groupId>

@@ -1,5 +1,6 @@
 package com.kloudtek.anypoint.provision;
 
+import com.kloudtek.util.TempFile;
 import com.kloudtek.util.io.IOUtils;
 
 import java.io.File;
@@ -8,7 +9,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -18,7 +18,7 @@ public class TransformList extends ArrayList<Transformer> {
         if (isEmpty()) {
             return appFile;
         }
-        File tmpFile = File.createTempFile(appFile.getName(), "transformed.zip", tmpDir);
+        File tmpFile = new TempFile(appFile.getName(), "transformed.zip", tmpDir);
         ZipFile origZipFile = new ZipFile(appFile);
         try (FileOutputStream fout = new FileOutputStream(tmpFile); ZipOutputStream zout = new ZipOutputStream(fout)) {
             Enumeration<? extends ZipEntry> entries = origZipFile.entries();

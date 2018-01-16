@@ -5,6 +5,7 @@ import com.kloudtek.anypoint.provision.TransformList;
 import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.ApplicationDeploymentFailedException;
 import com.kloudtek.anypoint.runtime.Server;
+import com.kloudtek.util.TempFile;
 import com.kloudtek.util.UserDisplayableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,46 +45,52 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     @Override
     protected void execute(Environment environment) throws Exception {
         Server server = environment.findServer(target);
-        if (appArch.exists()) {
-            try {
-                if (provisionAnypoint) {
-                    ProvisioningConfig provisioningConfig = new ProvisioningConfig(provisioningParams);
-                    if (legacyMode) {
-                        provisioningConfig.setLegacyMode(true);
-                        provisioningConfig.setDescriptorLocation("classes/anypoint.json");
+        try {
+            if (appArch.exists()) {
+                try {
+                    if (provisionAnypoint) {
+                        ProvisioningConfig provisioningConfig = new ProvisioningConfig(provisioningParams);
+                        if (legacyMode) {
+                            provisioningConfig.setLegacyMode(true);
+                            provisioningConfig.setDescriptorLocation("classes/anypoint.json");
+                        }
+                        logger.info("Provisioning anypoint");
+                        TransformList transformList = parent.getClient().provision(server.getParent().getParent(), appArch, provisioningConfig, envSuffix);
+                        if (transformList != null) {
+                            try {
+                                appArch = transformList.applyTransforms(appArch, null);
+                            } catch (Exception e) {
+                                throw new UserDisplayableException("An error occured while applying application ctransformations: " + e.getMessage(), e);
+                            }
+                        }
+                        logger.info("Provisioning completed");
                     }
-                    logger.info("Provisioning anypoint");
-                    TransformList transformList = parent.getClient().provision(server.getParent().getParent(), appArch, provisioningConfig, envSuffix);
-                    if (transformList != null) {
-                        try {
-                            appArch = transformList.applyTransforms(appArch, null);
-                        } catch (Exception e) {
-                            throw new UserDisplayableException("An error occured while applying application ctransformations: " + e.getMessage(), e);
+                    if (!force) {
+                        if (server.checkApplicationExist(appName, appArch, true)) {
+                            logger.info("Application already deployed");
+                            return;
                         }
                     }
-                    logger.info("Provisioning completed");
-                }
-                if (!force) {
-                    if (server.checkApplicationExist(appName, appArch, true)) {
-                        logger.info("Application already deployed");
-                        return;
+                    logger.info("Deploying application");
+                    Application deploy = server.deploy(appName, appArch);
+                    logger.info("Application deployment completed");
+                    if (waitAppStarted) {
+                        logger.info("Waiting for app to start ... ");
+                        deploy.waitDeployed();
+                        logger.info("app is started");
                     }
+                } catch (IOException e) {
+                    throw new UserDisplayableException("Error loading application file: " + e.getMessage(), e);
+                } catch (ApplicationDeploymentFailedException e) {
+                    throw new UserDisplayableException("Application deployment failed: " + e.getMessage(), e);
                 }
-                logger.info("Deploying application");
-                Application deploy = server.deploy(appName, appArch);
-                logger.info("Application deployment completed");
-                if (waitAppStarted) {
-                    logger.info("Waiting for app to start ... ");
-                    deploy.waitDeployed();
-                    logger.info("app is started");
-                }
-            } catch (IOException e) {
-                throw new UserDisplayableException("Error loading application file: " + e.getMessage(), e);
-            } catch (ApplicationDeploymentFailedException e) {
-                throw new UserDisplayableException("Application deployment failed: " + e.getMessage(), e);
+            } else {
+                throw new UserDisplayableException("File not found: " + appArch.getPath());
             }
-        } else {
-            throw new UserDisplayableException("File not found: " + appArch.getPath());
+        } finally {
+            if (appArch instanceof TempFile) {
+                ((TempFile) appArch).close();
+            }
         }
     }
 }
