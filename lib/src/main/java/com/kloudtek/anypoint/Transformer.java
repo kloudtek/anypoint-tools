@@ -1,4 +1,4 @@
-package com.kloudtek.anypoint.provision;
+package com.kloudtek.anypoint;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -1,6 +1,6 @@
-package com.kloudtek.anypoint.provision.transformer;
+package com.kloudtek.anypoint.transformer;
 
-import com.kloudtek.anypoint.provision.Transformer;
+import com.kloudtek.anypoint.Transformer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

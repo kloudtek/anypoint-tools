@@ -1,4 +1,4 @@
-package com.kloudtek.anypoint.provision;
+package com.kloudtek.anypoint;
 
 import com.kloudtek.util.TempFile;
 import com.kloudtek.util.io.IOUtils;

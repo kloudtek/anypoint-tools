@@ -1,15 +1,12 @@
 package com.kloudtek.anypoint.provision;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.anypoint.AnypointClient;
-import com.kloudtek.anypoint.HttpException;
-import com.kloudtek.anypoint.NotFoundException;
-import com.kloudtek.anypoint.Organization;
+import com.kloudtek.anypoint.*;
 import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.APIVersion;
 import com.kloudtek.anypoint.api.ClientApplication;
 import com.kloudtek.anypoint.api.policy.Policy;
-import com.kloudtek.anypoint.provision.transformer.SetPropertyTransformer;
+import com.kloudtek.anypoint.transformer.SetPropertyTransformer;
 import com.kloudtek.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

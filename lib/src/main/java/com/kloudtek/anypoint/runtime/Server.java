@@ -11,6 +11,7 @@ import com.kloudtek.anypoint.util.StreamSource;
 import com.kloudtek.kryptotek.DigestAlgorithm;
 import com.kloudtek.kryptotek.DigestUtils;
 import com.kloudtek.util.Hex;
+import com.kloudtek.util.TimeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Server extends AnypointObject<Environment> {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -77,6 +79,7 @@ public class Server extends AnypointObject<Environment> {
 
     public Application deploy(@NotNull String name, @NotNull StreamSource stream) throws HttpException, IOException {
         HttpHelper.MultiPartRequest request;
+        long start = System.currentTimeMillis();
         try {
             logger.debug("Searching for pre-existing application named " + name);
             Application application = findApplication(name);
@@ -87,6 +90,9 @@ public class Server extends AnypointObject<Environment> {
             request = httpHelper.createMultiPartPostRequest("/hybrid/api/v1/applications", parent);
         }
         json = request.addText("targetId", id).addText("artifactName", name).addBinary("file", stream).execute();
+        if( logger.isDebugEnabled() ) {
+            logger.debug("File upload took "+ TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()-start)+" seconds");
+        }
         return jsonHelper.readJson(new Application(this), json, "/data");
     }
 
