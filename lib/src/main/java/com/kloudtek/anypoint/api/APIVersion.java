@@ -160,9 +160,11 @@ public class APIVersion extends AnypointObject<API> {
         return Policy.parseJson(this, jsonHelper.toJsonMap(json));
     }
 
-
     public Policy updatePolicy(Policy policy) throws HttpException {
-        String json = httpHelper.httpPatch(new URLBuilder(parent.getUriPath()).path("policies/" + id).toString(), policy.toJson().toMap());
+        if( policy.getId() == null ) {
+            throw new IllegalArgumentException("Policy id musn't be null for update");
+        }
+        String json = httpHelper.httpPatch(new URLBuilder(getUriPath()).path("policies/" + policy.getId()).toString(), policy.toJson().toMap());
         return Policy.parseJson(this, jsonHelper.toJsonMap(json));
     }
 

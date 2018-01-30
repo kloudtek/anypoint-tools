@@ -88,7 +88,9 @@ public class ProvisioningDescriptor {
                     if (existing == null) {
                         version.createPolicy(policyDescriptor.toPolicy(version));
                     } else if (policyDescriptor.update(existing)) {
-                        version.updatePolicy(policyDescriptor.toPolicy(version));
+                        Policy policy = policyDescriptor.toPolicy(version);
+                        policy.setId(existing.getId());
+                        version.updatePolicy(policy);
                     }
                 }
                 // Create client application

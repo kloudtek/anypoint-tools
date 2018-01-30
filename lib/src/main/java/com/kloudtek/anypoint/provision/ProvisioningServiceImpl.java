@@ -55,14 +55,17 @@ public class ProvisioningServiceImpl implements ProvisioningService {
                 ObjectNode api = (ObjectNode) i.next();
                 convertVersionToLegacy(api);
                 String apiName = api.get("name").asText();
+                String shortApiName = apiName.replaceAll("-api$","");
                 api.put("endpoint", "http://api/" + apiName);
                 ArrayNode policies = api.putArray("policies");
                 ObjectNode policy = policies.addObject();
                 policy.put("type", "client-id-enforcement");
                 String prefix = apiName.endsWith("exp-api") ? "mule_" : "";
-                policy.put("clientIdExpr", "#[message.inboundProperties[\\\"" + prefix + "client_id\\\"]]");
-                policy.put("clientSecretExpr", "#[message.inboundProperties[\\\"" + prefix + "client_secret\\\"]]");
+                policy.put("clientIdExpr", "#[message.inboundProperties[\"" + prefix + "client_id\"]]");
+                policy.put("clientSecretExpr", "#[message.inboundProperties[\"" + prefix + "client_secret\"]]");
                 api.put("addCredsToPropertyFile", "classes/config.properties");
+                api.put("credIdPropertyName", "api."+shortApiName+".client.id");
+                api.put("credSecretPropertyName", "api."+shortApiName+".client.secret");
                 ArrayNode access = (ArrayNode) api.get("access");
                 if (access != null) {
                     for (JsonNode jsonNode : access) {
