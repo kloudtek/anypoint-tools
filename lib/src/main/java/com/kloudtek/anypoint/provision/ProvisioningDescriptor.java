@@ -38,7 +38,7 @@ public class ProvisioningDescriptor {
         return transformList;
     }
 
-    public void provision(Organization org) throws NotFoundException, HttpException, IOException {
+    public void provision(Organization org, ProvisioningConfig provisioningConfig) throws NotFoundException, HttpException, IOException {
         logger.debug("Provisioning " + this + " within org " + org);
         try {
             for (ProvisionedAPI provisionedAPI : apis) {
@@ -117,6 +117,9 @@ public class ProvisioningDescriptor {
                 }
                 for (ProvisionedAPIAccess access : provisionedAPI.getAccess()) {
                     org.requestAPIAccess(clientApplication, parseEL(access.getName()), parseEL(access.getVersion()), true, true, null);
+                }
+                for (String name : provisioningConfig.getAccessedBy()) {
+                    org.requestAPIAccess(name,apiName,apiVersionName,true,true,null);
                 }
             }
         } catch (ClassCastException e) {

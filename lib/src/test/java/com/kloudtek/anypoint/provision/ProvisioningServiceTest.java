@@ -63,7 +63,7 @@ class ProvisioningServiceTest {
             Organization org = client.setupDefaultMocks();
             HashMap<String, String> params = new HashMap<>();
             params.put("url", "http://www.moo.com");
-            ProvisioningConfig cfg = new ProvisioningConfig(params);
+            ProvisioningConfig cfg = new ProvisioningConfig(params, null);
             TransformList transformList = client.provision(org, appFile, cfg, "sit");
             newZipFile = transformList.applyTransforms(appFile, tmpDir);
             Properties p = getPropertyFile(newZipFile, propertyFile);

@@ -36,6 +36,8 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     private String envSuffix;
     @Option(description = "Enable legacy mode for older style anypoint.json", hidden = true, names = {"--legacymode"})
     private boolean legacyMode;
+    @Option(names = {"-ab","--accessed-by"},description = "Extra client applications which should be granted access to all APIs in the application (note envSuffix will not be automatically applied to those)")
+    private List<String> extraAccess;
     @Option(names = {"-tr", "--transform"}, description = "json configuration for a package transformer")
     private List<String> transforms;
     @Option(names = "-D", description = "Provisioning parameters")
@@ -48,7 +50,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
             if (appArch.exists()) {
                 try {
                     if (provisionAnypoint) {
-                        ProvisioningConfig provisioningConfig = new ProvisioningConfig(provisioningParams);
+                        ProvisioningConfig provisioningConfig = new ProvisioningConfig(provisioningParams,extraAccess);
                         if (legacyMode) {
                             provisioningConfig.setLegacyMode(true);
                             provisioningConfig.setDescriptorLocation("classes/anypoint.json");

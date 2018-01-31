@@ -34,7 +34,7 @@ public class ProvisioningServiceImpl implements ProvisioningService {
                     }
                     provisioningDescriptor = client.getJsonHelper().readJson(provisioningDescriptor, json);
                     provisioningDescriptor.validate();
-                    provisioningDescriptor.provision(org);
+                    provisioningDescriptor.provision(org,provisioningConfig);
                     return provisioningDescriptor.getTransformList();
                 } catch (InvalidJsonException e) {
                     throw new InvalidAnypointDescriptorException(e.getMessage(), e);
