@@ -45,6 +45,7 @@ public class JsonHelper {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, Object> toJsonMap(JsonNode node) {
         try {
             return jsonMapper.treeToValue(node,Map.class);

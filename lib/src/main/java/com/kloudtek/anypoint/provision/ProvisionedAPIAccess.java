@@ -6,7 +6,7 @@ public class ProvisionedAPIAccess {
     private String name;
     private String version;
 
-    @JsonProperty
+    @JsonProperty(required = true)
     public String getName() {
         return name;
     }
@@ -15,7 +15,7 @@ public class ProvisionedAPIAccess {
         this.name = name;
     }
 
-    @JsonProperty
+    @JsonProperty(required = true)
     public String getVersion() {
         return version;
     }

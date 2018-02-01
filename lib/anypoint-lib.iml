@@ -14,16 +14,10 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-core:1.2.18" level="project" />
     <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-io:1.2.17" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.7" level="project" />
-    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpmime:4.5.4" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-core:1.2.18" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-io:1.2.17" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.kryptotek:kryptotek-core:1.0.24" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-dao:1.2.16" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktserializer:ktserializer-runtime:1.2.17" level="project" />
+    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils:1.3.7" level="project" />
+    <orderEntry type="library" name="Maven: com.kloudtek.kryptotek:kryptotek-core:1.0.25" level="project" />
+    <orderEntry type="library" name="Maven: com.kloudtek.ktserializer:ktserializer-runtime:1.2.21" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.7" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />

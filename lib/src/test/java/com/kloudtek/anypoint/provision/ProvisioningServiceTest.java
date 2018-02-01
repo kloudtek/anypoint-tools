@@ -33,18 +33,6 @@ class ProvisioningServiceTest {
     }
 
     @Test
-    public void testExpressionLanguageSimple() {
-        ProvisioningServiceImpl s = new ProvisioningServiceImpl();
-        HashMap<String, String> p = new HashMap<>();
-        p.put("world", "Glarg");
-        p.put("foo", "bar");
-        assertEquals("helloGlarg", AnypointClient.parseEL("hello${world}", p));
-        assertEquals("helloGlargXbar", AnypointClient.parseEL("hello${world}X${foo}", p));
-        assertEquals("hello${world}", AnypointClient.parseEL("hello$${world}", p));
-        assertEquals("hello$world}", AnypointClient.parseEL("hello$world}", p));
-    }
-
-    @Test
     public void testUpdatePropertyFileNewFile() throws Exception {
         testUpdatePropertyFileImpl("nprop", "classes/configs.properties");
     }

@@ -7,11 +7,11 @@ import java.util.Map;
 public class ProvisioningConfig {
     private String descriptorLocation = "anypoint.json";
     private boolean legacyMode;
-    private Map<String, String> provisioningParams;
+    private Map<String, String> variables;
     private final List<String> accessedBy = new ArrayList<>();
 
-    public ProvisioningConfig(Map<String, String> provisioningParams, List<String> accessedBy) {
-        this.provisioningParams = provisioningParams;
+    public ProvisioningConfig(Map<String, String> variables, List<String> accessedBy) {
+        this.variables = variables;
         if( accessedBy != null ) {
             this.accessedBy.addAll(accessedBy);
         }
@@ -25,12 +25,12 @@ public class ProvisioningConfig {
         this.legacyMode = legacyMode;
     }
 
-    public Map<String, String> getProvisioningParams() {
-        return provisioningParams;
+    public Map<String, String> getVariables() {
+        return variables;
     }
 
-    public void setProvisioningParams(Map<String, String> provisioningParams) {
-        this.provisioningParams = provisioningParams;
+    public void setVariables(Map<String, String> variables) {
+        this.variables = variables;
     }
 
     public List<String> getAccessedBy() {
@@ -38,7 +38,7 @@ public class ProvisioningConfig {
     }
 
     public void addAccessedBy( String clientAppName ) {
-        accessedBy.addAll(clientAppName);
+        accessedBy.add(clientAppName);
     }
 
     public String getDescriptorLocation() {
@@ -47,5 +47,9 @@ public class ProvisioningConfig {
 
     public void setDescriptorLocation(String descriptorLocation) {
         this.descriptorLocation = descriptorLocation;
+    }
+
+    public void addVariable(String key, String value) {
+        variables.put(key,value);
     }
 }

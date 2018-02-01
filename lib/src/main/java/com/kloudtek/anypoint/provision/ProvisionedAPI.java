@@ -18,6 +18,7 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
     private String addCredsToPropertyFile;
     private String clientAppUrl;
     private String clientAppDescription;
+    private String clientAppName;
     private String credIdPropertyName = DEF_CREDKEY_NAME;
     private String credSecretPropertyName = MULE_CREDVAL_NAME;
     private String credId;
@@ -48,6 +49,15 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
+    }
+
+    @JsonProperty
+    public String getClientAppName() {
+        return clientAppName;
+    }
+
+    public void setClientAppName(String clientAppName) {
+        this.clientAppName = clientAppName;
     }
 
     @JsonProperty

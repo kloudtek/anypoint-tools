@@ -5,6 +5,8 @@ import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.ApplicationDeploymentFailedException;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.util.TempFile;
+import com.kloudtek.util.UnexpectedException;
+import com.kloudtek.util.UserDisplayable;
 import com.kloudtek.util.UserDisplayableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,21 +25,21 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     private static final Logger logger = LoggerFactory.getLogger(DeployApplicationCmd.class);
     @Option(description = "Target", names = {"-t", "--target"}, required = true)
     protected String target;
-    @Option(description = "Application name", names = {"-n", "--name"}, required = true)
-    protected String appName;
-    @Option(description = "Application file", names = {"-f", "--file"}, required = true)
-    protected File appArch;
+    @Option(description = "Application names (there must be one per file specified, that will be used in the same order (first name = first file)", names = {"-n", "--name"}, required = true)
+    protected List<String> appNames;
+    @Option(description = "Application files", names = {"-f", "--file"}, required = true)
+    protected List<File> appArchives;
     @Option(description = "Force deployment even if app is unchanged", names = {"--force"})
     protected boolean force = false;
-    @Option(description = "Wait for application start", names = {"-w", "--waitstarted"})
-    private boolean waitAppStarted;
-    @Option(description = "Provision anypoint", names = {"-p", "--provisionanypoint"})
-    private boolean provisionAnypoint;
-    @Option(description = "Environment suffix (will be appended to API versions and client application names)", names = {"-s", "--envsuffix"})
+    @Option(description = "Don't wait for application start", names = {"-sw", "--skip-wait-started"})
+    private boolean skipWait;
+    @Option(description = "Skip anypoint provisioning", names = {"-sp", "--skip-provisioning"})
+    private boolean skipProvisioning;
+    @Option(description = "Environment suffix (will create a variable 'env' which will be appended to all provisioned API versions and all client application names)", names = {"-s", "--envsuffix"})
     private String envSuffix;
     @Option(description = "Enable legacy mode for older style anypoint.json", hidden = true, names = {"--legacymode"})
     private boolean legacyMode;
-    @Option(names = {"-ab","--accessed-by"},description = "Extra client applications which should be granted access to all APIs in the application (note envSuffix will not be automatically applied to those)")
+    @Option(names = {"-ab", "--accessed-by"}, description = "Extra client applications which should be granted access to all APIs in the application (note envSuffix will not be automatically applied to those)")
     private List<String> extraAccess;
     @Option(names = {"-tr", "--transform"}, description = "json configuration for a package transformer")
     private List<String> transforms;
@@ -46,52 +49,80 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     @Override
     protected void execute(Environment environment) throws Exception {
         Server server = environment.findServer(target);
-        try {
-            if (appArch.exists()) {
-                try {
-                    if (provisionAnypoint) {
-                        ProvisioningConfig provisioningConfig = new ProvisioningConfig(provisioningParams,extraAccess);
+        HashMap<String,Application> deployed = new HashMap<>();
+        for (File appArchive : appArchives) {
+            if( ! appArchive.exists() ) {
+                logger.error("Application file not found: "+appArchive.getPath());
+            }
+        }
+        int appCount = appArchives.size();
+        if( appNames.size() != appCount) {
+            throw new UserDisplayableException("Number of names do not match number of files specified");
+        }
+        ArrayList<String> failed = new ArrayList<>(deployed.size());
+        for(int i = 0; i< appCount; i++) {
+            File appArch = appArchives.get(i);
+            String appName = appNames.get(i);
+            try {
+                if (appArch.exists()) {
+                    if (!skipProvisioning) {
+                        ProvisioningConfig provisioningConfig = new ProvisioningConfig(provisioningParams, extraAccess);
                         if (legacyMode) {
                             provisioningConfig.setLegacyMode(true);
                             provisioningConfig.setDescriptorLocation("classes/anypoint.json");
                         }
-                        logger.info("Provisioning anypoint");
+                        logger.info("Provisioning: " + appName);
                         TransformList transformList = parent.getClient().provision(server.getParent().getParent(), appArch, provisioningConfig, envSuffix);
                         if (transformList != null) {
                             try {
                                 appArch = transformList.applyTransforms(appArch, null);
                             } catch (Exception e) {
-                                throw new UserDisplayableException("An error occured while applying application ctransformations: " + e.getMessage(), e);
+                                throw new UserDisplayableException("An error occured while applying application "+appName+" transformations: " + e.getMessage(), e);
                             }
                         }
-                        logger.info("Provisioning completed");
+                        logger.info("Provisioning completed: "+appName);
                     }
                     if (!force) {
                         if (server.checkApplicationExist(appName, appArch, true)) {
-                            logger.info("Application already deployed");
-                            return;
+                            logger.info("Application already deployed: "+appName);
+                            continue;
                         }
                     }
-                    logger.info("Deploying application");
-                    Application deploy = server.deploy(appName, appArch);
-                    logger.info("Application deployment completed");
-                    if (waitAppStarted) {
-                        logger.info("Waiting for app to start ... ");
-                        deploy.waitDeployed();
-                        logger.info("app is started");
+                    logger.info("Deploying application: "+appName);
+                    try {
+                        deployed.put(appArch.getName(),server.deploy(appName, appArch));
+                    } catch (IOException e) {
+                        throw new UserDisplayableException("Error loading application " + appName+" : "+e.getMessage(), e);
                     }
-                } catch (IOException e) {
-                    throw new UserDisplayableException("Error loading application file: " + e.getMessage(), e);
-                } catch (ApplicationDeploymentFailedException e) {
-                    throw new UserDisplayableException("Application deployment failed: " + e.getMessage(), e);
+                } else {
+                    throw new UserDisplayableException("File not found: " + appArch.getPath());
                 }
-            } else {
-                throw new UserDisplayableException("File not found: " + appArch.getPath());
+            } catch (Exception e) {
+                logger.error("Failed to deploy "+appName+" : "+e.getMessage(),e);
+                failed.add(appName);
+            } finally {
+                if (appArchives instanceof TempFile) {
+                    ((TempFile) appArchives).close();
+                }
             }
-        } finally {
-            if (appArch instanceof TempFile) {
-                ((TempFile) appArch).close();
+        }
+        logger.info("Applications deployment completed");
+        if (!skipWait) {
+            logger.info("Waiting for apps to start");
+            for (Map.Entry<String, Application> entry : deployed.entrySet()) {
+                try {
+                    entry.getValue().waitDeployed();
+                } catch (ApplicationDeploymentFailedException e) {
+                    logger.error("Failed to deploy "+entry.getKey()+" : "+e.getMessage(),e);
+                    failed.add(entry.getKey());
+                }
             }
+        }
+        int failedCount = failed.size();
+        if( failedCount == 0 ) {
+            logger.info("All apps successfully started");
+        } else {
+            throw new UnexpectedException((appCount-failedCount)+" out of "+appCount+" apps started successfully. Failed apps: "+failed);
         }
     }
 }

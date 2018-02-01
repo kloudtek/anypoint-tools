@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipFile;
 
+import static com.kloudtek.util.StringUtils.isNotEmpty;
+
 public class ProvisioningDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(ProvisioningDescriptor.class);
     private ProvisioningServiceImpl provisioningService;
@@ -39,18 +41,21 @@ public class ProvisioningDescriptor {
     }
 
     public void provision(Organization org, ProvisioningConfig provisioningConfig) throws NotFoundException, HttpException, IOException {
+        if( StringUtils.isNotBlank(envSuffix) ) {
+            provisioningConfig.addVariable("env",envSuffix);
+        }
         logger.debug("Provisioning " + this + " within org " + org);
         try {
             for (ProvisionedAPI provisionedAPI : apis) {
-                String apiName = parseEL(provisionedAPI.getName());
-                String apiVersionName = parseEL(provisionedAPI.getVersion());
-                String clientAppName = apiName;
+                String apiName = applyVars(provisionedAPI.getName());
+                String apiVersionName = applyVars(provisionedAPI.getVersion());
+                String clientAppName = isNotEmpty(provisionedAPI.getClientAppName()) ? applyVars(provisionedAPI.getClientAppName()) : apiName;
+                String endpoint = applyVars(provisionedAPI.getEndpoint());
+                String description = applyVars(provisionedAPI.getDescription());
                 if (!StringUtils.isEmpty(envSuffix)) {
                     apiVersionName = apiVersionName + "-" + envSuffix;
                     clientAppName = clientAppName + "-" + envSuffix;
                 }
-                String endpoint = parseEL(provisionedAPI.getEndpoint());
-                String description = parseEL(provisionedAPI.getDescription());
                 // Create API & Version
                 API api;
                 APIVersion version;
@@ -75,12 +80,10 @@ public class ProvisioningDescriptor {
                 if (version.getEndpoint() == null || !endpoint.equals(version.getEndpoint().getUri())) {
                     version.updateEndpoint(endpoint);
                 }
-
                 // Setup portal
                 if (provisionedAPI.isSetupPortal() && version.getPortalId() == null) {
-                    version.createPortal(parseEL(provisionedAPI.getName()));
+                    version.createPortal(applyVars(provisionedAPI.getName()));
                 }
-
                 // Create policies
                 HashMap<String, Policy> policies = version.getPoliciesAsMap(false);
                 for (PolicyDescriptor policyDescriptor : provisionedAPI.getPolicies()) {
@@ -116,10 +119,10 @@ public class ProvisioningDescriptor {
                     transformList.add( new SetPropertyTransformer(credFile,provisionedAPI.getCredSecretPropertyName(), clientApplication.getClientSecret()));
                 }
                 for (ProvisionedAPIAccess access : provisionedAPI.getAccess()) {
-                    org.requestAPIAccess(clientApplication, parseEL(access.getName()), parseEL(access.getVersion()), true, true, null);
+                    org.requestAPIAccess(clientApplication, applyVars(access.getName()), applyVars(access.getVersion()), true, true, null);
                 }
                 for (String name : provisioningConfig.getAccessedBy()) {
-                    org.requestAPIAccess(name,apiName,apiVersionName,true,true,null);
+                    org.requestAPIAccess(applyVars(name),applyVars(apiName),applyVars(apiVersionName),true,true,null);
                 }
             }
         } catch (ClassCastException e) {
@@ -136,8 +139,8 @@ public class ProvisioningDescriptor {
         this.apis = apis;
     }
 
-    private String parseEL(String str) {
-        return AnypointClient.parseEL(str, provisioningConfig.getProvisioningParams());
+    private String applyVars(String str) {
+        return StringUtils.substituteVariables(str,provisioningConfig.getVariables());
     }
 
     public void validate() {
