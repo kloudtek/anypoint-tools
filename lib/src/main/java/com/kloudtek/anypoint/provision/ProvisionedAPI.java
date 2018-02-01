@@ -23,6 +23,7 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
     private String credSecretPropertyName = MULE_CREDVAL_NAME;
     private String credId;
     private String credSecret;
+    private List<String> accessedBy;
 
     @JsonProperty
     public List<ProvisionedAPIAccess> getAccess() {
@@ -139,6 +140,15 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
 
     public void setCredSecret(String credSecret) {
         this.credSecret = credSecret;
+    }
+
+    @JsonProperty
+    public List<String> getAccessedBy() {
+        return accessedBy;
+    }
+
+    public void setAccessedBy(List<String> accessedBy) {
+        this.accessedBy = accessedBy;
     }
 
     public void validate() throws InvalidAnypointDescriptorException {

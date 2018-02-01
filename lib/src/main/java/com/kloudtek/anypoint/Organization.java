@@ -155,7 +155,21 @@ public class Organization extends AnypointObject {
     }
 
     public ClientApplication findClientApplication(@NotNull String name, boolean fullData) throws HttpException, NotFoundException {
-        for (ClientApplication app : listClientApplications(name)) {
+        ClientApplication app = findClientApplication(new ClientApplicationList(this, name), name, fullData);
+        if( app == null ) {
+            // #@$@##@$ anypoint filtering sometimes doesn't work
+            app = findClientApplication(listClientApplications(name), name, fullData);
+        }
+        if( app == null ) {
+            throw new NotFoundException("Client application not found: " + name);
+        } else {
+            return app;
+        }
+    }
+
+    @Nullable
+    private ClientApplication findClientApplication(Iterable<ClientApplication> list, @NotNull String name, boolean fullData) throws HttpException {
+        for (ClientApplication app : list) {
             if( name.equals(app.getName()) ) {
                 if (fullData) {
                     return jsonHelper.readJson(app, httpHelper.httpGet(app.getUriPath()));
@@ -164,7 +178,7 @@ public class Organization extends AnypointObject {
                 }
             }
         }
-        throw new NotFoundException("Client application not found: " + name);
+        return null;
     }
 
     public Organization createSubOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments,

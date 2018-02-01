@@ -1,6 +1,7 @@
 package com.kloudtek.anypoint.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.Organization;
 import com.kloudtek.anypoint.util.PaginatedList;
 import com.kloudtek.util.URLBuilder;
@@ -8,14 +9,21 @@ import com.kloudtek.util.URLBuilder;
 import java.util.List;
 
 public class ClientApplicationList extends PaginatedList<ClientApplication, Organization> {
-    public ClientApplicationList(Organization organization, String filter) {
+    private final String filter;
+
+    public ClientApplicationList(Organization organization, String filter) throws HttpException {
         super(organization);
-        // TODO ignoring filter because @#$#@$@# anypoint filter is broken
+        this.filter = filter;
+        download();
     }
 
     @Override
     protected URLBuilder buildUrl() {
-        return new URLBuilder(parent.getUriPath() + "/applications");
+        URLBuilder urlBuilder = new URLBuilder(parent.getUriPath() + "/applications");
+        if( filter != null ) {
+            urlBuilder.param("query",filter);
+        }
+        return urlBuilder;
     }
 
     @JsonProperty

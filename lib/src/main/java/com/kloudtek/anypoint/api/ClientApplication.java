@@ -100,8 +100,8 @@ public class ClientApplication extends AnypointObject<Organization> {
     }
 
     public static List<ClientApplication> find(Organization organization, String filter) throws HttpException {
-        ClientApplicationList list = new ClientApplicationList(organization, filter);
-        list.download();
+        // workaround for the fact that filters sometimes don't work in anypoint... *joy*
+        ClientApplicationList list = new ClientApplicationList(organization, null);
         Iterator<ClientApplication> i = list.iterator();
         ArrayList<ClientApplication> matchingClientApplications = new ArrayList<>();
         while (i.hasNext()) {

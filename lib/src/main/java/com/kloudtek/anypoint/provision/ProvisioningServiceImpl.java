@@ -40,6 +40,8 @@ public class ProvisioningServiceImpl implements ProvisioningService {
                     throw new InvalidAnypointDescriptorException(e.getMessage(), e);
                 }
             }
+        } else {
+            logger.debug("No descriptor found");
         }
         return new TransformList();
     }
