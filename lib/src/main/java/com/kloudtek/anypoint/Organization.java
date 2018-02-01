@@ -221,7 +221,7 @@ public class Organization extends AnypointObject {
     }
 
     public RequestAPIAccessResult requestAPIAccess(ClientApplication clientApplication, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
-        logger.debug("Requesting access from client application {} to api {} version {} with autoApprove {} autoRestore {} slaTier {}",
+        logger.info("Requesting access from client application {} to api {} version {} with autoApprove {} autoRestore {} slaTier {}",
                 clientApplication.getName(),apiName,apiVersionName,autoApprove,autoRestore,slaTier);
         APIVersion version = getAPI(apiName).getVersion(apiVersionName);
         APIAccessContract contract;
