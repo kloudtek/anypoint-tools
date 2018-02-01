@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.kloudtek.devmagic</groupId>
             <artifactId>devmagic-core</artifactId>
-            <version>0.9.9</version>
+            <version>0.9.10</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
