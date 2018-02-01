@@ -9,10 +9,13 @@ import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class Organization extends AnypointObject {
+    private static final Logger logger = LoggerFactory.getLogger(Organization.class);
     @JsonProperty
     private String id;
     @JsonProperty
@@ -218,6 +221,8 @@ public class Organization extends AnypointObject {
     }
 
     public RequestAPIAccessResult requestAPIAccess(ClientApplication clientApplication, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
+        logger.debug("Requesting access from client application {} to api {} version {} with autoApprove {} autoRestore {} slaTier {}",
+                clientApplication.getName(),apiName,apiVersionName,autoApprove,autoRestore,slaTier);
         APIVersion version = getAPI(apiName).getVersion(apiVersionName);
         APIAccessContract contract;
         try {
