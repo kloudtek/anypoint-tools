@@ -116,7 +116,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
                     logger.error("Failed to deploy " + appName + " : " + e.getMessage(), e);
                     failed.add(appName);
                 } finally {
-                    if (appArchives instanceof TempFile) {
+                    if (appArch instanceof TempFile) {
                         IOUtils.close((TempFile) appArch);
                     }
                 }
