@@ -63,7 +63,7 @@ class ProvisioningServiceTest {
             }
             Unpacker unpacker = new Unpacker(appFile, FileType.ZIP, newZipFile, FileType.ZIP);
             for (Transformer transformer : transformList) {
-                unpacker.addTransformer((SetPropertyTransformer) transformer);
+                unpacker.addTransformer(transformer);
             }
             unpacker.unpack();
             Properties p = getPropertyFile(newZipFile, propertyFile);

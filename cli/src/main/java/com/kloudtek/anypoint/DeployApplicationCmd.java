@@ -4,6 +4,9 @@ import com.kloudtek.anypoint.provision.ProvisioningConfig;
 import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.ApplicationDeploymentFailedException;
 import com.kloudtek.anypoint.runtime.Server;
+import com.kloudtek.unpack.FileType;
+import com.kloudtek.unpack.Unpacker;
+import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.TempFile;
 import com.kloudtek.util.UnexpectedException;
 import com.kloudtek.util.UserDisplayableException;
@@ -19,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -80,10 +82,14 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
                                 provisioningConfig.setDescriptorLocation("classes/anypoint.json");
                             }
                             logger.info("Provisioning: " + appName);
-                            TransformList transformList = parent.getClient().provision(server.getParent().getParent(), appArch, provisioningConfig, envSuffix);
-                            if (transformList != null) {
+                            List<Transformer> transformers = parent.getClient().provision(server.getParent().getParent(), appArch, provisioningConfig, envSuffix);
+                            if (transformers != null && !transformers.isEmpty()) {
                                 try {
-                                    appArch = transformList.applyTransforms(appArch, null);
+                                    File oldAppArch = appArch;
+                                    appArch = new TempFile(appArch.getName(), ".zip");
+                                    Unpacker unpacker = new Unpacker(oldAppArch, FileType.ZIP, appArch, FileType.ZIP);
+                                    unpacker.addTransformers(transformers);
+                                    unpacker.unpack();
                                 } catch (Exception e) {
                                     throw new UserDisplayableException("An error occured while applying application " + appName + " transformations: " + e.getMessage(), e);
                                 }
