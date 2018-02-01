@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kloudtek.anypoint.*;
+import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -13,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -21,7 +24,7 @@ public class ProvisioningServiceImpl implements ProvisioningService {
     private static final Logger logger = LoggerFactory.getLogger(ProvisioningServiceImpl.class);
 
     @Override
-    public TransformList provision(AnypointClient client, Organization org, File file, ProvisioningConfig provisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
+    public List<Transformer> provision(AnypointClient client, Organization org, File file, ProvisioningConfig provisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
         ZipFile zipFile = new ZipFile(file);
         ZipEntry entry = zipFile.getEntry(provisioningConfig.getDescriptorLocation());
         if (entry != null) {
@@ -43,7 +46,7 @@ public class ProvisioningServiceImpl implements ProvisioningService {
         } else {
             logger.debug("No descriptor found");
         }
-        return new TransformList();
+        return Collections.emptyList();
     }
 
     public static String convertLegacyDescriptor(ObjectMapper jsonMapper, String json) throws IOException {

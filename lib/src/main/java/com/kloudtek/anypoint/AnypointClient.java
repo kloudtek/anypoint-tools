@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.kloudtek.anypoint.provision.*;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
+import com.kloudtek.unpack.transformer.Transformer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -67,7 +68,7 @@ public class AnypointClient implements Closeable, Externalizable {
         httpHelper = new HttpHelper(this, username, password);
     }
 
-    public TransformList provision(Organization parent, File file, ProvisioningConfig provisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
+    public List<Transformer> provision(Organization parent, File file, ProvisioningConfig provisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
         return provisioningService.provision(this, parent, file, provisioningConfig, envSuffix);
     }
 

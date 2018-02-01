@@ -1,8 +1,10 @@
 package com.kloudtek.anypoint.provision;
 
-import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.Organization;
-import com.kloudtek.anypoint.TransformList;
+import com.kloudtek.unpack.FileType;
+import com.kloudtek.unpack.Unpacker;
+import com.kloudtek.unpack.transformer.SetPropertyTransformer;
+import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -45,15 +48,24 @@ class ProvisioningServiceTest {
 
     private Properties testUpdatePropertyFileImpl(String type, String propertyFile) throws Exception {
         MockedAnypointClient client = new MockedAnypointClient();
-        File appFile = createApp(type);
+        File appFile = null;
         File newZipFile = null;
         try {
+            appFile = createApp(type);
             Organization org = client.setupDefaultMocks();
             HashMap<String, String> params = new HashMap<>();
             params.put("url", "http://www.moo.com");
             ProvisioningConfig cfg = new ProvisioningConfig(params, null);
-            TransformList transformList = client.provision(org, appFile, cfg, "sit");
-            newZipFile = transformList.applyTransforms(appFile, tmpDir);
+            List<Transformer> transformList = client.provision(org, appFile, cfg, "sit");
+            newZipFile = File.createTempFile("app", type + ".zip", tmpDir);
+            if (!newZipFile.delete()) {
+                throw new IOException("Unable to delete tmp file: " + newZipFile.getPath());
+            }
+            Unpacker unpacker = new Unpacker(appFile, FileType.ZIP, newZipFile, FileType.ZIP);
+            for (Transformer transformer : transformList) {
+                unpacker.addTransformer((SetPropertyTransformer) transformer);
+            }
+            unpacker.unpack();
             Properties p = getPropertyFile(newZipFile, propertyFile);
             Assertions.assertEquals("myclientid", p.getProperty("mule.client.id"));
             Assertions.assertEquals("myclientsecret", p.getProperty("mule.client.secret"));

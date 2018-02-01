@@ -6,12 +6,14 @@ import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.APIVersion;
 import com.kloudtek.anypoint.api.ClientApplication;
 import com.kloudtek.anypoint.api.policy.Policy;
-import com.kloudtek.anypoint.transformer.SetPropertyTransformer;
+import com.kloudtek.unpack.transformer.SetPropertyTransformer;
+import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +28,7 @@ public class ProvisioningDescriptor {
     private ProvisioningConfig provisioningConfig;
     private String envSuffix;
     private List<ProvisionedAPI> apis;
-    private TransformList transformList = new TransformList();
+    private List<Transformer> transformList = new ArrayList<>();
 
     public ProvisioningDescriptor(ProvisioningServiceImpl provisioningService, ZipFile zipFile, ProvisioningConfig provisioningConfig,
                                   String envSuffix) {
@@ -36,7 +38,7 @@ public class ProvisioningDescriptor {
         this.envSuffix = envSuffix;
     }
 
-    public TransformList getTransformList() {
+    public List<Transformer> getTransformList() {
         return transformList;
     }
 
