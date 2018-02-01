@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 public class ProvisionedAPI extends ProvisionedAPIAccess {
     public static final String DEF_CREDKEY_NAME = "mule.client.id";
@@ -162,5 +163,51 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProvisionedAPI)) return false;
+        ProvisionedAPI that = (ProvisionedAPI) o;
+        return setupPortal == that.setupPortal &&
+                Objects.equals(access, that.access) &&
+                Objects.equals(endpoint, that.endpoint) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(policies, that.policies) &&
+                Objects.equals(addCredsToPropertyFile, that.addCredsToPropertyFile) &&
+                Objects.equals(clientAppUrl, that.clientAppUrl) &&
+                Objects.equals(clientAppDescription, that.clientAppDescription) &&
+                Objects.equals(clientAppName, that.clientAppName) &&
+                Objects.equals(credIdPropertyName, that.credIdPropertyName) &&
+                Objects.equals(credSecretPropertyName, that.credSecretPropertyName) &&
+                Objects.equals(credId, that.credId) &&
+                Objects.equals(credSecret, that.credSecret) &&
+                Objects.equals(accessedBy, that.accessedBy);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(access, setupPortal, endpoint, description, policies, addCredsToPropertyFile, clientAppUrl, clientAppDescription, clientAppName, credIdPropertyName, credSecretPropertyName, credId, credSecret, accessedBy);
+    }
+
+    @Override
+    public String toString() {
+        return "ProvisionedAPI{" +
+                "access=" + access +
+                ", setupPortal=" + setupPortal +
+                ", endpoint='" + endpoint + '\'' +
+                ", description='" + description + '\'' +
+                ", policies=" + policies +
+                ", addCredsToPropertyFile='" + addCredsToPropertyFile + '\'' +
+                ", clientAppUrl='" + clientAppUrl + '\'' +
+                ", clientAppDescription='" + clientAppDescription + '\'' +
+                ", clientAppName='" + clientAppName + '\'' +
+                ", credIdPropertyName='" + credIdPropertyName + '\'' +
+                ", credSecretPropertyName='" + credSecretPropertyName + '\'' +
+                ", credId='" + credId + '\'' +
+                ", credSecret='" + credSecret + '\'' +
+                ", accessedBy=" + accessedBy +
+                "} " + super.toString();
     }
 }

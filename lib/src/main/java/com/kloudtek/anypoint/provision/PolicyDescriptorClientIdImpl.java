@@ -6,6 +6,8 @@ import com.kloudtek.anypoint.api.APIVersion;
 import com.kloudtek.anypoint.api.policy.ClientIdEnforcementPolicy;
 import com.kloudtek.anypoint.api.policy.Policy;
 
+import java.util.Objects;
+
 public class PolicyDescriptorClientIdImpl extends PolicyDescriptor {
     public static final String TYPE = "client-id-enforcement";
     private String clientIdExpr;
@@ -57,5 +59,27 @@ public class PolicyDescriptorClientIdImpl extends PolicyDescriptor {
 
     public void setClientSecretExpr(String clientSecretExpr) {
         this.clientSecretExpr = clientSecretExpr;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PolicyDescriptorClientIdImpl)) return false;
+        PolicyDescriptorClientIdImpl that = (PolicyDescriptorClientIdImpl) o;
+        return Objects.equals(clientIdExpr, that.clientIdExpr) &&
+                Objects.equals(clientSecretExpr, that.clientSecretExpr);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(clientIdExpr, clientSecretExpr);
+    }
+
+    @Override
+    public String toString() {
+        return "PolicyDescriptorClientIdImpl{" +
+                "clientIdExpr='" + clientIdExpr + '\'' +
+                ", clientSecretExpr='" + clientSecretExpr + '\'' +
+                "} " + super.toString();
     }
 }

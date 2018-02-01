@@ -3,6 +3,7 @@ package com.kloudtek.anypoint.provision;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ProvisioningConfig {
     private String descriptorLocation = "anypoint.json";
@@ -51,5 +52,31 @@ public class ProvisioningConfig {
 
     public void addVariable(String key, String value) {
         variables.put(key,value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProvisioningConfig)) return false;
+        ProvisioningConfig that = (ProvisioningConfig) o;
+        return legacyMode == that.legacyMode &&
+                Objects.equals(descriptorLocation, that.descriptorLocation) &&
+                Objects.equals(variables, that.variables) &&
+                Objects.equals(accessedBy, that.accessedBy);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(descriptorLocation, legacyMode, variables, accessedBy);
+    }
+
+    @Override
+    public String toString() {
+        return "ProvisioningConfig{" +
+                "descriptorLocation='" + descriptorLocation + '\'' +
+                ", legacyMode=" + legacyMode +
+                ", variables=" + variables +
+                ", accessedBy=" + accessedBy +
+                '}';
     }
 }

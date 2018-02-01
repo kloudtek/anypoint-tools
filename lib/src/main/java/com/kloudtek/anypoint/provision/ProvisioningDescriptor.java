@@ -121,7 +121,11 @@ public class ProvisioningDescriptor {
                     transformList.add( new SetPropertyTransformer(credFile,provisionedAPI.getCredSecretPropertyName(), clientApplication.getClientSecret()));
                 }
                 for (ProvisionedAPIAccess access : provisionedAPI.getAccess()) {
-                    org.requestAPIAccess(clientApplication, applyVars(access.getName()), applyVars(access.getVersion()), true, true, null);
+                    String accessVersion = access.getVersion();
+                    if( envSuffix != null ) {
+                        accessVersion = accessVersion +"-"+envSuffix;
+                    }
+                    org.requestAPIAccess(clientApplication, applyVars(access.getName()), applyVars(accessVersion), true, true, null);
                 }
                 for (String name : provisioningConfig.getAccessedBy()) {
                     org.requestAPIAccess(applyVars(name),applyVars(apiName),applyVars(apiVersionName),true,true,null);
