@@ -5,11 +5,14 @@ import com.kloudtek.ktcli.CliHelper;
 import com.kloudtek.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "config", description = "Update configuration", sortOptions = false)
 public class UpdateConfigCmd extends CliCommand<AnypointCli> {
     private static final Logger logger = LoggerFactory.getLogger(UpdateConfigCmd.class);
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
+    boolean usageHelpRequested;
 
     @Override
     protected void execute() throws Exception {

@@ -29,6 +29,8 @@ import java.util.concurrent.Future;
 @Command(name = "deploy", description = "Deploy Application", sortOptions = false)
 public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     private static final Logger logger = LoggerFactory.getLogger(DeployApplicationCmd.class);
+    @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
+    boolean usageHelpRequested;
     @Option(description = "Target", names = {"-t", "--target"}, required = true)
     protected String target;
     @Option(description = "Application names (there must be one per file specified, that will be used in the same order (first name = first file)", names = {"-n", "--name"}, required = true)

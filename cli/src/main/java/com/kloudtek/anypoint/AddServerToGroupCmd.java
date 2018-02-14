@@ -5,13 +5,14 @@ import com.kloudtek.anypoint.runtime.ServerGroup;
 import com.kloudtek.util.UserDisplayableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "addservertogroup", description = "Add a server to a group", sortOptions = false)
 public class AddServerToGroupCmd extends AbstractEnvironmentCmd {
-    @Option(names = {"-h", "--help"}, usageHelp = true, description = "display this help message")
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
     boolean usageHelpRequested;
     private static final Logger logger = LoggerFactory.getLogger(AddServerToGroupCmd.class);
     @Parameters(index = "0", description = "Server Group/Cluster name")

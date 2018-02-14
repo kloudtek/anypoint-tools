@@ -2,12 +2,15 @@ package com.kloudtek.anypoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "reqapiaccess", description = "Request API Access", sortOptions = false)
 public class RequestAPIAccessCmd extends AbstractOrganizationalCmd {
     private static final Logger logger = LoggerFactory.getLogger(RequestAPIAccessCmd.class);
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
+    boolean usageHelpRequested;
     @Option(description = "Name of the client application", names = {"-c", "--client-application"}, required = true)
     private String clientApplicationName;
     @Option(description = "Name of the API to request access from", names = {"-a", "--api"}, required = true)
