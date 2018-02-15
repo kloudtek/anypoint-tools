@@ -42,7 +42,7 @@ public class UpdateConfigCmd extends CliCommand<AnypointCli> {
     }
 
     private boolean validate(String username, String password, String defaultOrg, String defaultEnv) {
-        logger.info("Validating config against anypoint platform");
+        logger.info("Validating config against anypoint.sh platform");
         AnypointClient anypointClient = new AnypointClient(username, password);
         try {
             anypointClient.authenticate(username, password);
@@ -63,7 +63,7 @@ public class UpdateConfigCmd extends CliCommand<AnypointCli> {
             return true;
         } catch (HttpException e) {
             if (e.getStatusCode() == 403 || e.getStatusCode() == 401) {
-                logger.warn("WARNING: Username/Password are unable to login to anypoint");
+                logger.warn("WARNING: Username/Password are unable to login to anypoint.sh");
             } else {
                 logger.warn("WARNING: Failed to validate username/password, due to server error response: " + e.getMessage());
             }
