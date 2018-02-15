@@ -15,7 +15,7 @@
         </file>
         <file>
             <destName>README.md</destName>
-            <source>README.md</source>
+            <source>../README.md</source>
         </file>
         <file>
             <destName>anypoint.jar</destName>
