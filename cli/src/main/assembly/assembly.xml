@@ -3,13 +3,14 @@
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
     <id>dist</id>
     <formats>
+        <format>dir</format>
         <format>zip</format>
         <format>tbz2</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <files>
         <file>
-            <destName>anypoint</destName>
+            <destName>bin/anypoint</destName>
             <source>src/main/assembly/anypoint.sh</source>
             <fileMode>0755</fileMode>
         </file>
@@ -18,7 +19,7 @@
             <source>README.md</source>
         </file>
         <file>
-            <destName>anypoint.jar</destName>
+            <destName>lib/anypoint.jar</destName>
             <source>target/${artifactId}-${version}-nodeps.jar</source>
         </file>
     </files>
