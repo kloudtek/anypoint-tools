@@ -15,7 +15,7 @@ will automatically provision the API manager, which includes:
 
 ## Installation
 
-### MacOS ([homebrew](https://brew.sh/))
+### MacOS (homebrew)
 
 If you have [homebrew](https://brew.sh/) installed on your mac, you can install anypoint cli using the command
 
