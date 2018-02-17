@@ -13,6 +13,16 @@ will automatically provision the API manager, which includes:
 - Create client application, and set the client id/secret in a property file within the project
 - Request access to other APIs
 
+## Installation
+
+### MacOS ([homebrew](https://brew.sh/))
+
+If you have [homebrew](https://brew.sh/) installed on your mac, you can install anypoint cli using the command
+
+```bash
+brew install kloudtek/kt/anypoint-tools
+```
+
 ## Configuration
 
 All configurations parameters can be provided through command line parameters, however you can use `anypoint config` to 
