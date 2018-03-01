@@ -74,6 +74,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
             final int idx = i;
             tasks.add(deployThreadPool.submit(() -> {
                 File appArch = appArchives.get(idx);
+                String appArchFileName = appArch.getName();
                 String appName = appNames.get(idx);
                 try {
                     if (appArch.exists()) {
@@ -106,7 +107,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
                         }
                         logger.info("Deploying application: " + appName);
                         try {
-                            Application application = server.deploy(appName, appArch);
+                            Application application = server.deploy(appName, appArch, appArchFileName);
                             deployed.put(appArch.getName(), application);
                         } catch (IOException e) {
                             throw new UserDisplayableException("Error loading application " + appName + " : " + e.getMessage(), e);

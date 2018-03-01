@@ -17,7 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -74,7 +76,21 @@ public class Server extends AnypointObject<Environment> {
     }
 
     public Application deploy(@NotNull String name, @NotNull File file) throws IOException, HttpException {
-        return deploy(name, new FileStreamSource(file));
+        return deploy(name,file,file.getName());
+    }
+
+    public Application deploy(@NotNull String name, @NotNull File file, @NotNull String filename) throws IOException, HttpException {
+        return deploy(name, new StreamSource() {
+            @Override
+            public String getFileName() {
+                return filename;
+            }
+
+            @Override
+            public InputStream createInputStream() throws IOException {
+                return new FileInputStream(file);
+            }
+        });
     }
 
     public Application deploy(@NotNull String name, @NotNull StreamSource stream) throws HttpException, IOException {
