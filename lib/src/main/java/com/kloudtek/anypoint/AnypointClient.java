@@ -5,6 +5,7 @@ import com.kloudtek.anypoint.provision.*;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.unpack.transformer.Transformer;
+import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -13,12 +14,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @SuppressWarnings("SameParameterValue")
-public class AnypointClient implements Closeable, Externalizable {
+public class AnypointClient implements Closeable, Serializable {
     public static final String LOGIN_PATH = "/accounts/login";
     protected JsonHelper jsonHelper;
     protected HttpHelper httpHelper;
-    private int maxParallelDeployments;
-    private ExecutorService deploymentThreadPool;
+    private int maxParallelDeployments = 5;
+    private transient ExecutorService deploymentThreadPool;
     private String username;
     private String password;
     private ProvisioningService provisioningService;
@@ -27,6 +28,10 @@ public class AnypointClient implements Closeable, Externalizable {
      * Contructor used for serialization only
      **/
     public AnypointClient() {
+        init();
+    }
+
+    private void init() {
         jsonHelper = new JsonHelper(this);
         ServiceLoader<ProvisioningService> provisioningServiceLoader = ServiceLoader.load(ProvisioningService.class);
         Iterator<ProvisioningService> provisioningServiceIterator = provisioningServiceLoader.iterator();
@@ -38,6 +43,7 @@ public class AnypointClient implements Closeable, Externalizable {
         } else {
             provisioningService = new ProvisioningServiceImpl();
         }
+        deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
     }
 
     public AnypointClient(String username, String password) {
@@ -45,28 +51,19 @@ public class AnypointClient implements Closeable, Externalizable {
     }
 
     public AnypointClient(String username, String password, int maxParallelDeployments) {
-        this();
         this.username = username;
         this.password = password;
         this.maxParallelDeployments = maxParallelDeployments;
         httpHelper = new HttpHelper(this, username, password);
+        init();
     }
 
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeUTF(username);
-        out.writeUTF(password);
-        out.writeInt(maxParallelDeployments);
+    private void readObject(java.io.ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
     }
 
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        username = in.readUTF();
-        password = in.readUTF();
-        maxParallelDeployments = in.readInt();
-        jsonHelper = new JsonHelper(this);
-        httpHelper = new HttpHelper(this, username, password);
-    }
 
     public List<Transformer> provision(Organization parent, File file, ProvisioningConfig provisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
         return provisioningService.provision(this, parent, file, provisioningConfig, envSuffix);
@@ -90,6 +87,9 @@ public class AnypointClient implements Closeable, Externalizable {
     @Override
     public void close() throws IOException {
         httpHelper.close();
+        if( deploymentThreadPool != null ) {
+            deploymentThreadPool.shutdown();
+        }
     }
 
     public List<Organization> getOrganizations() throws HttpException {

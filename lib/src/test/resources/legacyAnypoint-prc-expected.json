@@ -17,8 +17,8 @@
       "policies": [
         {
           "type": "client-id-enforcement",
-          "clientIdExpr": "#[message.inboundProperties[\\\"client_id\\\"]]",
-          "clientSecretExpr": "#[message.inboundProperties[\\\"client_secret\\\"]]"
+          "clientIdExpr": "#[message.inboundProperties[\"client_id\"]]",
+          "clientSecretExpr": "#[message.inboundProperties[\"client_secret\"]]"
         }
       ],
       "addCredsToPropertyFile": "classes/config.properties"

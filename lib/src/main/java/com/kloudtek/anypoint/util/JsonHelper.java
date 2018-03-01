@@ -10,12 +10,13 @@ import com.kloudtek.anypoint.InvalidJsonException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JsonHelper {
+public class JsonHelper implements Serializable {
     private ObjectMapper jsonMapper = new ObjectMapper();
     private AnypointClient client;
 

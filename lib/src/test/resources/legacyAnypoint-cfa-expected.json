@@ -33,8 +33,8 @@
       "policies": [
         {
           "type": "client-id-enforcement",
-          "clientIdExpr": "#[message.inboundProperties[\\\"mule_client_id\\\"]]",
-          "clientSecretExpr": "#[message.inboundProperties[\\\"mule_client_secret\\\"]]"
+          "clientIdExpr": "#[message.inboundProperties[\"mule_client_id\"]]",
+          "clientSecretExpr": "#[message.inboundProperties[\"mule_client_secret\"]]"
         }
       ],
       "addCredsToPropertyFile": "classes/config.properties"

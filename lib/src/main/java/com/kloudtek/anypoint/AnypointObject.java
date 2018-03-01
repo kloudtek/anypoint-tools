@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 
+import java.io.Serializable;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class AnypointObject<X extends AnypointObject> {
+public abstract class AnypointObject<X extends AnypointObject> implements Serializable {
     @JsonIgnore
     protected String json;
     @JsonIgnore

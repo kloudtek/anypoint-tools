@@ -25,7 +25,7 @@ import java.util.Map;
 public class HttpHelper implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(HttpHelper.class);
     private static final String HEADER_AUTH = "Authorization";
-    private final CloseableHttpClient httpClient;
+    private transient CloseableHttpClient httpClient;
     private String auth;
     private AnypointClient client;
     private final String username;
@@ -47,6 +47,12 @@ public class HttpHelper implements Closeable {
     @Override
     public void close() throws IOException {
         httpClient.close();
+    }
+
+    private void readObject(java.io.ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        httpClient = HttpClients.createMinimal();
     }
 
     public String httpGet(String path, Environment env) throws HttpException {
