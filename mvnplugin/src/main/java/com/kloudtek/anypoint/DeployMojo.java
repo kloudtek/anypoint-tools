@@ -56,6 +56,7 @@ public class DeployMojo extends AbstractMojo {
                 Environment e = o.findEnvironment(env);
                 Server t = e.findServer(target);
                 t.deploy(appName,file);
+                getLog().info("Deployed "+file.getName());
             } catch (Exception e) {
                 throw new MojoExecutionException(e.getMessage(),e);
             }
