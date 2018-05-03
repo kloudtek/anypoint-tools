@@ -5,6 +5,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -35,10 +36,12 @@ public class DeployMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Log log = getLog();
         if( ! skipDeploy ) {
             try {
                 MavenProject project = (MavenProject) getPluginContext().get("project");
                 if( file == null ) {
+                    log.debug("No deploy file defined");
                     if( project == null ) {
                         throw new MojoExecutionException("File not specified while running out of project");
                     }
@@ -52,11 +55,18 @@ public class DeployMojo extends AbstractMojo {
                     }
                 }
                 AnypointClient client = new AnypointClient(username, password);
+                log.debug("Searching for org "+org);
                 Organization o = client.findOrganization(org);
+                log.debug("Found org "+org+" : "+o.getId());
+                log.debug("Searching for env "+env);
                 Environment e = o.findEnvironment(env);
+                log.debug("Found env "+env+" : "+e.getId());
+                log.debug("Searching for target "+target);
                 Server t = e.findServer(target);
+                log.debug("Found target "+target+" : "+t.getId());
+                log.info("Deploying "+file.getName());
                 t.deploy(appName,file);
-                getLog().info("Deployed "+file.getName());
+                log.info("Deployed "+file.getName());
             } catch (Exception e) {
                 throw new MojoExecutionException(e.getMessage(),e);
             }
@@ -64,9 +74,18 @@ public class DeployMojo extends AbstractMojo {
     }
 
     private File getProjectJar(MavenProject project) throws MojoExecutionException {
+        if( getLog().isDebugEnabled() ) {
+            getLog().debug("Listing attached artifacts : "+project.getAttachedArtifacts());
+        }
         for (Artifact artifact : project.getAttachedArtifacts()) {
+            if( getLog().isDebugEnabled()) {
+                getLog().debug("Found : "+artifact.getFile() + " of classifier "+artifact.getClassifier());
+            }
             if( artifact.getClassifier().equals("mule-application") ) {
+                getLog().debug("File is mule-application");
                 return artifact.getFile();
+            } else if( getLog().isDebugEnabled() ) {
+                getLog().debug("File is mule-application");
             }
         }
         throw new MojoExecutionException("No mule-application attached artifact found");
