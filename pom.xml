@@ -43,7 +43,7 @@
     <modules>
         <module>lib</module>
         <module>cli</module>
-        <module>mvnplugin</module>
+        <module>maven-plugin</module>
     </modules>
 
     <properties>

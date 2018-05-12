@@ -33,6 +33,8 @@ public class DeployMojo extends AbstractMojo {
     private File file;
     @Parameter( property = "anypoint.deploy.name", required = false )
     private String appName;
+    @Parameter( property = "anypoint.deploy.force", required = false )
+    private boolean force;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -40,6 +42,10 @@ public class DeployMojo extends AbstractMojo {
         if( ! skipDeploy ) {
             try {
                 MavenProject project = (MavenProject) getPluginContext().get("project");
+                if( isTemplateOrExample(project) && ! force ) {
+                    log.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
+                    return;
+                }
                 if( file == null ) {
                     log.debug("No deploy file defined");
                     if( project == null ) {
@@ -89,5 +95,15 @@ public class DeployMojo extends AbstractMojo {
             }
         }
         throw new MojoExecutionException("No mule-application attached artifact found");
+    }
+
+    private boolean isTemplateOrExample(MavenProject project) {
+        for (Artifact artifact : project.getAttachedArtifacts()) {
+            String classifier = artifact.getClassifier();
+            if( classifier.equals("mule-application-template") || classifier.equals("mule-application-example") ) {
+                return true;
+            }
+        }
+        return false;
     }
 }
