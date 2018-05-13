@@ -15,7 +15,6 @@ import org.apache.maven.project.MavenProject;
 import java.io.File;
 
 @Mojo( name = "deploy", defaultPhase = LifecyclePhase.DEPLOY, requiresProject = false)
-@Execute(phase = LifecyclePhase.DEPLOY)
 public class DeployMojo extends AbstractMojo {
     @Parameter( property = "anypoint.username", required = true )
     private String username;
