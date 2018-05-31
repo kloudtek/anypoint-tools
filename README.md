@@ -17,7 +17,7 @@ Anypoint tools can be used either as a [command line](cli), or as a [maven plugi
 
 # Anypoint Legacy Support
 
-# Pre Design Center ([november 2017 release](https://blogs.mulesoft.com/dev/news-dev/anypoint-platform-nov-2017-release/))
+## Pre Design Center ([november 2017 release](https://blogs.mulesoft.com/dev/news-dev/anypoint-platform-nov-2017-release/))
 
 If you are still using the pre-november 2017 anypoint platform release (before Design Center), you should stick 
 to the version 0.9.27 of anypoint tools, as all versions after that are designed to support the new rest APIs
