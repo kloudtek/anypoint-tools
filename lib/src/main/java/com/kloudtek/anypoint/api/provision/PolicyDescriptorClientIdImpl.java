@@ -1,8 +1,8 @@
-package com.kloudtek.anypoint.provision;
+package com.kloudtek.anypoint.api.provision;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.anypoint.api.APIVersion;
+import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.policy.ClientIdEnforcementPolicy;
 import com.kloudtek.anypoint.api.policy.Policy;
 
@@ -39,7 +39,7 @@ public class PolicyDescriptorClientIdImpl extends PolicyDescriptor {
     }
 
     @Override
-    public Policy toPolicy(APIVersion apiVersion) {
+    public Policy toPolicy(API apiVersion) {
         return new ClientIdEnforcementPolicy(apiVersion, clientIdExpr, clientSecretExpr);
     }
 

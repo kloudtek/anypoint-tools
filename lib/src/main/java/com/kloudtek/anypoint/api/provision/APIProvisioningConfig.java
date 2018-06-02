@@ -1,29 +1,20 @@
-package com.kloudtek.anypoint.provision;
+package com.kloudtek.anypoint.api.provision;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-public class ProvisioningConfig {
+public class APIProvisioningConfig {
     private String descriptorLocation = "anypoint.json";
-    private boolean legacyMode;
-    private Map<String, String> variables;
+    private Map<String, String> variables = new HashMap<>();
     private final List<String> accessedBy = new ArrayList<>();
 
-    public ProvisioningConfig(Map<String, String> variables, List<String> accessedBy) {
-        this.variables = variables;
-        if( accessedBy != null ) {
+    public APIProvisioningConfig() {
+    }
+
+    public APIProvisioningConfig(Map<String, String> variables, List<String> accessedBy) {
+        this.variables.putAll(variables);
+        if (accessedBy != null) {
             this.accessedBy.addAll(accessedBy);
         }
-    }
-
-    public boolean isLegacyMode() {
-        return legacyMode;
-    }
-
-    public void setLegacyMode(boolean legacyMode) {
-        this.legacyMode = legacyMode;
     }
 
     public Map<String, String> getVariables() {
@@ -34,11 +25,15 @@ public class ProvisioningConfig {
         this.variables = variables;
     }
 
+    public void setVariable(String key, String value) {
+        variables.put(key, value);
+    }
+
     public List<String> getAccessedBy() {
         return accessedBy;
     }
 
-    public void addAccessedBy( String clientAppName ) {
+    public void addAccessedBy(String clientAppName) {
         accessedBy.add(clientAppName);
     }
 
@@ -51,30 +46,28 @@ public class ProvisioningConfig {
     }
 
     public void addVariable(String key, String value) {
-        variables.put(key,value);
+        variables.put(key, value);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ProvisioningConfig)) return false;
-        ProvisioningConfig that = (ProvisioningConfig) o;
-        return legacyMode == that.legacyMode &&
-                Objects.equals(descriptorLocation, that.descriptorLocation) &&
+        if (!(o instanceof APIProvisioningConfig)) return false;
+        APIProvisioningConfig that = (APIProvisioningConfig) o;
+        return Objects.equals(descriptorLocation, that.descriptorLocation) &&
                 Objects.equals(variables, that.variables) &&
                 Objects.equals(accessedBy, that.accessedBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptorLocation, legacyMode, variables, accessedBy);
+        return Objects.hash(descriptorLocation, variables, accessedBy);
     }
 
     @Override
     public String toString() {
         return "ProvisioningConfig{" +
                 "descriptorLocation='" + descriptorLocation + '\'' +
-                ", legacyMode=" + legacyMode +
                 ", variables=" + variables +
                 ", accessedBy=" + accessedBy +
                 '}';

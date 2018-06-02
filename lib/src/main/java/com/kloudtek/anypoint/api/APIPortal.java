@@ -7,18 +7,18 @@ import com.kloudtek.anypoint.HttpException;
 
 import java.util.Map;
 
-public class APIPortal extends AnypointObject<APIVersion> {
+public class APIPortal extends AnypointObject<API> {
     @JsonProperty
     private String id;
     @JsonProperty
     private String name;
     @JsonIgnore
-    private APIVersion apiVersion;
+    private API apiVersion;
 
     public APIPortal() {
     }
 
-    public APIPortal(APIVersion apiVersion) {
+    public APIPortal(API apiVersion) {
         super(apiVersion);
         this.apiVersion = apiVersion;
     }
@@ -39,7 +39,7 @@ public class APIPortal extends AnypointObject<APIVersion> {
         this.name = name;
     }
 
-    public APIVersion getApiVersion() {
+    public API getApiVersion() {
         return apiVersion;
     }
 

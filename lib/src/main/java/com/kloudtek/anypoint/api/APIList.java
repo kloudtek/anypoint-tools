@@ -1,93 +1,43 @@
 package com.kloudtek.anypoint.api;
 
-import com.kloudtek.anypoint.AnypointObject;
-import com.kloudtek.anypoint.Organization;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kloudtek.anypoint.Environment;
+import com.kloudtek.anypoint.HttpException;
+import com.kloudtek.anypoint.util.PaginatedList;
+import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Spliterator;
-import java.util.function.Consumer;
 
-public class APIList extends AnypointObject<Organization> implements Iterable<API> {
-    private final int limit;
-    private int total;
-    private final String nameFilter;
-    private int offset;
-    private boolean allLoaded;
-    private List<API> apis;
+public class APIList extends PaginatedList<APIAsset, Environment> {
+    private final String filter;
 
-    public APIList(Organization organization, String nameFilter, int offset, int limit, int total, List<API> apis) {
-        super(organization);
-        this.nameFilter = nameFilter;
-        this.offset = offset;
-        this.limit = limit;
-        this.total = total;
-        this.apis = apis;
-        allLoaded = offset + apis.size() >= total;
-        for (API api : apis) {
-            api.setParent(organization);
-        }
+    public APIList(Environment environment, String filter) throws HttpException {
+        this(environment, filter, 20);
     }
 
-    public int getTotal() {
-        return total;
-    }
-
-    public int getLoadedSize() {
-        return apis.size();
-    }
-
-    /**
-     * Indicates if all available APIs (excluding those prior to offset) are loaded in this list. If they aren't iterating will automating retrieve the remaining ones
-     *
-     * @return true if all APIs are loaded, false otherwise
-     */
-    public boolean isAllLoaded() {
-        return allLoaded;
-    }
-
-    @NotNull
-    @Override
-    public Iterator<API> iterator() {
-        return new APIIterator(apis.iterator());
+    public APIList(Environment environment, String filter, int limit) throws HttpException {
+        super(environment, limit);
+        this.filter = filter;
+        download();
     }
 
     @Override
-    public void forEach(Consumer<? super API> action) {
-        throw new RuntimeException("Not supported yet, sorry :(");
+    protected @NotNull URLBuilder buildUrl() {
+        URLBuilder urlBuilder = new URLBuilder("/apimanager/api/v1/organizations/" + parent.getParent().getId() + "/environments/" + parent.getId() + "/apis");
+        if (filter != null) {
+            urlBuilder.param("query", filter);
+        }
+        urlBuilder.param("sort", "createdDate");
+        return urlBuilder;
     }
 
-    @Override
-    public Spliterator<API> spliterator() {
-        throw new RuntimeException("Not supported yet, sorry :(");
+    @JsonProperty
+    public List<APIAsset> getAssets() {
+        return list;
     }
 
-    class APIIterator implements Iterator<API> {
-        private Iterator<API> it;
-
-        public APIIterator(Iterator<API> it) {
-            this.it = it;
-        }
-
-        @Override
-        public boolean hasNext() {
-            try {
-                if (!it.hasNext() && !allLoaded) {
-                    offset += limit;
-                    APIList moreApis = parent.getAPIs(nameFilter, offset, limit);
-                    apis = moreApis.apis;
-                    it = apis.iterator();
-                }
-                return it.hasNext();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public API next() {
-            return it.next();
-        }
+    public void setAssets(List<APIAsset> assets) {
+        list = assets;
     }
 }

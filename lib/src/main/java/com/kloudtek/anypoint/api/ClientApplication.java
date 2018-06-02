@@ -117,15 +117,15 @@ public class ClientApplication extends AnypointObject<Organization> {
         httpHelper.httpDelete(getUriPath());
     }
 
-    public APIAccessContract requestAPIAccess(APIVersion apiVersion) throws HttpException {
+    public APIAccessContract requestAPIAccess(API apiVersion) throws HttpException {
         return requestAPIAccess(apiVersion, null, null, null, false);
     }
 
-    public APIAccessContract requestAPIAccess(APIVersion apiVersion, SLATier tier) throws HttpException {
+    public APIAccessContract requestAPIAccess(API apiVersion, SLATier tier) throws HttpException {
         return requestAPIAccess(apiVersion, tier, null, null, false);
     }
 
-    public APIAccessContract requestAPIAccess(APIVersion apiVersion, SLATier tier, String partyId, String partyName, boolean acceptedTerms) throws HttpException {
+    public APIAccessContract requestAPIAccess(API apiVersion, SLATier tier, String partyId, String partyName, boolean acceptedTerms) throws HttpException {
         JsonHelper.MapBuilder mapBuilder = jsonHelper.buildJsonMap()
                 .set("apiVersionId", apiVersion.getId()).set("applicationId", id)
                 .set("partyId", partyId).set("partyName", partyName)
@@ -136,7 +136,7 @@ public class ClientApplication extends AnypointObject<Organization> {
         Map<String, Object> req = mapBuilder.toMap();
         String json = httpHelper.httpPost(parent.getUriPath() + "/applications/" + id + "/contracts", req);
         APIAccessContract apiAccessContract = jsonHelper.readJson(new APIAccessContract(this), json);
-        APIVersion v = apiAccessContract.getApiVersion();
+        API v = apiAccessContract.getApiVersion();
         if (v != null) {
             if (v.getOrganizationId() == null) {
                 v.setOrganizationId(apiVersion.getOrganizationId());
@@ -144,21 +144,21 @@ public class ClientApplication extends AnypointObject<Organization> {
         }
         return apiAccessContract;
     }
-
-    public List<APIAccessContract> findContracts() throws HttpException {
-        String json = httpHelper.httpGet(parent.getUriPath() + "/applications/" + id + "/contracts");
-        return jsonHelper.readJsonList(APIAccessContract.class, json, this);
-    }
-
-    public APIAccessContract findContract(APIVersion version) throws HttpException, NotFoundException {
-        for (APIAccessContract contract : findContracts()) {
-            APIVersion cVersion = contract.getApiVersion();
-            if (cVersion.getId().equals(version.getId()) && cVersion.getApiId().equals(version.getApiId())) {
-                return contract;
-            }
-        }
-        throw new NotFoundException("Can't find contract for API Version " + version.getNameOrId() + " in client application " + getNameOrId());
-    }
+//
+//    public List<APIAccessContract> findContracts() throws HttpException {
+//        String json = httpHelper.httpGet(parent.getUriPath() + "/applications/" + id + "/contracts");
+//        return jsonHelper.readJsonList(APIAccessContract.class, json, this);
+//    }
+//
+//    public APIAccessContract findContract(API version) throws HttpException, NotFoundException {
+//        for (APIAccessContract contract : findContracts()) {
+//            API cVersion = contract.getApiVersion();
+//            if (cVersion.getId().equals(version.getId()) && cVersion.getApiId().equals(version.getApiId())) {
+//                return contract;
+//            }
+//        }
+//        throw new NotFoundException("Can't find contract for API Version " + version.getId() + " in client application " + getNameOrId());
+//    }
 
     public String getNameOrId() {
         if (name != null) {

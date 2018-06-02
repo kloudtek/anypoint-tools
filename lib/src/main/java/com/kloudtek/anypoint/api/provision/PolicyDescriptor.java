@@ -1,8 +1,8 @@
-package com.kloudtek.anypoint.provision;
+package com.kloudtek.anypoint.api.provision;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.kloudtek.anypoint.api.APIVersion;
+import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.policy.Policy;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -14,5 +14,5 @@ public abstract class PolicyDescriptor {
 
     public abstract boolean update(Policy policy);
 
-    public abstract Policy toPolicy(APIVersion apiVersion);
+    public abstract Policy toPolicy(API apiVersion);
 }

@@ -26,16 +26,16 @@ public class RequestAPIAccessCmd extends AbstractOrganizationalCmd {
 
     @Override
     protected void execute(Organization organization) throws Exception {
-        switch (organization.requestAPIAccess(clientApplicationName, apiName, apiVersionName, autoApprove, autoRestore, slaTier)) {
-            case RESTORED:
-                logger.info("API access was restored");
-                break;
-            case GRANTED:
-                logger.info("Access granted");
-                break;
-            case PENDING:
-                logger.info("Access requested and pending approval");
-                break;
-        }
+//        switch (organization.requestAPIAccess(clientApplicationName, apiName, apiVersionName, autoApprove, autoRestore, slaTier)) {
+//            case RESTORED:
+//                logger.info("API access was restored");
+//                break;
+//            case GRANTED:
+//                logger.info("Access granted");
+//                break;
+//            case PENDING:
+//                logger.info("Access requested and pending approval");
+//                break;
+//        }
     }
 }

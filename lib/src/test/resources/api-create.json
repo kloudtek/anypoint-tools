@@ -1,0 +1,40 @@
+{
+  "assetVersion": "1.0.0",
+  "productVersion": "v1",
+  "environmentId": "6507f2de-72c6-499b-b1d3-afc70406ffbc",
+  "instanceLabel": null,
+  "order": 1,
+  "audit": {
+    "created": {
+      "date": "2018-06-02T16:17:15.322Z"
+    },
+    "updated": {}
+  },
+  "masterOrganizationId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+  "organizationId": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+  "id": 14632337,
+  "groupId": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+  "assetId": "test",
+  "tags": [],
+  "endpoint": {
+    "type": "raml",
+    "uri": null,
+    "proxyUri": null,
+    "isCloudHub": null,
+    "deploymentType": "CH",
+    "referencesUserDomain": null,
+    "responseTimeout": null,
+    "muleVersion4OrAbove": true,
+    "audit": {
+      "created": {
+        "date": "2018-06-02T16:17:15.322Z"
+      },
+      "updated": {}
+    },
+    "masterOrganizationId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+    "organizationId": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+    "id": 198926,
+    "apiId": 14632337
+  },
+  "autodiscoveryInstanceName": "v1:14632337"
+}

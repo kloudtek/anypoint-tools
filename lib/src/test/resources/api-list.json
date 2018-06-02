@@ -1,60 +1,51 @@
 {
   "total": 1,
-  "apis": [
+  "assets": [
     {
       "audit": {
         "created": {
-          "date": "2017-12-23T21:32:58.329Z"
+          "date": "2018-06-02T17:08:16.915Z"
         },
         "updated": {}
       },
-      "masterOrganizationId": "43d4b721-9062-41e8-953e-12b0dd54d66e",
-      "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
-      "id": 90485399,
-      "name": "deleteme",
-      "exchangeAssetName": "deleteme",
-      "groupId": null,
-      "assetId": null,
-      "permissions": {
-        "addApiVersion": true
-      },
-      "versions": [
+      "masterOrganizationId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "organizationId": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+      "id": 210702792,
+      "name": "groupId:afac985c-1a3b-4750-89ab-58589dca0bb8:assetId:test",
+      "exchangeAssetName": "Test",
+      "groupId": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+      "assetId": "test",
+      "apis": [
         {
           "audit": {
             "created": {
-              "date": "2017-12-23T21:32:58.329Z"
+              "date": "2018-06-02T17:08:16.915Z"
             },
-            "updated": {
-              "date": "2017-12-23T21:32:59.082Z"
-            }
+            "updated": {}
           },
-          "masterOrganizationId": "43d4b721-9062-41e8-953e-12b0dd54d66e",
-          "organizationId": "05b1584e-e9b4-46c5-abd3-34ce07282fa1",
-          "id": 6894188,
-          "apiId": 90485399,
-          "portalId": 110648,
-          "name": "v1-sit",
-          "instanceLabel": null,
-          "groupId": null,
-          "assetId": null,
-          "assetVersion": null,
-          "productVersion": null,
-          "description": "",
+          "masterOrganizationId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+          "organizationId": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+          "id": 14635174,
+          "instanceLabel": "foolabel",
+          "groupId": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+          "assetId": "test",
+          "assetVersion": "1.0.0",
+          "productVersion": "v1",
+          "description": null,
           "tags": [],
           "order": 1,
-          "rootFileId": null,
           "deprecated": false,
           "lastActiveDate": null,
-          "endpointUri": "",
-          "environmentId": null,
-          "terms": null,
-          "termsDate": "2017-12-23T21:32:59.082Z",
-          "portal": {
-            "isPublic": false
-          },
-          "pinned": false
+          "endpointUri": null,
+          "environmentId": "6507f2de-72c6-499b-b1d3-afc70406ffbc",
+          "isPublic": false,
+          "pinned": false,
+          "activeContractsCount": 0,
+          "autodiscoveryInstanceName": "v1:14635174"
         }
-      ]
+      ],
+      "totalApis": 1,
+      "autodiscoveryApiName": "groupId:afac985c-1a3b-4750-89ab-58589dca0bb8:assetId:test"
     }
   ]
 }

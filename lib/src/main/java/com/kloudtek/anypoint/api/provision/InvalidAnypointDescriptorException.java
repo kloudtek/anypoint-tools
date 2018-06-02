@@ -1,4 +1,4 @@
-package com.kloudtek.anypoint.provision;
+package com.kloudtek.anypoint.api.provision;
 
 public class InvalidAnypointDescriptorException extends Exception {
     public InvalidAnypointDescriptorException() {

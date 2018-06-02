@@ -3,10 +3,15 @@ package com.kloudtek.anypoint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.kloudtek.anypoint.api.API;
+import com.kloudtek.anypoint.api.APIAsset;
+import com.kloudtek.anypoint.api.APIList;
+import com.kloudtek.anypoint.api.APISpec;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.runtime.ServerGroup;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -160,8 +165,29 @@ public class Environment extends AnypointObject<Organization> {
                 "} " + super.toString();
     }
 
+    public APIList findAPIs(String filter) throws HttpException {
+        return new APIList(this,filter);
+    }
+
+    public API findAPIByExchangeAssetName(String name, String version) throws HttpException, NotFoundException {
+        for (APIAsset asset : findAPIs(name)) {
+            if( asset.getExchangeAssetName().equalsIgnoreCase(name) ) {
+                for (API api : asset.getApis()) {
+                    if( api.getProductVersion().equalsIgnoreCase(version) ) {
+                        return api;
+                    }
+                }
+            }
+        }
+        throw new NotFoundException("API "+name+" "+version+" not found");
+    }
+
     public enum Type {
         DESIGN, SANDBOX, PRODUCTION
+    }
+
+    public API createAPI(@NotNull APISpec apiSpec, boolean mule4, @Nullable String endpointUrl, @Nullable String label) throws HttpException {
+        return API.create(this, apiSpec, mule4, endpointUrl, label);
     }
 
     public static List<Environment> getEnvironments(@NotNull AnypointClient client, @NotNull Organization organization) throws HttpException {

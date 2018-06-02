@@ -7,7 +7,7 @@ import com.kloudtek.anypoint.AnypointObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SLATier extends AnypointObject<APIVersion> {
+public class SLATier extends AnypointObject<API> {
     private Integer id;
     private String name;
 
@@ -15,7 +15,7 @@ public class SLATier extends AnypointObject<APIVersion> {
         super(client);
     }
 
-    public SLATier(APIVersion parent) {
+    public SLATier(API parent) {
         super(parent);
     }
 

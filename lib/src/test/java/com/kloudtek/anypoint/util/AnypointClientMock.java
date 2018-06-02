@@ -1,4 +1,4 @@
-package com.kloudtek.anypoint.provision;
+package com.kloudtek.anypoint.util;
 
 import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.Organization;
@@ -7,7 +7,7 @@ import com.kloudtek.util.URLBuilder;
 import com.kloudtek.util.io.IOUtils;
 import org.mockito.Mockito;
 
-public class MockedAnypointClient extends AnypointClient {
+public class AnypointClientMock extends AnypointClient {
     public static final String ORGID = "orgid";
     public static final String API_ID = "90485399";
     public static final String API_VERSION_ID = "6894188";
@@ -15,7 +15,7 @@ public class MockedAnypointClient extends AnypointClient {
     public static final String API_NAME_TESTAPP = "testapp";
     public static final String CLIENT_APP_ID = "154284";
 
-    public MockedAnypointClient() {
+    public AnypointClientMock() {
         httpHelper = Mockito.mock(HttpHelper.class);
     }
 

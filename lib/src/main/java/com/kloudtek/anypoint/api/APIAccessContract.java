@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class APIAccessContract extends AnypointObject<ClientApplication> {
     private Integer id;
     private String status;
-    private APIVersion apiVersion;
+    private API apiVersion;
 
     public APIAccessContract(ClientApplication parent) {
         super(parent);
@@ -38,11 +38,11 @@ public class APIAccessContract extends AnypointObject<ClientApplication> {
     }
 
     @JsonProperty
-    public APIVersion getApiVersion() {
+    public API getApiVersion() {
         return apiVersion;
     }
 
-    public void setApiVersion(APIVersion apiVersion) {
+    public void setApiVersion(API apiVersion) {
         this.apiVersion = apiVersion;
     }
 

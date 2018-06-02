@@ -1,0 +1,11 @@
+{
+  "apiDefinitions": [
+    {
+      "groupId": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+      "assetId": "test",
+      "version": "1.0.0",
+      "productAPIVersion": "v1",
+      "name": "Test"
+    }
+  ]
+}
