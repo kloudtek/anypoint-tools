@@ -169,11 +169,15 @@ public class Environment extends AnypointObject<Organization> {
         return new APIList(this,filter);
     }
 
-    public API findAPIByExchangeAssetName(String name, String version) throws HttpException, NotFoundException {
+    public API findAPIByExchangeAssetNameAndVersion(@NotNull String name, @NotNull String version) throws HttpException, NotFoundException {
+        return findAPIByExchangeAssetNameAndVersion(name,version,null);
+    }
+
+    public API findAPIByExchangeAssetNameAndVersion(@NotNull String name, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
         for (APIAsset asset : findAPIs(name)) {
             if( asset.getExchangeAssetName().equalsIgnoreCase(name) ) {
                 for (API api : asset.getApis()) {
-                    if( api.getProductVersion().equalsIgnoreCase(version) ) {
+                    if( api.getAssetVersion().equalsIgnoreCase(version) && ( label == null || label.equalsIgnoreCase(api.getInstanceLabel())) ) {
                         return api;
                     }
                 }

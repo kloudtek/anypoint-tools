@@ -2,7 +2,7 @@
   "apis": [
     {
       "name": "Test",
-      "version": "v1",
+      "version": "1.0.0",
       "endpoint": "${url}/xxx",
       "access": [
         {
@@ -15,6 +15,20 @@
           "type": "client-id-enforcement",
           "clientIdExpr": "#[message.inboundProperties[\"client_id\"]]",
           "clientSecretExpr": "#[message.inboundProperties[\"client_secret\"]]"
+        },
+        {
+          "type": "json",
+          "data": [
+            {
+              "itemName": "Default configuration",
+              "itemData": {
+                "message": "#['foo']",
+                "level": "INFO",
+                "firstSection": true,
+                "secondSection": true
+              }
+            }
+          ]
         }
       ]
     }

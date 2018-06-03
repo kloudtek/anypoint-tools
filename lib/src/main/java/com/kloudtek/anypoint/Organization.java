@@ -2,12 +2,8 @@ package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.kloudtek.anypoint.api.*;
 import com.kloudtek.anypoint.util.JsonHelper;
-import com.kloudtek.anypoint.util.PaginatedList;
-import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -187,6 +183,15 @@ public class Organization extends AnypointObject {
     @NotNull
     public APISpecList findAPISpecs(@Nullable String filter) throws HttpException {
         return new APISpecList(this, filter);
+    }
+
+    public APISpec findAPISpecsByNameAndVersion(String name, String version) throws NotFoundException, HttpException {
+        for (APISpec apiSpec : findAPISpecs(name)) {
+            if( apiSpec.getName().equalsIgnoreCase(name) && apiSpec.getVersion().equalsIgnoreCase(version) ) {
+                return apiSpec;
+            }
+        }
+        throw new NotFoundException("Couldn't find api spec "+name+" "+version);
     }
 
     public Organization createSubOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments,

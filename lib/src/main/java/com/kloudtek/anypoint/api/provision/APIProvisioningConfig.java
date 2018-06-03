@@ -6,6 +6,7 @@ public class APIProvisioningConfig {
     private String descriptorLocation = "anypoint.json";
     private Map<String, String> variables = new HashMap<>();
     private final List<String> accessedBy = new ArrayList<>();
+    private String apiLabel;
 
     public APIProvisioningConfig() {
     }
@@ -49,6 +50,14 @@ public class APIProvisioningConfig {
         variables.put(key, value);
     }
 
+    public String getApiLabel() {
+        return apiLabel;
+    }
+
+    public void setApiLabel(String apiLabel) {
+        this.apiLabel = apiLabel;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,20 +65,22 @@ public class APIProvisioningConfig {
         APIProvisioningConfig that = (APIProvisioningConfig) o;
         return Objects.equals(descriptorLocation, that.descriptorLocation) &&
                 Objects.equals(variables, that.variables) &&
-                Objects.equals(accessedBy, that.accessedBy);
+                Objects.equals(accessedBy, that.accessedBy) &&
+                Objects.equals(apiLabel, that.apiLabel);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptorLocation, variables, accessedBy);
+        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel);
     }
 
     @Override
     public String toString() {
-        return "ProvisioningConfig{" +
+        return "APIProvisioningConfig{" +
                 "descriptorLocation='" + descriptorLocation + '\'' +
                 ", variables=" + variables +
                 ", accessedBy=" + accessedBy +
+                ", apiLabel='" + apiLabel + '\'' +
                 '}';
     }
 }

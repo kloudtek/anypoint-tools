@@ -12,19 +12,45 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
     public static final String DEF_CREDKEY_NAME = "mule.client.id";
     public static final String MULE_CREDVAL_NAME = "mule.client.secret";
     private List<ProvisionedAPIAccess> access;
-    private boolean setupPortal = true;
+    private String name;
+    private String version;
     private String endpoint;
-    private String description;
     private List<PolicyDescriptor> policies;
-    private String addCredsToPropertyFile;
     private String clientAppUrl;
     private String clientAppDescription;
     private String clientAppName;
-    private String credIdPropertyName = DEF_CREDKEY_NAME;
-    private String credSecretPropertyName = MULE_CREDVAL_NAME;
-    private String credId;
-    private String credSecret;
     private List<String> accessedBy;
+    private Boolean mule4;
+
+    @JsonProperty
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @JsonProperty
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public Boolean getMule4() {
+        return mule4;
+    }
+
+    public void setMule4(Boolean mule4) {
+        this.mule4 = mule4;
+    }
 
     @JsonProperty
     public List<ProvisionedAPIAccess> getAccess() {
@@ -33,15 +59,6 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
 
     public void setAccess(List<ProvisionedAPIAccess> access) {
         this.access = access;
-    }
-
-    @JsonProperty(defaultValue = "true")
-    public boolean isSetupPortal() {
-        return setupPortal;
-    }
-
-    public void setSetupPortal(boolean setupPortal) {
-        this.setupPortal = setupPortal;
     }
 
     @JsonProperty
@@ -63,48 +80,12 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
     }
 
     @JsonProperty
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    @JsonProperty
     public List<PolicyDescriptor> getPolicies() {
         return policies;
     }
 
     public void setPolicies(List<PolicyDescriptor> policies) {
         this.policies = policies;
-    }
-
-    @JsonProperty
-    public String getAddCredsToPropertyFile() {
-        return addCredsToPropertyFile;
-    }
-
-    public void setAddCredsToPropertyFile(String addCredsToPropertyFile) {
-        this.addCredsToPropertyFile = addCredsToPropertyFile;
-    }
-
-    @JsonProperty(defaultValue = DEF_CREDKEY_NAME)
-    public String getCredIdPropertyName() {
-        return credIdPropertyName;
-    }
-
-    public void setCredIdPropertyName(String credIdPropertyName) {
-        this.credIdPropertyName = credIdPropertyName;
-    }
-
-    @JsonProperty(defaultValue = MULE_CREDVAL_NAME)
-    public String getCredSecretPropertyName() {
-        return credSecretPropertyName;
-    }
-
-    public void setCredSecretPropertyName(String credSecretPropertyName) {
-        this.credSecretPropertyName = credSecretPropertyName;
     }
 
     @JsonProperty
@@ -123,24 +104,6 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
 
     public void setClientAppDescription(String clientAppDescription) {
         this.clientAppDescription = clientAppDescription;
-    }
-
-    @JsonIgnore
-    public String getCredId() {
-        return credId;
-    }
-
-    public void setCredId(String credId) {
-        this.credId = credId;
-    }
-
-    @JsonIgnore
-    public String getCredSecret() {
-        return credSecret;
-    }
-
-    public void setCredSecret(String credSecret) {
-        this.credSecret = credSecret;
     }
 
     @JsonProperty
@@ -170,43 +133,29 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
         if (this == o) return true;
         if (!(o instanceof ProvisionedAPI)) return false;
         ProvisionedAPI that = (ProvisionedAPI) o;
-        return setupPortal == that.setupPortal &&
-                Objects.equals(access, that.access) &&
+        return Objects.equals(access, that.access) &&
                 Objects.equals(endpoint, that.endpoint) &&
-                Objects.equals(description, that.description) &&
                 Objects.equals(policies, that.policies) &&
-                Objects.equals(addCredsToPropertyFile, that.addCredsToPropertyFile) &&
                 Objects.equals(clientAppUrl, that.clientAppUrl) &&
                 Objects.equals(clientAppDescription, that.clientAppDescription) &&
                 Objects.equals(clientAppName, that.clientAppName) &&
-                Objects.equals(credIdPropertyName, that.credIdPropertyName) &&
-                Objects.equals(credSecretPropertyName, that.credSecretPropertyName) &&
-                Objects.equals(credId, that.credId) &&
-                Objects.equals(credSecret, that.credSecret) &&
                 Objects.equals(accessedBy, that.accessedBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(access, setupPortal, endpoint, description, policies, addCredsToPropertyFile, clientAppUrl, clientAppDescription, clientAppName, credIdPropertyName, credSecretPropertyName, credId, credSecret, accessedBy);
+        return Objects.hash(access, endpoint, policies, clientAppUrl, clientAppDescription, clientAppName, accessedBy);
     }
 
     @Override
     public String toString() {
         return "ProvisionedAPI{" +
                 "access=" + access +
-                ", setupPortal=" + setupPortal +
                 ", endpoint='" + endpoint + '\'' +
-                ", description='" + description + '\'' +
                 ", policies=" + policies +
-                ", addCredsToPropertyFile='" + addCredsToPropertyFile + '\'' +
                 ", clientAppUrl='" + clientAppUrl + '\'' +
                 ", clientAppDescription='" + clientAppDescription + '\'' +
                 ", clientAppName='" + clientAppName + '\'' +
-                ", credIdPropertyName='" + credIdPropertyName + '\'' +
-                ", credSecretPropertyName='" + credSecretPropertyName + '\'' +
-                ", credId='" + credId + '\'' +
-                ", credSecret='" + credSecret + '\'' +
                 ", accessedBy=" + accessedBy +
                 "} " + super.toString();
     }

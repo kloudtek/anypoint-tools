@@ -226,4 +226,22 @@ public class API extends AnypointObject<Environment> {
     public void setEndpoint(APIEndpoint endpoint) {
         this.endpoint = endpoint;
     }
+
+    @Override
+    public String toString() {
+        return "API{" +
+                "id=" + id +
+                ", assetVersion='" + assetVersion + '\'' +
+                ", productVersion='" + productVersion + '\'' +
+                ", environmentId='" + environmentId + '\'' +
+                ", instanceLabel='" + instanceLabel + '\'' +
+                ", order=" + order +
+                ", masterOrganizationId='" + masterOrganizationId + '\'' +
+                ", organizationId='" + organizationId + '\'' +
+                ", groupId='" + groupId + '\'' +
+                ", assetId='" + assetId + '\'' +
+                ", autodiscoveryInstanceName='" + autodiscoveryInstanceName + '\'' +
+                ", endpoint=" + endpoint +
+                "} " + super.toString();
+    }
 }

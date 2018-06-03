@@ -5,6 +5,8 @@ import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.API;
+import com.kloudtek.anypoint.api.APISpec;
+import com.kloudtek.anypoint.api.policy.Policy;
 import com.kloudtek.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +36,20 @@ public class APIProvisioningDescriptor {
             String clientAppName = isNotEmpty(provisionedAPI.getClientAppName()) ? applyVars(provisionedAPI.getClientAppName()) : apiName;
             String endpoint = applyVars(provisionedAPI.getEndpoint());
             try {
-                API api = environment.findAPIByExchangeAssetName(apiName, apiVersionName);
-                System.out.println();
+                API api = environment.findAPIByExchangeAssetNameAndVersion(apiName, apiVersionName);
+                logger.debug("API "+apiName+" "+apiVersionName+" exists: "+api);
             } catch (NotFoundException e) {
                 logger.debug("API "+apiName+" "+apiVersionName+" not found, creating");
+                APISpec apiSpec = environment.getParent().findAPISpecsByNameAndVersion(provisionedAPI.getName(), provisionedAPI.getVersion());
+                Boolean mule4 = provisionedAPI.getMule4();
+                if( mule4 == null ) {
+                    mule4 = true;
+                }
+                API api = environment.createAPI(apiSpec, mule4, provisionedAPI.getEndpoint(), config.getApiLabel());
+            }
+            List<PolicyDescriptor> policies = new ArrayList<>();
+            policies.addAll(provisionedAPI.getPolicies());
+            for (PolicyDescriptor policyDescriptor : policies) {
                 System.out.println();
             }
         }
