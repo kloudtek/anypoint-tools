@@ -3,7 +3,6 @@ package com.kloudtek.anypoint.api.provision;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.policy.Policy;
 
 public class PolicyDescriptorJsonImpl extends PolicyDescriptor {

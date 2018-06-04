@@ -1,6 +1,5 @@
 package com.kloudtek.anypoint.api.provision;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
@@ -8,10 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-public class ProvisionedAPI extends ProvisionedAPIAccess {
+public class ProvisionedAPI extends APIAccessDescriptor {
     public static final String DEF_CREDKEY_NAME = "mule.client.id";
     public static final String MULE_CREDVAL_NAME = "mule.client.secret";
-    private List<ProvisionedAPIAccess> access;
+    private List<APIAccessDescriptor> access;
     private String name;
     private String version;
     private String endpoint;
@@ -53,11 +52,11 @@ public class ProvisionedAPI extends ProvisionedAPIAccess {
     }
 
     @JsonProperty
-    public List<ProvisionedAPIAccess> getAccess() {
+    public List<APIAccessDescriptor> getAccess() {
         return access != null ? access : Collections.emptyList();
     }
 
-    public void setAccess(List<ProvisionedAPIAccess> access) {
+    public void setAccess(List<APIAccessDescriptor> access) {
         this.access = access;
     }
 

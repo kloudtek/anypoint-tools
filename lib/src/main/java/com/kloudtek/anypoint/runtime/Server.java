@@ -5,13 +5,11 @@ import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
-import com.kloudtek.anypoint.util.FileStreamSource;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.StreamSource;
 import com.kloudtek.kryptotek.DigestAlgorithm;
 import com.kloudtek.kryptotek.DigestUtils;
 import com.kloudtek.util.Hex;
-import com.kloudtek.util.TimeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +74,7 @@ public class Server extends AnypointObject<Environment> {
     }
 
     public Application deploy(@NotNull String name, @NotNull File file) throws IOException, HttpException {
-        return deploy(name,file,file.getName());
+        return deploy(name, file, file.getName());
     }
 
     public Application deploy(@NotNull String name, @NotNull File file, @NotNull String filename) throws IOException, HttpException {
@@ -106,8 +104,8 @@ public class Server extends AnypointObject<Environment> {
             request = httpHelper.createMultiPartPostRequest("/hybrid/api/v1/applications", parent);
         }
         json = request.addText("targetId", id).addText("artifactName", name).addBinary("file", stream).execute();
-        if( logger.isDebugEnabled() ) {
-            logger.debug("File upload took "+ TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()-start)+" seconds");
+        if (logger.isDebugEnabled()) {
+            logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
         }
         return jsonHelper.readJson(new Application(this), json, "/data");
     }

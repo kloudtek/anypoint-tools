@@ -2,9 +2,6 @@ package com.kloudtek.anypoint.api.policy;
 
 import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.api.API;
-import com.kloudtek.anypoint.util.JsonHelper;
-
-import java.util.Map;
 
 public class Policy extends AnypointObject<API> {
     private Integer id;

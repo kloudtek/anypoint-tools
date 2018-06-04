@@ -2,14 +2,20 @@ package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.anypoint.api.*;
+import com.kloudtek.anypoint.api.APISpec;
+import com.kloudtek.anypoint.api.APISpecList;
+import com.kloudtek.anypoint.api.ClientApplication;
+import com.kloudtek.anypoint.api.ClientApplicationList;
 import com.kloudtek.anypoint.util.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Organization extends AnypointObject {
     private static final Logger logger = LoggerFactory.getLogger(Organization.class);
@@ -111,7 +117,7 @@ public class Organization extends AnypointObject {
         request.put("type", type.name().toLowerCase());
         request.put("organizationId", id);
         String json = client.getHttpHelper().httpPost("https://anypoint.mulesoft.com/accounts/api/organizations/" + id + "/environments", request);
-        return jsonHelper.readJson(new Environment(this),json);
+        return jsonHelper.readJson(new Environment(this), json);
     }
 
 //    public API createAPI(@NotNull String name, @NotNull String version) throws HttpException {
@@ -155,11 +161,11 @@ public class Organization extends AnypointObject {
 
     public ClientApplication findClientApplication(@NotNull String name, boolean fullData) throws HttpException, NotFoundException {
         ClientApplication app = findClientApplication(new ClientApplicationList(this, name), name, fullData);
-        if( app == null ) {
+        if (app == null) {
             // #@$@##@$ anypoint filtering sometimes doesn't work
             app = findClientApplication(listClientApplications(name), name, fullData);
         }
-        if( app == null ) {
+        if (app == null) {
             throw new NotFoundException("Client application not found: " + name);
         } else {
             return app;
@@ -169,7 +175,7 @@ public class Organization extends AnypointObject {
     @Nullable
     private ClientApplication findClientApplication(Iterable<ClientApplication> list, @NotNull String name, boolean fullData) throws HttpException {
         for (ClientApplication app : list) {
-            if( name.equals(app.getName()) ) {
+            if (name.equals(app.getName())) {
                 if (fullData) {
                     return jsonHelper.readJson(app, httpHelper.httpGet(app.getUriPath()));
                 } else {
@@ -187,16 +193,16 @@ public class Organization extends AnypointObject {
 
     public APISpec findAPISpecsByNameAndVersion(String name, String version) throws NotFoundException, HttpException {
         for (APISpec apiSpec : findAPISpecs(name)) {
-            if( apiSpec.getName().equalsIgnoreCase(name) && apiSpec.getVersion().equalsIgnoreCase(version) ) {
+            if (apiSpec.getName().equalsIgnoreCase(name) && apiSpec.getVersion().equalsIgnoreCase(version)) {
                 return apiSpec;
             }
         }
-        throw new NotFoundException("Couldn't find api spec "+name+" "+version);
+        throw new NotFoundException("Couldn't find api spec " + name + " " + version);
     }
 
     public Organization createSubOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments,
-                                           boolean globalDeployment, int vCoresProduction, int vCoresSandbox, int vCoresDesign,
-                                           int staticIps, int vpcs, int loadBalancer) throws HttpException {
+                                              boolean globalDeployment, int vCoresProduction, int vCoresSandbox, int vCoresDesign,
+                                              int staticIps, int vpcs, int loadBalancer) throws HttpException {
         JsonHelper.MapBuilder builder = client.getJsonHelper().buildJsonMap().set("name", name).set("parentOrganizationId", id).set("ownerId", ownerId);
         Map<String, Object> req = builder.addMap("entitlements").set("createSubOrgs", createSubOrgs).set("createEnvironments", createEnvironments)
                 .set("globalDeployment", globalDeployment)
@@ -208,7 +214,7 @@ public class Organization extends AnypointObject {
                 .setNested("loadBalancer", "assigned", loadBalancer)
                 .setNested("staticIps", "assigned", staticIps).toMap();
         String json = httpHelper.httpPost("/accounts/api/organizations", req);
-        return jsonHelper.readJson(new Organization(client),json);
+        return jsonHelper.readJson(new Organization(client), json);
     }
 
     public void delete() throws HttpException {

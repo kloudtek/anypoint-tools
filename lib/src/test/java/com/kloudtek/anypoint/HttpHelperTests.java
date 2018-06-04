@@ -1,6 +1,5 @@
 package com.kloudtek.anypoint;
 
-import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.util.HttpHelper;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;

@@ -42,14 +42,14 @@ public abstract class AnypointObject<X extends AnypointObject> implements Serial
     }
 
     public void setClient(AnypointClient client) {
-        setClient(client,false);
+        setClient(client, false);
     }
 
     public void setClient(AnypointClient client, boolean setParent) {
         this.client = client;
         httpHelper = client.getHttpHelper();
         jsonHelper = client.getJsonHelper();
-        if( setParent && parent != null ) {
+        if (setParent && parent != null) {
             parent.setClient(client);
         }
     }

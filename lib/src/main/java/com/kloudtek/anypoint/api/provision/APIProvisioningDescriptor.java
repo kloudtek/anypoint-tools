@@ -12,16 +12,14 @@ import com.kloudtek.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-
-import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class APIProvisioningDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIProvisioningDescriptor.class);
-    private List<ProvisionedAPIAccess> access;
+    private List<APIAccessDescriptor> access;
     private String name;
     private String version;
     private String endpoint;
@@ -93,6 +91,11 @@ public class APIProvisioningDescriptor {
                 clientApplication = environment.getOrganization().createClientApplication(clientAppName, clientApp.getUrl(), clientApp.getDescription());
             }
             result.setClientApplication(clientApplication);
+        }
+        for (APIAccessDescriptor accessDescriptor : access) {
+            API accessedAPI = environment.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
+                    accessDescriptor.getVersion(), accessDescriptor.getLabel());
+            // TODO implement
         }
         return result;
 
@@ -166,11 +169,11 @@ public class APIProvisioningDescriptor {
     }
 
     @JsonProperty
-    public List<ProvisionedAPIAccess> getAccess() {
+    public List<APIAccessDescriptor> getAccess() {
         return access != null ? access : Collections.emptyList();
     }
 
-    public void setAccess(List<ProvisionedAPIAccess> access) {
+    public void setAccess(List<APIAccessDescriptor> access) {
         this.access = access;
     }
 

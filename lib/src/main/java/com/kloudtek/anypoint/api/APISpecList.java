@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class APISpecList extends PaginatedList<APISpec,Organization> {
+public class APISpecList extends PaginatedList<APISpec, Organization> {
     private final String filter;
 
     public APISpecList(Organization organization, String filter) throws HttpException {
@@ -22,9 +22,9 @@ public class APISpecList extends PaginatedList<APISpec,Organization> {
     @NotNull
     @Override
     protected URLBuilder buildUrl() {
-        URLBuilder url = new URLBuilder("/apimanager/xapi/v1/organizations/"+parent.getId()+"/apiSpecs");
-        if( filter != null ) {
-            url.param("searchTerm",filter);
+        URLBuilder url = new URLBuilder("/apimanager/xapi/v1/organizations/" + parent.getId() + "/apiSpecs");
+        if (filter != null) {
+            url.param("searchTerm", filter);
         }
         return url;
     }

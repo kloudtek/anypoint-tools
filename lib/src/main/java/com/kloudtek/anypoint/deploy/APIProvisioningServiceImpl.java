@@ -1,20 +1,7 @@
 package com.kloudtek.anypoint.deploy;
 
-import com.kloudtek.anypoint.*;
-import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
-import com.kloudtek.anypoint.api.provision.InvalidAnypointDescriptorException;
-import com.kloudtek.unpack.transformer.Transformer;
-import com.kloudtek.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 public class APIProvisioningServiceImpl implements APIProvisioningService {
     private static final Logger logger = LoggerFactory.getLogger(APIProvisioningServiceImpl.class);

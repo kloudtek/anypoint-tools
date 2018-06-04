@@ -1,12 +1,5 @@
 package com.kloudtek.anypoint;
 
-import com.kloudtek.anypoint.api.*;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 public class APIManagementTests extends AbstractAnypointTest {
     public static final String ENDPOINT_URL = "http://someurl";
     public static final String FOOLABEL = "foolabel";

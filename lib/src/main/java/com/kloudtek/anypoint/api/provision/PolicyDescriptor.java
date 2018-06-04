@@ -1,11 +1,8 @@
 package com.kloudtek.anypoint.api.provision;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.kloudtek.anypoint.api.API;
-import com.kloudtek.anypoint.api.policy.Policy;
 
 import java.util.List;
 

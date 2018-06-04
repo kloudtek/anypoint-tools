@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.util.URLBuilder;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;

@@ -119,7 +119,7 @@ public class Environment extends AnypointObject<Organization> {
         request.put("name", name);
         request.put("serverIds", serverIds);
         String json = httpHelper.httpPost("/hybrid/api/v1/serverGroups", request, this);
-        return jsonHelper.readJson(new ServerGroup(this),json,"/data");
+        return jsonHelper.readJson(new ServerGroup(this), json, "/data");
     }
 
     @NotNull
@@ -151,7 +151,7 @@ public class Environment extends AnypointObject<Organization> {
         req.put("name", newName);
         req.put("organizationId", parent.getId());
         String json = httpHelper.httpPut("/accounts/api/organizations/" + parent.getId() + "/environments/" + id, req);
-        return jsonHelper.readJson(new Environment(parent),json);
+        return jsonHelper.readJson(new Environment(parent), json);
     }
 
     @Override
@@ -166,24 +166,41 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public APIList findAPIs(String filter) throws HttpException {
-        return new APIList(this,filter);
+        return new APIList(this, filter);
     }
 
     public API findAPIByExchangeAssetNameAndVersion(@NotNull String name, @NotNull String version) throws HttpException, NotFoundException {
-        return findAPIByExchangeAssetNameAndVersion(name,version,null);
+        return findAPIByExchangeAssetNameAndVersion(name, version, null);
     }
 
     public API findAPIByExchangeAssetNameAndVersion(@NotNull String name, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
         for (APIAsset asset : findAPIs(name)) {
-            if( asset.getExchangeAssetName().equalsIgnoreCase(name) ) {
+            if (asset.getExchangeAssetName().equalsIgnoreCase(name)) {
                 for (API api : asset.getApis()) {
-                    if( api.getAssetVersion().equalsIgnoreCase(version) && ( label == null || label.equalsIgnoreCase(api.getInstanceLabel())) ) {
+                    if (api.getAssetVersion().equalsIgnoreCase(version) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
                         return api;
                     }
                 }
             }
         }
-        throw new NotFoundException("API "+name+" "+version+" not found");
+        throw new NotFoundException("API " + name + " " + version + " not found");
+    }
+
+    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @Nullable String version) throws HttpException, NotFoundException {
+        return findAPIByExchangeAsset(groupId, assetId, version, null);
+    }
+
+    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @Nullable String version, @Nullable String label) throws HttpException, NotFoundException {
+        for (APIAsset asset : findAPIs(name)) {
+            if (asset.getGroupId().equalsIgnoreCase(groupId) && asset.getAssetId().equalsIgnoreCase(assetId) ) {
+                for (API api : asset.getApis()) {
+                    if (api.getAssetVersion().equalsIgnoreCase(version) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
+                        return api;
+                    }
+                }
+            }
+        }
+        throw new NotFoundException("API groupId=" + groupId + ", assetId=" + assetId + ", version="+version+", label="+label+" not found");
     }
 
     public enum Type {
@@ -196,7 +213,7 @@ public class Environment extends AnypointObject<Organization> {
 
     public static List<Environment> getEnvironments(@NotNull AnypointClient client, @NotNull Organization organization) throws HttpException {
         String json = client.getHttpHelper().httpGet("/accounts/api/organizations/" + organization.getId() + "/environments");
-        return client.getJsonHelper().readJsonList(Environment.class,json,organization,"/data");
+        return client.getJsonHelper().readJsonList(Environment.class, json, organization, "/data");
     }
 
     @NotNull

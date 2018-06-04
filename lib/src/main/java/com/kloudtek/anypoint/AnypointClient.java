@@ -1,16 +1,15 @@
 package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.kloudtek.anypoint.api.provision.*;
-import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.deploy.APIProvisioningService;
 import com.kloudtek.anypoint.deploy.APIProvisioningServiceImpl;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
-import com.kloudtek.unpack.transformer.Transformer;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -88,7 +87,7 @@ public class AnypointClient implements Closeable, Serializable {
     @Override
     public void close() throws IOException {
         httpHelper.close();
-        if( deploymentThreadPool != null ) {
+        if (deploymentThreadPool != null) {
             deploymentThreadPool.shutdown();
         }
     }

@@ -19,7 +19,7 @@ public class ServerGroup extends Server {
 
     @Override
     public void delete() throws HttpException {
-        httpHelper.httpDelete("/hybrid/api/v1/serverGroups/"+id,parent);
+        httpHelper.httpDelete("/hybrid/api/v1/serverGroups/" + id, parent);
     }
 
     public void addServer(Server server) throws HttpException {
@@ -28,6 +28,6 @@ public class ServerGroup extends Server {
 
     public void addServer(String serverId) throws HttpException {
         Map<String, Object> request = jsonHelper.buildJsonMap().set("serverGroupId", id).set("serverId", serverId).toMap();
-        httpHelper.httpPost("/hybrid/api/v1/serverGroups/"+id+"/servers/"+serverId,request,parent);
+        httpHelper.httpPost("/hybrid/api/v1/serverGroups/" + id + "/servers/" + serverId, request, parent);
     }
 }

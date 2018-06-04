@@ -1,19 +1,5 @@
 package com.kloudtek.anypoint;
 
-import com.kloudtek.anypoint.api.ClientApplication;
-import com.kloudtek.anypoint.runtime.Server;
-import com.kloudtek.anypoint.runtime.ServerGroup;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 public class AnypointClientTest {
     // TODO those tests should be converted to use mock
 //    private static final Logger logger = Logger.getLogger(AnypointClientTest.class.getName());

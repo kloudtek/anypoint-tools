@@ -2,7 +2,6 @@ package com.kloudtek.anypoint.util;
 
 import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.Organization;
-import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.util.URLBuilder;
 import com.kloudtek.util.io.IOUtils;
 import org.mockito.Mockito;
@@ -42,7 +41,7 @@ public class AnypointClientMock extends AnypointClient {
         mockGetAPIVersion(ORGID, API_ID, API_VERSION_ID, "get-api-version.json");
         mockGetPolicies(ORGID, API_ID, API_VERSION_ID, false, "get-policies.json");
         mockGetAPIs(ORGID, API_NAME_TESTAPP, "api-list-query-testapp.json");
-        mockListApplications(ORGID, "deleteme-sit",0, "list-applications.json");
+        mockListApplications(ORGID, "deleteme-sit", 0, "list-applications.json");
         mockListApplications(ORGID, 0, "list-applications.json");
         mockListApplications(ORGID, 100, "list-applications-2.json");
         mockListContracts(ORGID, CLIENT_APP_ID, "list-contracts.json");
@@ -64,12 +63,12 @@ public class AnypointClientMock extends AnypointClient {
 
     public void mockListApplications(String orgId, String filter, int offset, String contentPath) {
         String query;
-        if( filter != null ) {
-            query = "query="+filter+"&";
+        if (filter != null) {
+            query = "query=" + filter + "&";
         } else {
             query = "";
         }
-        mockHttpGet("/apiplatform/repository/v2/organizations/" + orgId + "/applications?"+query+"limit=100&offset=" + offset + "&ascending=true&targetAdminSite=true", contentPath);
+        mockHttpGet("/apiplatform/repository/v2/organizations/" + orgId + "/applications?" + query + "limit=100&offset=" + offset + "&ascending=true&targetAdminSite=true", contentPath);
     }
 
     public void mockListContracts(String orgId, String appId, String contentPath) {

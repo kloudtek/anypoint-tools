@@ -43,9 +43,9 @@ public class APIPortal extends AnypointObject<API> {
         return apiVersion;
     }
 
-    public APIPortal updateName(String name ) throws HttpException {
+    public APIPortal updateName(String name) throws HttpException {
         Map<String, Object> req = jsonHelper.buildJsonMap().set("name", name).set("id", id).toMap();
         String json = client.getHttpHelper().httpPatch(apiVersion.getUriPath() + "/portal", req);
-        return jsonHelper.readJson(new APIPortal(parent),json);
+        return jsonHelper.readJson(new APIPortal(parent), json);
     }
 }
