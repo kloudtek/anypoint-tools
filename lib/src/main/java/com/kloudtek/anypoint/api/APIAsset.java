@@ -28,7 +28,17 @@ public class APIAsset extends AnypointObject<Environment> {
         super(env);
     }
 
-//    @JsonIgnore
+    @Override
+    public void setParent(Environment parent) {
+        super.setParent(parent);
+        if (apis != null) {
+            for (API api : apis) {
+                api.setParent(parent);
+            }
+        }
+    }
+
+    //    @JsonIgnore
 //    public String getUriPath() {
 //        return "/apiplatform/repository/v2/organizations/" + parent.getId() + "/apis/" + id;
 //    }

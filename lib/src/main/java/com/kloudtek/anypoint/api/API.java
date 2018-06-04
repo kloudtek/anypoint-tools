@@ -1,20 +1,16 @@
 package com.kloudtek.anypoint.api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.policy.Policy;
-import com.kloudtek.util.URLBuilder;
+import com.kloudtek.anypoint.api.provision.PolicyDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,44 +39,39 @@ public class API extends AnypointObject<Environment> {
 
     public String getUriPath() {
         if (parent != null) {
-            return "/apimanager/api/v1/organizations/"+parent.getParent().getId()+"/environments/"+parent.getId()+"/apis/"+id;
+            return "/apimanager/api/v1/organizations/" + parent.getParent().getId() + "/environments/" + parent.getId() + "/apis/" + id;
         } else if (organizationId != null && environmentId != null) {
-            return "/apimanager/api/v1/organizations/"+organizationId+"/environments/"+environmentId+"/apis/"+id;
+            return "/apimanager/api/v1/organizations/" + organizationId + "/environments/" + environmentId + "/apis/" + id;
         } else {
             throw new IllegalStateException("Insufficient data available in api to build uri");
         }
     }
+//
+//    public Policy createPolicy(Policy policy) throws HttpException {
+//        String json = httpHelper.httpPost(getUriPath() + "/policies", policy.toJson().toMap());
+//        return Policy.parseJson(this, jsonHelper.toJsonMap(json));
+//    }
+//
+//    public Policy updatePolicy(Policy policy) throws HttpException {
+//        if (policy.getId() == null) {
+//            throw new IllegalArgumentException("Policy id musn't be null for update");
+//        }
+//        String json = httpHelper.httpPatch(new URLBuilder(getUriPath()).path("policies/" + policy.getId()).toString(), policy.toJson().toMap());
+//        return Policy.parseJson(this, jsonHelper.toJsonMap(json));
+//    }
 
-    @JsonIgnore
-    public List<Policy> getPolicies(boolean fullInfo) throws HttpException {
-        String json = httpHelper.httpGet(getUriPath() + "/policies?fullInfo=" + fullInfo);
-        ArrayList<Policy> list = new ArrayList<>();
-        for (JsonNode node : jsonHelper.readJsonTree(json)) {
-            list.add(Policy.parseJson(this, jsonHelper.toJsonMap(node)));
-        }
-        return list;
-    }
-
-    @JsonIgnore
-    public HashMap<String, Policy> getPoliciesAsMap(boolean fullInfo) throws HttpException {
-        HashMap<String, Policy> map = new HashMap<>();
-        for (Policy policy : getPolicies(fullInfo)) {
-            map.put(policy.getPolicyTemplateId(), policy);
-        }
-        return map;
-    }
-
-    public Policy createPolicy(Policy policy) throws HttpException {
-        String json = httpHelper.httpPost(getUriPath() + "/policies", policy.toJson().toMap());
-        return Policy.parseJson(this, jsonHelper.toJsonMap(json));
-    }
-
-    public Policy updatePolicy(Policy policy) throws HttpException {
-        if (policy.getId() == null) {
-            throw new IllegalArgumentException("Policy id musn't be null for update");
-        }
-        String json = httpHelper.httpPatch(new URLBuilder(getUriPath()).path("policies/" + policy.getId()).toString(), policy.toJson().toMap());
-        return Policy.parseJson(this, jsonHelper.toJsonMap(json));
+    public void createPolicy(PolicyDescriptor policyDescriptor) throws HttpException {
+        Map<String, Object> reqMap = jsonHelper.buildJsonMap()
+                .set("apiVersionId", id)
+                .set("configurationData", policyDescriptor.getData())
+                .set("pointcutData", policyDescriptor.getPointcutData())
+                .set("policyTemplateId", policyDescriptor.getPolicyTemplateId())
+                .set("groupId", policyDescriptor.getGroupId())
+                .set("assetId", policyDescriptor.getAssetId())
+                .set("assetVersion", policyDescriptor.getAssetVersion())
+                .toMap();
+        httpHelper.httpPost("/apimanager/api/v1/organizations/" + getParent().getParent().getId() + "/environments/" +
+                getParent().getId() + "/apis/" + id + "/policies", reqMap);
     }
 
     public APIAccessContract requestAPIAccess(ClientApplication clientApplication) throws HttpException {
@@ -127,8 +118,23 @@ public class API extends AnypointObject<Environment> {
         endpMap.put("responseTimeout", null);
         endpMap.put("muleVersion4OrAbove", mule4);
         req.put("endpoint", endpMap);
-        String json = environment.getClient().getHttpHelper().httpPost("https://anypoint.mulesoft.com/apimanager/api/v1/organizations/" + environment.getParent().getId()+"/environments/" + environment.getId() + "/apis", req);
+        String json = environment.getClient().getHttpHelper().httpPost("/apimanager/api/v1/organizations/" + environment.getParent().getId() + "/environments/" + environment.getId() + "/apis", req);
         return environment.getClient().getJsonHelper().readJson(new API(environment), json);
+    }
+
+    public List<Policy> findPolicies(boolean fullInfo) throws HttpException {
+        String json = parent.getClient().getHttpHelper().httpGet("/apimanager/api/v1/organizations/" + getParent().getParent().getId() + "/environments/" + getParent().getId() + "/apis/" + id + "/policies?fullInfo=" + fullInfo);
+        return parent.getClient().getJsonHelper().readJsonList(Policy.class, json, this);
+    }
+
+    public Policy findPolicyByAsset(String groupId, String assetId, String assetVersion, boolean fullInfo) throws HttpException, NotFoundException {
+        for (Policy policy : findPolicies(fullInfo)) {
+            if (policy.getGroupId().equalsIgnoreCase(groupId) && policy.getAssetId().equalsIgnoreCase(assetId)
+                    && policy.getAssetVersion().equalsIgnoreCase(assetVersion)) {
+                return policy;
+            }
+        }
+        throw new NotFoundException("Policy not found");
     }
 
     public int getId() {

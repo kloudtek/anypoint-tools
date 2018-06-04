@@ -1,0 +1,37 @@
+[
+  {
+    "audit": {
+      "created": {
+        "date": "2018-06-04T02:43:02.519Z"
+      },
+      "updated": {
+        "date": "2018-06-04T02:54:21.413Z"
+      }
+    },
+    "masterOrganizationId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+    "organizationId": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+    "id": 317815,
+    "policyTemplateId": "59",
+    "configurationData": {
+      "inboundHeaders": [
+        {
+          "key": "foo",
+          "value": "bar"
+        }
+      ]
+    },
+    "order": 1,
+    "disabled": false,
+    "pointcutData": [
+      {
+        "methodRegex": "PUT|PATCH",
+        "uriTemplateRegex": "sadf.*"
+      }
+    ],
+    "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913",
+    "assetId": "header-injection",
+    "assetVersion": "1.0.0",
+    "type": "system",
+    "apiId": 14718023
+  }
+]

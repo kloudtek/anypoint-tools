@@ -7,26 +7,33 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.policy.Policy;
 
+import java.util.List;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = PolicyDescriptorClientIdImpl.class, name = PolicyDescriptorClientIdImpl.TYPE),
         @JsonSubTypes.Type(value = PolicyDescriptorJsonImpl.class, name = PolicyDescriptorJsonImpl.TYPE)
 })
 public abstract class PolicyDescriptor {
-    @JsonRawValue
-    private Object pointcutData;
-
-    public Object getPointcutData() {
-        return pointcutData;
-    }
-
-    public void setPointcutData(Object pointcutData) {
-        this.pointcutData = pointcutData;
-    }
+    protected List<PolicyPointcut> pointcutData;
 
     public abstract String getType();
 
-    public abstract boolean update(Policy policy);
+    @JsonProperty
+    public List<PolicyPointcut> getPointcutData() {
+        return pointcutData;
+    }
 
-    public abstract Policy toPolicy(API apiVersion);
+    public void setPointcutData(List<PolicyPointcut> pointcutData) {
+        this.pointcutData = pointcutData;
+    }
+
+    public abstract String getPolicyTemplateId();
+
+    public abstract String getGroupId();
+
+    public abstract String getAssetId();
+
+    public abstract String getAssetVersion();
+
+    public abstract Object getData();
 }

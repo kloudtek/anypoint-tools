@@ -4,18 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.kloudtek.anypoint.api.API;
-import com.kloudtek.anypoint.api.policy.ClientIdEnforcementPolicy;
 import com.kloudtek.anypoint.api.policy.Policy;
-
-import java.util.Objects;
 
 public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
     public static final String TYPE = "json";
-    private Object data;
-    private String policyTemplateId;
-    private String groupId;
-    private String assetId;
-    private String assetVersion;
+    protected String policyTemplateId;
+    protected String groupId;
+    protected String assetId;
+    protected String assetVersion;
+    protected Object data;
 
     @Override
     @JsonIgnore
@@ -23,7 +20,6 @@ public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
         return TYPE;
     }
 
-    @Override
     public boolean update(Policy policy) {
 //        if (policy instanceof ClientIdEnforcementPolicy) {
 //            boolean updated = false;
@@ -43,12 +39,6 @@ public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
         return false;
     }
 
-    @Override
-    public Policy toPolicy(API apiVersion) {
-        return null;
-//        return new ClientIdEnforcementPolicy(apiVersion, clientIdExpr, clientSecretExpr);
-    }
-
     @JsonRawValue
     public Object getData() {
         return data;
@@ -58,7 +48,7 @@ public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
         this.data = data;
     }
 
-    @JsonProperty
+    @JsonProperty(required = true)
     public String getPolicyTemplateId() {
         return policyTemplateId;
     }
@@ -67,7 +57,7 @@ public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
         this.policyTemplateId = policyTemplateId;
     }
 
-    @JsonProperty
+    @JsonProperty(required = true)
     public String getGroupId() {
         return groupId;
     }
@@ -76,7 +66,7 @@ public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
         this.groupId = groupId;
     }
 
-    @JsonProperty
+    @JsonProperty(required = true)
     public String getAssetId() {
         return assetId;
     }
@@ -85,12 +75,24 @@ public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
         this.assetId = assetId;
     }
 
-    @JsonProperty
+    @JsonProperty(required = true)
     public String getAssetVersion() {
         return assetVersion;
     }
 
     public void setAssetVersion(String assetVersion) {
         this.assetVersion = assetVersion;
+    }
+
+    @Override
+    public String toString() {
+        return "PolicyDescriptorJsonImpl{" +
+                "policyTemplateId='" + policyTemplateId + '\'' +
+                ", groupId='" + groupId + '\'' +
+                ", assetId='" + assetId + '\'' +
+                ", assetVersion='" + assetVersion + '\'' +
+                ", data=" + data +
+                ", pointcutData=" + pointcutData +
+                "} " + super.toString();
     }
 }
