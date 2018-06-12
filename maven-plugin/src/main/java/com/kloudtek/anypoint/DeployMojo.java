@@ -1,5 +1,6 @@
 package com.kloudtek.anypoint;
 
+import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.Server;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -34,6 +35,8 @@ public class DeployMojo extends AbstractMojo {
     private String appName;
     @Parameter( property = "anypoint.deploy.force", required = false )
     private boolean force;
+    @Parameter( property = "anypoint.deploy.skipwait", required = false )
+    private boolean skipWait;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -69,9 +72,14 @@ public class DeployMojo extends AbstractMojo {
                 log.debug("Searching for target "+target);
                 Server t = e.findServer(target);
                 log.debug("Found target "+target+" : "+t.getId());
-                log.info("Deploying "+file.getName());
-                t.deploy(appName,file);
-                log.info("Deployed "+file.getName());
+                log.debug("Deploying "+file.getName());
+                Application app = t.deploy(appName, file);
+                if( !skipWait ) {
+                    log.info("Waiting for application start");
+                    app.waitDeployed();
+                    log.info("Application started successfully");
+                }
+                log.info("Deployment completed successfully");
             } catch (Exception e) {
                 throw new MojoExecutionException(e.getMessage(),e);
             }
