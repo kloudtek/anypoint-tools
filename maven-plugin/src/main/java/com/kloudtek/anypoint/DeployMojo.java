@@ -2,6 +2,7 @@ package com.kloudtek.anypoint;
 
 import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.Server;
+import com.kloudtek.util.ThreadUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -76,6 +77,9 @@ public class DeployMojo extends AbstractMojo {
                 Application app = t.deploy(appName, file);
                 if( !skipWait ) {
                     log.info("Waiting for application start");
+                    // TODO this needs to be fixed correctly by checking the
+                    // TODO checksum, in order to avoid getting status of pre-deployment
+                    ThreadUtils.sleep(2500L);
                     app.waitDeployed();
                     log.info("Application started successfully");
                 }
