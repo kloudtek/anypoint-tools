@@ -1,5 +1,6 @@
 package com.kloudtek.anypoint;
 
+import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.Server;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
