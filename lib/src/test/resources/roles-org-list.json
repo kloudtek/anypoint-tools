@@ -1,0 +1,170 @@
+{
+  "data": [
+    {
+      "role_group_id": "ec8083c0-8f62-4773-bd22-526ed2caeb97",
+      "name": "API Creators",
+      "external_names": [],
+      "description": "API Creators",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": false,
+      "created_at": "2018-01-02T21:29:16.136Z",
+      "updated_at": "2018-01-02T21:29:16.136Z",
+      "user_count": 6
+    },
+    {
+      "role_group_id": "a405b8dc-f3f0-4878-931d-b948187da772",
+      "name": "API Versions Owner",
+      "external_names": [],
+      "description": "Owner of all API versions in the organization",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": false,
+      "created_at": "2018-01-02T21:29:16.136Z",
+      "updated_at": "2018-01-02T21:29:16.136Z",
+      "user_count": 1
+    },
+    {
+      "role_group_id": "61c0da69-9dab-4092-aedb-18339430542e",
+      "name": "Audit Log Viewers",
+      "external_names": [],
+      "description": "Audit Log Viewers",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": false,
+      "created_at": "2018-01-02T21:29:16.137Z",
+      "updated_at": "2018-01-02T21:29:16.137Z",
+      "user_count": 2
+    },
+    {
+      "role_group_id": "449e6784-1498-44eb-a868-ff774b173c58",
+      "name": "Cloudhub Admin (BCP)",
+      "external_names": [],
+      "description": "Cloudhub (BCP) Admin users",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": true,
+      "created_at": "2018-03-29T17:34:19.049Z",
+      "updated_at": "2018-03-29T17:34:19.049Z",
+      "user_count": 5
+    },
+    {
+      "role_group_id": "ea73dc50-499f-4c77-8307-e14fd3ce80e7",
+      "name": "Cloudhub Admin (DEV)",
+      "external_names": [],
+      "description": "Cloudhub (DEV) Admin users",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": true,
+      "created_at": "2018-04-04T18:43:35.625Z",
+      "updated_at": "2018-04-04T18:43:35.625Z",
+      "user_count": 5
+    },
+    {
+      "role_group_id": "03e8fbd2-50d0-432d-aa6b-f54501efb7e7",
+      "name": "Cloudhub Admin (PROD)",
+      "external_names": [],
+      "description": "Cloudhub (PROD) Admin users",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": true,
+      "created_at": "2018-03-29T17:34:12.399Z",
+      "updated_at": "2018-03-29T17:34:12.399Z",
+      "user_count": 5
+    },
+    {
+      "role_group_id": "0c8310fb-1f79-47dd-bd11-5616cda0baae",
+      "name": "Cloudhub Admin (QA)",
+      "external_names": [],
+      "description": "Cloudhub (QA) Admin users",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": true,
+      "created_at": "2018-03-29T17:32:45.695Z",
+      "updated_at": "2018-03-29T17:32:45.695Z",
+      "user_count": 5
+    },
+    {
+      "role_group_id": "ade1a0c1-7cca-4203-b364-da217c09c4a0",
+      "name": "Cloudhub Admin (SIT)",
+      "external_names": [],
+      "description": "Cloudhub (SIT) Admin users",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": true,
+      "created_at": "2018-03-29T17:32:37.167Z",
+      "updated_at": "2018-03-29T17:32:37.167Z",
+      "user_count": 5
+    },
+    {
+      "role_group_id": "04df8938-3263-4b32-800c-1323bdc29a7e",
+      "name": "Cloudhub Admin (STAGE)",
+      "external_names": [],
+      "description": "Cloudhub (STAGE) Admin users",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": true,
+      "created_at": "2018-03-29T17:34:05.632Z",
+      "updated_at": "2018-03-29T17:34:05.632Z",
+      "user_count": 5
+    },
+    {
+      "role_group_id": "e2701cdd-d930-4e19-9797-535bce45ba09",
+      "name": "Cloudhub Admin (UAT)",
+      "external_names": [],
+      "description": "Cloudhub (UAT) Admin users",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": true,
+      "created_at": "2018-03-29T17:32:51.793Z",
+      "updated_at": "2018-03-29T17:32:51.793Z",
+      "user_count": 5
+    },
+    {
+      "role_group_id": "939c6dec-07dd-4a12-a0b5-a25d9a7f5657",
+      "name": "Exchange Administrators",
+      "external_names": [],
+      "description": "Exchange Administrators",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": false,
+      "created_at": "2018-01-02T21:29:16.136Z",
+      "updated_at": "2018-01-02T21:29:16.136Z",
+      "user_count": 7
+    },
+    {
+      "role_group_id": "81fb94eb-0cfe-4472-90f5-a6cc90f32954",
+      "name": "Exchange Contributors",
+      "external_names": [],
+      "description": "Exchange Contributors",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": false,
+      "created_at": "2018-01-02T21:29:16.136Z",
+      "updated_at": "2018-01-02T21:29:16.136Z",
+      "user_count": 2
+    },
+    {
+      "role_group_id": "c6360685-045a-41a9-b2f9-9d5d95f6063f",
+      "name": "Exchange Viewers",
+      "external_names": [],
+      "description": "Exchange Viewers",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": false,
+      "created_at": "2018-01-02T21:29:16.136Z",
+      "updated_at": "2018-01-02T21:29:16.136Z",
+      "user_count": 2
+    },
+    {
+      "role_group_id": "23878e16-43d4-4d94-8d33-def6c84387e9",
+      "name": "Organization Administrators",
+      "external_names": [],
+      "description": "Organization Administrators",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": false,
+      "created_at": "2018-01-02T21:29:16.136Z",
+      "updated_at": "2018-01-02T21:29:16.136Z",
+      "user_count": 7
+    },
+    {
+      "role_group_id": "c318a37f-e2ef-40c1-ad54-ff0078b91db8",
+      "name": "Portals Viewer",
+      "external_names": [],
+      "description": "Viewer of all portals in the organization",
+      "org_id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "editable": false,
+      "created_at": "2018-01-02T21:29:16.137Z",
+      "updated_at": "2018-01-02T21:29:16.137Z",
+      "user_count": 2
+    }
+  ],
+  "total": 15
+}
