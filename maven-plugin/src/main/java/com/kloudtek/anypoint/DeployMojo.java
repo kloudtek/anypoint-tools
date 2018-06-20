@@ -1,6 +1,7 @@
 package com.kloudtek.anypoint;
 
 import com.kloudtek.anypoint.runtime.Application;
+import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.util.ThreadUtils;
 import org.apache.maven.artifact.Artifact;
@@ -74,7 +75,7 @@ public class DeployMojo extends AbstractMojo {
                 Server t = e.findServer(target);
                 log.debug("Found target "+target+" : "+t.getId());
                 log.debug("Deploying "+file.getName());
-                Application app = t.deploy(appName, file);
+                DeploymentResult app = t.deploy(appName, file);
                 if( !skipWait ) {
                     log.info("Waiting for application start");
                     app.waitDeployed();
