@@ -26,7 +26,6 @@ public class DeploymentResult extends AnypointObject<Application> {
         long expires = System.currentTimeMillis() + timeout;
         for (; ; ) {
             String json = httpHelper.httpGet(parent.getUriPath(), parent.getParent().getParent());
-            System.out.println(json);
             Application application = jsonHelper.readJson(new Application(parent.getParent()), json, "/data");
             if( application.getDesiredStatus().equalsIgnoreCase("UPDATED") ) {
                 // app hasn't started yet

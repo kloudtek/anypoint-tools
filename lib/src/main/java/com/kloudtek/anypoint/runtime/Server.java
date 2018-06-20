@@ -115,7 +115,6 @@ public class Server extends AnypointObject<Environment> {
 
     public List<Application> listApplication() throws HttpException {
         String json = httpHelper.httpGet("/hybrid/api/v1/applications?targetId=" + id, parent);
-        System.out.println(json);
         return jsonHelper.readJsonList(Application.class, json, this, "/data");
     }
 
