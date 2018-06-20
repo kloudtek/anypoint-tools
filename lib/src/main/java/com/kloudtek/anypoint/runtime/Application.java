@@ -93,4 +93,9 @@ public class Application extends AnypointObject<Server> {
     public boolean matchDigest(String digest) {
         return artifact != null && artifact.getFileChecksum().equals(digest);
     }
+
+    public Application refresh() throws HttpException {
+        String json = httpHelper.httpGet(getUriPath(), parent.getParent());
+        return jsonHelper.readJson(new Application(parent), json, "/data");
+    }
 }
