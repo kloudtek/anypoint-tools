@@ -8,8 +8,6 @@ import com.kloudtek.util.ThreadUtils;
 import java.util.List;
 
 public class Application extends AnypointObject<Server> {
-    static final String DEPLOYMENT_FAILED = "DEPLOYMENT_FAILED";
-    static final String STARTED = "STARTED";
     private Integer id;
     private String name;
     private String desiredStatus;
@@ -92,30 +90,12 @@ public class Application extends AnypointObject<Server> {
         this.applicationDeployments = applicationDeployments;
     }
 
-    public void waitDeployed() throws HttpException, ApplicationDeploymentFailedException {
-        waitDeployed(60000L, 1500L);
-    }
-
-    public void waitDeployed(long timeout, long retryDelay) throws HttpException, ApplicationDeploymentFailedException {
-        long expires = System.currentTimeMillis() + timeout;
-        for (; ; ) {
-            String json = httpHelper.httpGet(getUriPath(), parent.getParent());
-            Application application = jsonHelper.readJson(new Application(parent), json, "/data");
-            if (application.isStarted()) {
-                return;
-            } else if (DEPLOYMENT_FAILED.equals(application.getLastReportedStatus())) {
-                throw ApplicationDeploymentFailedException.create(application);
-            } else {
-                if (expires > System.currentTimeMillis()) {
-                    ThreadUtils.sleep(retryDelay);
-                } else {
-                    throw ApplicationDeploymentFailedException.create(application);
-                }
-            }
-        }
-    }
-
     public boolean matchDigest(String digest) {
         return artifact != null && artifact.getFileChecksum().equals(digest);
+    }
+
+    public Application refresh() throws HttpException {
+        String json = httpHelper.httpGet(getUriPath(), parent.getParent());
+        return jsonHelper.readJson(new Application(parent), json, "/data");
     }
 }

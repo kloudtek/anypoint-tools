@@ -73,11 +73,11 @@ public class Server extends AnypointObject<Environment> {
         }
     }
 
-    public Application deploy(@NotNull String name, @NotNull File file) throws IOException, HttpException {
-        return deploy(name, file, file.getName());
+    public DeploymentResult deploy(@NotNull String name, @NotNull File file) throws IOException, HttpException {
+        return deploy(name,file,file.getName());
     }
 
-    public Application deploy(@NotNull String name, @NotNull File file, @NotNull String filename) throws IOException, HttpException {
+    public DeploymentResult deploy(@NotNull String name, @NotNull File file, @NotNull String filename) throws IOException, HttpException {
         return deploy(name, new StreamSource() {
             @Override
             public String getFileName() {
@@ -91,7 +91,7 @@ public class Server extends AnypointObject<Environment> {
         });
     }
 
-    public Application deploy(@NotNull String name, @NotNull StreamSource stream) throws HttpException, IOException {
+    public DeploymentResult deploy(@NotNull String name, @NotNull StreamSource stream) throws HttpException, IOException {
         HttpHelper.MultiPartRequest request;
         long start = System.currentTimeMillis();
         try {
@@ -107,7 +107,8 @@ public class Server extends AnypointObject<Environment> {
         if (logger.isDebugEnabled()) {
             logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
         }
-        return jsonHelper.readJson(new Application(this), json, "/data");
+        Application application = jsonHelper.readJson(new Application(this), json, "/data");
+        return new DeploymentResult(application);
     }
 
     public List<Application> listApplication() throws HttpException {

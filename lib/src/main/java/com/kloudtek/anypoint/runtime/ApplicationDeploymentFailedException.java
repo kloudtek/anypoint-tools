@@ -60,9 +60,9 @@ public class ApplicationDeploymentFailedException extends Exception {
             int other = 0;
             ArrayList<String> messages = new ArrayList<>();
             for (ApplicationDeployment deployment : application.getApplicationDeployments()) {
-                if (Application.DEPLOYMENT_FAILED.equals(deployment.getLastReportedStatus())) {
+                if (DeploymentResult.DEPLOYMENT_FAILED.equals(deployment.getLastReportedStatus())) {
                     failed++;
-                } else if (Application.STARTED.equals(deployment.getLastReportedStatus())) {
+                } else if (DeploymentResult.STARTED.equals(deployment.getLastReportedStatus())) {
                     successful++;
                 } else {
                     other++;
