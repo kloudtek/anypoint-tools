@@ -8,6 +8,7 @@ public class ApplicationDeployment {
     private Integer id;
     private String lastReportedStatus;
     private String message;
+    private Long timeUpdated;
 
     public ApplicationDeployment() {
     }
@@ -37,5 +38,14 @@ public class ApplicationDeployment {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @JsonProperty
+    public Long getTimeUpdated() {
+        return timeUpdated;
+    }
+
+    public void setTimeUpdated(Long timeUpdated) {
+        this.timeUpdated = timeUpdated;
     }
 }
