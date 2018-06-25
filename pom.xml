@@ -10,7 +10,7 @@
     <description>Various tools and library for interacting with anypoint server</description>
     <url>https://github.com/Kloudtek/anypoint-tools</url>
     <packaging>pom</packaging>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9.31</version>
 
     <organization>
         <name>Kloudtek</name>
