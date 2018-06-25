@@ -176,7 +176,9 @@ public class HttpHelper implements Closeable {
                 throw new HttpException("Anypoint returned status code " + statusCode + " - url: " + method.getURI() + " - err: " + errMsg, statusCode);
             }
             if (response.getEntity() != null && response.getEntity().getContent() != null) {
-                return IOUtils.toString(response.getEntity().getContent());
+                String resStr = IOUtils.toString(response.getEntity().getContent());
+                logger.debug("RESULT CONTENT: "+resStr);
+                return resStr;
             } else {
                 return null;
             }
