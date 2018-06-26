@@ -193,4 +193,9 @@ public class AnypointClient implements Closeable, Serializable {
             }
         }
     }
+
+    public String getUserId() throws HttpException {
+        // TODO cache this
+        return getUser().getId();
+    }
 }

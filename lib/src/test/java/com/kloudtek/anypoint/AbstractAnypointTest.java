@@ -64,7 +64,10 @@ public class AbstractAnypointTest {
             } catch (NotFoundException e) {
                 System.out.println("Creating API "+AP_TEST);
                 apiProject = org.createDesignCenterProject(AP_TEST,"raml",false,client.getUser().getId());
-                DesignCenterProjectExchange exchange = apiProject.getExchange("master");
+            }
+            DesignCenterProjectExchange exchange = apiProject.getExchange("master");
+            if( ! exchange.isPublishedVersion() ) {
+                exchange.publish();
             }
             client.setHttpHelper(new HttpHelperRecorder(client,username,password));
         } else {

@@ -1,14 +1,17 @@
 package com.kloudtek.anypoint.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.HttpException;
-import com.kloudtek.anypoint.Organization;
+import com.kloudtek.util.InvalidStateException;
 
-import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DesignCenterProjectExchange extends AnypointObject<DesignCenterProject> {
+    public static final Pattern majorVersionRegex = Pattern.compile("(\\d*?)\\.");
+    private final String branch;
     private String main;
     private String name;
     private String classifier;
@@ -20,11 +23,14 @@ public class DesignCenterProjectExchange extends AnypointObject<DesignCenterProj
     private boolean enableCreatePlatformApis;
     private boolean isPublishedVersion;
 
-    public DesignCenterProjectExchange() {
+    public DesignCenterProjectExchange(DesignCenterProject designCenterProject, String branch) {
+        super(designCenterProject);
+        this.branch = branch;
     }
 
-    public DesignCenterProjectExchange(DesignCenterProject designCenterProject) {
-        super(designCenterProject);
+    @JsonIgnore
+    public String getBranch() {
+        return branch;
     }
 
     @JsonProperty
@@ -115,5 +121,13 @@ public class DesignCenterProjectExchange extends AnypointObject<DesignCenterProj
 
     public void setPublishedVersion(boolean publishedVersion) {
         isPublishedVersion = publishedVersion;
+    }
+
+    public void publish() throws HttpException {
+        Matcher m = majorVersionRegex.matcher(nextVersion);
+        if( !m.find()) {
+            throw new InvalidStateException("Invalid version "+nextVersion);
+        }
+        parent.publishExchange(branch,assetId,name, main, nextVersion, "v"+m.group(1) );
     }
 }

@@ -131,12 +131,14 @@ public class HttpHelper implements Closeable {
         return new MultiPartRequest(request);
     }
 
-    private String execute(@NotNull HttpEntityEnclosingRequestBase method, @NotNull Object data) throws HttpException {
-        if (data instanceof HttpEntity) {
-            method.setEntity((HttpEntity) data);
-        } else {
-            method.setHeader("Content-Type", "application/json");
-            method.setEntity(new ByteArrayEntity(client.getJsonHelper().toJson(data)));
+    private String execute(@NotNull HttpEntityEnclosingRequestBase method, Object data) throws HttpException {
+        if (data != null) {
+            if (data instanceof HttpEntity) {
+                method.setEntity((HttpEntity) data);
+            } else {
+                method.setHeader("Content-Type", "application/json");
+                method.setEntity(new ByteArrayEntity(client.getJsonHelper().toJson(data)));
+            }
         }
         return executeWrapper(method, null);
     }
