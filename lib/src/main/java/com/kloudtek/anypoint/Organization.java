@@ -2,10 +2,7 @@ package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.anypoint.api.APISpec;
-import com.kloudtek.anypoint.api.APISpecList;
-import com.kloudtek.anypoint.api.ClientApplication;
-import com.kloudtek.anypoint.api.ClientApplicationList;
+import com.kloudtek.anypoint.api.*;
 import com.kloudtek.anypoint.util.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -174,7 +171,7 @@ public class Organization extends AnypointObject {
 
     @Nullable
     private ClientApplication findClientApplication(Iterable<ClientApplication> list, @NotNull String name, boolean fullData) throws HttpException {
-        for (ClientApplication app : list) {
+        for (ClientApplication app: list) {
             if (name.equals(app.getName())) {
                 if (fullData) {
                     return jsonHelper.readJson(app, httpHelper.httpGet(app.getUriPath()));
@@ -192,7 +189,7 @@ public class Organization extends AnypointObject {
     }
 
     public APISpec findAPISpecsByNameAndVersion(String name, String version) throws NotFoundException, HttpException {
-        for (APISpec apiSpec : findAPISpecs(name)) {
+        for (APISpec apiSpec: findAPISpecs(name)) {
             if (apiSpec.getName().equalsIgnoreCase(name) && apiSpec.getVersion().equalsIgnoreCase(version)) {
                 return apiSpec;
             }
@@ -286,6 +283,25 @@ public class Organization extends AnypointObject {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 "} " + super.toString();
+    }
+
+    public List<DesignCenterProject> findDesignCenterProjects() throws HttpException {
+        // TODO implement pagination !!!!!!!
+        String json = httpHelper.httpGet("/designcenter/api/v1/organizations/"+id+"/projects?pageSize=500&pageIndex=0");
+        return jsonHelper.readJsonList(DesignCenterProject.class, json, this);
+    }
+
+    public DesignCenterProject findDesignCenterProject(String name) throws NotFoundException, HttpException {
+        for (DesignCenterProject project: findDesignCenterProjects()) {
+            if( name.equalsIgnoreCase(project.getName()) ) {
+                return project;
+            }
+        }
+        throw new NotFoundException();
+    }
+
+    public DesignCenterProject createDesignCenterProject(String name, String type, boolean visualDesignerMode, String ownerId) throws HttpException {
+        return DesignCenterProject.create(this,name,type,visualDesignerMode,ownerId);
     }
 
     public enum RequestAPIAccessResult {

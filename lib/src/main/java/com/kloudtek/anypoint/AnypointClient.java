@@ -160,6 +160,10 @@ public class AnypointClient implements Closeable, Serializable {
         return httpHelper;
     }
 
+    public void setHttpHelper(HttpHelper httpHelper) {
+        this.httpHelper = httpHelper;
+    }
+
     public String authenticate(String username, String password) throws HttpException {
         Map<String, String> request = new HashMap<>();
         request.put("username", username);

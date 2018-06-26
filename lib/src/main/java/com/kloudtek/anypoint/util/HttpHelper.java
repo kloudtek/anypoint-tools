@@ -3,6 +3,7 @@ package com.kloudtek.anypoint.util;
 import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
+import com.kloudtek.anypoint.Organization;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -65,9 +66,32 @@ public class HttpHelper implements Closeable {
         return executeWrapper(new HttpGet(convertPath(path)), null);
     }
 
+    public String httpGet(String path, Map<String, String> headers) throws HttpException {
+        logger.debug("HTTP GET " + path);
+        HttpGet method = new HttpGet(convertPath(path));
+        setHeader(headers, method);
+        return executeWrapper(method, null);
+    }
+
+    public String httpGetWithOrgAndOwner(String path, String orgId, String ownerId) throws HttpException {
+        logger.debug("HTTP GET " + path);
+        return httpGet(path, createOrgAndOwnerHeaders(orgId, ownerId));
+    }
+
     public String httpPost(String path, Object data, Environment env) throws HttpException {
         logger.debug("HTTP POST " + path + " env=" + env + " data=" + data);
         return execute(new HttpPost(convertPath(path)), data, env);
+    }
+
+    public String httpPostWithOrgAndOwner(String path, Object data, String orgId, String ownerId) throws HttpException {
+        return httpPost(path, data, createOrgAndOwnerHeaders(orgId, ownerId));
+    }
+
+    public String httpPost(String path, Object data, Map<String, String> headers) throws HttpException {
+        logger.debug("HTTP POST " + path + " headers=" + headers + " data=" + data);
+        HttpPost method = new HttpPost(convertPath(path));
+        setHeader(headers, method);
+        return execute(method, data);
     }
 
     public String httpPost(String path, Object data) throws HttpException {
@@ -162,6 +186,9 @@ public class HttpHelper implements Closeable {
     @Nullable
     private String doExecute(HttpRequestBase method) throws HttpException {
         if (auth != null && method.getFirstHeader(HEADER_AUTH) == null) {
+            if (auth.startsWith("bearer ")) {
+                auth = "Bearer " + auth.substring(7);
+            }
             method.setHeader(HEADER_AUTH, auth);
         }
         try (CloseableHttpResponse response = httpClient.execute(method)) {
@@ -177,7 +204,7 @@ public class HttpHelper implements Closeable {
             }
             if (response.getEntity() != null && response.getEntity().getContent() != null) {
                 String resStr = IOUtils.toString(response.getEntity().getContent());
-                logger.debug("RESULT CONTENT: "+resStr);
+                logger.debug("RESULT CONTENT: " + resStr);
                 return resStr;
             } else {
                 return null;
@@ -185,10 +212,6 @@ public class HttpHelper implements Closeable {
         } catch (IOException e) {
             throw new RuntimeIOException(e);
         }
-    }
-
-    private String convertPath(String path) {
-        return path.startsWith("/") ? "https://anypoint.mulesoft.com" + path : path;
     }
 
     public class MultiPartRequest {
@@ -212,7 +235,7 @@ public class HttpHelper implements Closeable {
         HttpEntity toEntity() throws HttpException {
             try {
                 MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-                for (Map.Entry<String, Object> e : parts.entrySet()) {
+                for (Map.Entry<String, Object> e: parts.entrySet()) {
                     if (e.getValue() instanceof String) {
                         builder.addTextBody(e.getKey(), (String) e.getValue());
                     } else if (e.getValue() instanceof StreamSource) {
@@ -264,5 +287,23 @@ public class HttpHelper implements Closeable {
         IOException getIOException() {
             return e;
         }
+    }
+
+    private static void setHeader(Map<String, String> headers, HttpRequestBase method) {
+        for (Map.Entry<String, String> entry: headers.entrySet()) {
+            method.setHeader(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private static String convertPath(String path) {
+        return path.startsWith("/") ? "https://anypoint.mulesoft.com" + path : path;
+    }
+
+    @NotNull
+    private static HashMap<String, String> createOrgAndOwnerHeaders(String orgId, String ownerId) {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("x-organization-id", orgId);
+        headers.put("x-owner-id", ownerId);
+        return headers;
     }
 }
