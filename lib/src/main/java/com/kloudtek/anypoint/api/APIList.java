@@ -24,7 +24,8 @@ public class APIList extends PaginatedList<APIAsset, Environment> {
 
     @Override
     protected @NotNull URLBuilder buildUrl() {
-        URLBuilder urlBuilder = new URLBuilder("/apimanager/api/v1/organizations/" + parent.getParent().getId() + "/environments/" + parent.getId() + "/apis");
+        URLBuilder urlBuilder = new URLBuilder("/apimanager/api/v1/organizations/" + parent.getParent().getId() + "/environments/" + parent.getId() + "/apis")
+                .param("ascending", "true");
         if (filter != null) {
             urlBuilder.param("query", filter);
         }

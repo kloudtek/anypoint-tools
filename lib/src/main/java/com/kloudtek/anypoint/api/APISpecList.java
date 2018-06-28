@@ -22,7 +22,8 @@ public class APISpecList extends PaginatedList<APISpec, Organization> {
     @NotNull
     @Override
     protected URLBuilder buildUrl() {
-        URLBuilder url = new URLBuilder("/apimanager/xapi/v1/organizations/" + parent.getId() + "/apiSpecs");
+        URLBuilder url = new URLBuilder("/apimanager/xapi/v1/organizations/" + parent.getId() + "/apiSpecs")
+                .param("ascending", "true");
         if (filter != null) {
             url.param("searchTerm", filter);
         }

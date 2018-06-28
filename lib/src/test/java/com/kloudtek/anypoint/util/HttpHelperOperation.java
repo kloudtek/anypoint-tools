@@ -8,6 +8,14 @@ public class HttpHelperOperation {
     private String content;
     private String result;
 
+    public HttpHelperOperation() {
+    }
+
+    public HttpHelperOperation(String method, String path) {
+        this.method = method;
+        this.path = path;
+    }
+
     @JsonProperty
     public String getMethod() {
         return method;

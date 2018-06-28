@@ -75,16 +75,16 @@ public class DesignCenterProject extends AnypointObject<Organization> {
         return client.getJsonHelper().readJson(new DesignCenterProjectExchange(this, branch),json);
     }
 
-    public void lock(String branch) throws HttpException {
+    public LockResult lock(String branch) throws HttpException {
         String json = httpHelper.httpPostWithOrgAndOwner("/designcenter/api-designer/projects/" + id + "/branches/" + branch + "/acquireLock",
                 null, organizationId, client.getUserId());
-        System.out.println(json);
+        return client.getJsonHelper().readJson(new LockResult(), json);
     }
 
-    public void unlock(String branch) throws HttpException {
+    public LockResult unlock(String branch) throws HttpException {
         String json = httpHelper.httpPostWithOrgAndOwner("/designcenter/api-designer/projects/" + id + "/branches/" + branch + "/releaseLock",
                 null, organizationId, client.getUserId());
-        System.out.println(json);
+        return client.getJsonHelper().readJson(new LockResult(), json);
     }
 
     public void publishExchange(String branch, String assetId, String name, String mainFile, String assetVersion, String apiVersion) throws HttpException {
@@ -103,7 +103,6 @@ public class DesignCenterProject extends AnypointObject<Organization> {
         try {
             String json = httpHelper.httpPostWithOrgAndOwner("/designcenter/api-designer/projects/" + id + "/branches/" + branch + "/publish/exchange",
                     req, organizationId, client.getUserId());
-            System.out.println(json);
         } finally {
             unlock(branch);
         }

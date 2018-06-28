@@ -3,7 +3,6 @@ package com.kloudtek.anypoint.util;
 import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
-import com.kloudtek.anypoint.Organization;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -29,10 +28,13 @@ public class HttpHelper implements Closeable {
     private transient CloseableHttpClient httpClient;
     private String auth;
     private AnypointClient client;
-    private final String username;
-    private final String password;
+    private String username;
+    private String password;
     private int maxRetries = 4;
     private long retryDelay = 1000L;
+
+    public HttpHelper() {
+    }
 
     public HttpHelper(AnypointClient client, String username, String password) {
         this(HttpClients.createMinimal(), client, username, password);
@@ -58,7 +60,7 @@ public class HttpHelper implements Closeable {
 
     public String httpGet(String path, Environment env) throws HttpException {
         logger.debug("HTTP GET " + path + " env=" + env);
-        return execute(new HttpGet(convertPath(path)), env);
+        return executeWithEnv(new HttpGet(convertPath(path)), env);
     }
 
     public String httpGet(String path) throws HttpException {
@@ -80,7 +82,7 @@ public class HttpHelper implements Closeable {
 
     public String httpPost(String path, Object data, Environment env) throws HttpException {
         logger.debug("HTTP POST " + path + " env=" + env + " data=" + data);
-        return execute(new HttpPost(convertPath(path)), data, env);
+        return executeWithDataAndEnv(new HttpPost(convertPath(path)), data, env);
     }
 
     public String httpPostWithOrgAndOwner(String path, Object data, String orgId, String ownerId) throws HttpException {
@@ -116,7 +118,7 @@ public class HttpHelper implements Closeable {
 
     public String httpDelete(@NotNull String path, @NotNull Environment env) throws HttpException {
         logger.debug("HTTP DELETE " + path + " env=" + env);
-        return execute(new HttpDelete(convertPath(path)), env);
+        return executeWithEnv(new HttpDelete(convertPath(path)), env);
     }
 
     public MultiPartRequest createMultiPartPostRequest(String url, Environment environment) {
@@ -143,17 +145,17 @@ public class HttpHelper implements Closeable {
         return executeWrapper(method, null);
     }
 
-    private String execute(@NotNull HttpEntityEnclosingRequestBase method, @NotNull Object data, @NotNull Environment env) throws HttpException {
+    private String executeWithDataAndEnv(@NotNull HttpEntityEnclosingRequestBase method, @NotNull Object data, @NotNull Environment env) throws HttpException {
         env.addHeaders(method);
         return execute(method, data);
     }
 
-    private String execute(@NotNull HttpRequestBase method, @NotNull Environment env) throws HttpException {
+    private String executeWithEnv(@NotNull HttpRequestBase method, @NotNull Environment env) throws HttpException {
         env.addHeaders(method);
         return executeWrapper(method, null);
     }
 
-    private String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest) throws HttpException {
+    protected String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest) throws HttpException {
         return executeWrapper(method, multiPartRequest, 0);
     }
 
@@ -297,7 +299,11 @@ public class HttpHelper implements Closeable {
         }
     }
 
-    private static String convertPath(String path) {
+    public void setClient(AnypointClient client) {
+        this.client = client;
+    }
+
+    protected static String convertPath(String path) {
         return path.startsWith("/") ? "https://anypoint.mulesoft.com" + path : path;
     }
 

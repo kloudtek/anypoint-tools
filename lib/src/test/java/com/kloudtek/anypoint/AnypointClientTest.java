@@ -46,7 +46,7 @@ public class AnypointClientTest {
 //    public static void cleanup() {
 //        logger.info("Cleaning up");
 //        try {
-//            for (Environment environment : org.getEnvironments()) {
+//            for (Environment environment : org.findEnvironments()) {
 //                if (environment.getName().contains("deleteme")) {
 //                    try {
 //                        environment.delete();

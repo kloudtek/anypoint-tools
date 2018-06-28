@@ -9,6 +9,7 @@ import com.kloudtek.anypoint.api.APISpec;
 import com.kloudtek.anypoint.api.ClientApplication;
 import com.kloudtek.anypoint.api.policy.Policy;
 import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.validation.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,11 @@ public class APIProvisioningDescriptor {
     public APIProvisioningDescriptor() {
     }
 
+    public APIProvisioningDescriptor(String name, String version) {
+        this.name = name;
+        this.version = version;
+    }
+
     public APIProvisioningResult provision(Environment environment, APIProvisioningConfig config) throws NotFoundException, HttpException {
         APIProvisioningResult result = new APIProvisioningResult();
         config.setVariable("environment.id", environment.getId());
@@ -39,6 +45,8 @@ public class APIProvisioningDescriptor {
         config.setVariable("environment.lname", environment.getName().toLowerCase());
         config.setVariable("organization.name", environment.getOrganization().getName());
         config.setVariable("organization.lname", environment.getOrganization().getName().toLowerCase());
+        ValidationUtils.notEmpty(IllegalStateException.class,"API Descriptor missing value: name",name);
+        ValidationUtils.notEmpty(IllegalStateException.class,"API Descriptor missing value: version",version);
         logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());
         logger.debug("Provisioning " + this.getName());
         String apiName = applyVars(this.getName(), config);
@@ -92,10 +100,12 @@ public class APIProvisioningDescriptor {
             }
             result.setClientApplication(clientApplication);
         }
-        for (APIAccessDescriptor accessDescriptor : access) {
-            API accessedAPI = environment.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
-                    accessDescriptor.getVersion(), accessDescriptor.getLabel());
-            // TODO implement
+        if( access != null ) {
+            for (APIAccessDescriptor accessDescriptor : access) {
+                API accessedAPI = environment.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
+                        accessDescriptor.getVersion(), accessDescriptor.getLabel());
+                // TODO implement
+            }
         }
         return result;
 

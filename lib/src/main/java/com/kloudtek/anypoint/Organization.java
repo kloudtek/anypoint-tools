@@ -3,7 +3,9 @@ package com.kloudtek.anypoint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.api.*;
+import com.kloudtek.anypoint.exchange.AssetList;
 import com.kloudtek.anypoint.util.JsonHelper;
+import com.kloudtek.util.ThreadUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Organization extends AnypointObject {
     private static final Logger logger = LoggerFactory.getLogger(Organization.class);
@@ -47,7 +50,7 @@ public class Organization extends AnypointObject {
         this.name = name;
     }
 
-    public List<Environment> getEnvironments() throws HttpException {
+    public List<Environment> findEnvironments() throws HttpException {
         return Environment.getEnvironments(client, this);
     }
 
@@ -215,7 +218,30 @@ public class Organization extends AnypointObject {
     }
 
     public void delete() throws HttpException {
-        httpHelper.httpDelete("/accounts/api/organizations/" + id);
+        deleteSubElements();
+        long timeout = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60);
+        for(;;) {
+            try {
+                httpHelper.httpDelete("/accounts/api/organizations/" + id);
+                break;
+            } catch (HttpException e) {
+                if( System.currentTimeMillis() > timeout ) {
+                    throw e;
+                } else {
+                    deleteSubElements();
+                    ThreadUtils.sleep(1500);
+                }
+            }
+        };
+    }
+
+    private void deleteSubElements() throws HttpException {
+        for (Environment environment: findEnvironments()) {
+            for (APIAsset api: environment.findAPIs(null)) {
+                api.delete();
+            }
+        }
+        findAssets().delete();
     }
 
     @JsonIgnore
@@ -287,13 +313,13 @@ public class Organization extends AnypointObject {
 
     public List<DesignCenterProject> findDesignCenterProjects() throws HttpException {
         // TODO implement pagination !!!!!!!
-        String json = httpHelper.httpGet("/designcenter/api/v1/organizations/"+id+"/projects?pageSize=500&pageIndex=0");
+        String json = httpHelper.httpGet("/designcenter/api/v1/organizations/" + id + "/projects?pageSize=500&pageIndex=0");
         return jsonHelper.readJsonList(DesignCenterProject.class, json, this);
     }
 
     public DesignCenterProject findDesignCenterProject(String name) throws NotFoundException, HttpException {
         for (DesignCenterProject project: findDesignCenterProjects()) {
-            if( name.equalsIgnoreCase(project.getName()) ) {
+            if (name.equalsIgnoreCase(project.getName())) {
                 return project;
             }
         }
@@ -301,7 +327,15 @@ public class Organization extends AnypointObject {
     }
 
     public DesignCenterProject createDesignCenterProject(String name, String type, boolean visualDesignerMode, String ownerId) throws HttpException {
-        return DesignCenterProject.create(this,name,type,visualDesignerMode,ownerId);
+        return DesignCenterProject.create(this, name, type, visualDesignerMode, ownerId);
+    }
+
+    public AssetList findAssets() throws HttpException {
+        return new AssetList(this, null, 50);
+    }
+
+    public AssetList findAssets(String filter, int limit) throws HttpException {
+        return new AssetList(this, filter, limit);
     }
 
     public enum RequestAPIAccessResult {

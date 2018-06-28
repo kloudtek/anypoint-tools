@@ -3,6 +3,7 @@ package com.kloudtek.anypoint.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.Environment;
+import com.kloudtek.anypoint.HttpException;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -105,5 +106,11 @@ public class APIAsset extends AnypointObject<Environment> {
 
     public void setApis(List<API> apis) {
         this.apis = apis;
+    }
+
+    public void delete() throws HttpException {
+        for (API api: apis) {
+            httpHelper.httpDelete("/apimanager/api/v1/organizations/"+parent.getParent().getId()+"/environments/"+parent.getId()+"/apis/"+api.getId());
+        }
     }
 }

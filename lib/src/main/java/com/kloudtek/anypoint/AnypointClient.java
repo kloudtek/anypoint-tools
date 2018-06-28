@@ -162,6 +162,7 @@ public class AnypointClient implements Closeable, Serializable {
 
     public void setHttpHelper(HttpHelper httpHelper) {
         this.httpHelper = httpHelper;
+        httpHelper.setClient(this);
     }
 
     public String authenticate(String username, String password) throws HttpException {
