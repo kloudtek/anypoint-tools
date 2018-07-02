@@ -79,11 +79,11 @@ public class APIProvisioningDescriptor {
         for (PolicyDescriptor policyDescriptor : polList) {
             try {
                 Policy policy = api.findPolicyByAsset(policyDescriptor.getGroupId(), policyDescriptor.getAssetId(), policyDescriptor.getAssetVersion(), false);
-                logger.debug("Policy found: " + policyDescriptor);
-                // TODO implement update policy
-//                    if( policy.isUpdateRequired(policyDescriptor) ) {
-//                        policy.update(policyDescriptor);
-//                    }
+                if( policy.getConfigurationData().equals(policyDescriptor.getData())) {
+                    logger.debug("Policy data is same as descriptor");
+                } else {
+                    logger.debug("Policy data changed, updating");
+                }
             } catch (NotFoundException e) {
                 logger.debug("Policy not found, creating: " + policyDescriptor);
                 api.createPolicy(policyDescriptor);
@@ -205,8 +205,15 @@ public class APIProvisioningDescriptor {
         this.clientApp = clientApp;
     }
 
+    public void addPolicy(PolicyDescriptor policy) {
+        getPolicies().add(policy);
+    }
+
     @JsonProperty
-    public List<PolicyDescriptor> getPolicies() {
+    public synchronized List<PolicyDescriptor> getPolicies() {
+        if(policies==null){
+            policies=new ArrayList<>();
+        }
         return policies;
     }
 
