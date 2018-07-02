@@ -3,6 +3,7 @@ package com.kloudtek.anypoint;
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.ApplicationDeploymentFailedException;
+import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.unpack.FileType;
 import com.kloudtek.unpack.Unpacker;
@@ -56,7 +57,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     protected void execute(Environment environment) throws Exception {
         ExecutorService deployThreadPool = Executors.newCachedThreadPool();
         Server server = environment.findServer(target);
-        HashMap<String, Application> deployed = new HashMap<>();
+        HashMap<String, DeploymentResult> deployed = new HashMap<>();
         for (File appArchive : appArchives) {
             if (!appArchive.exists()) {
                 logger.error("Application file not found: " + appArchive.getPath());
@@ -101,7 +102,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
                         }
                         logger.info("Deploying application: " + appName);
                         try {
-                            Application application = server.deploy(appName, appArch, appArchFileName);
+                            DeploymentResult application = server.deploy(appName, appArch, appArchFileName);
                             deployed.put(appArch.getName(), application);
                         } catch (IOException e) {
                             throw new UserDisplayableException("Error loading application " + appName + " : " + e.getMessage(), e);
@@ -126,7 +127,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
         logger.info("Applications deployment completed");
         if (!skipWait) {
             logger.info("Waiting for apps to start");
-            for (Map.Entry<String, Application> entry : deployed.entrySet()) {
+            for (Map.Entry<String, DeploymentResult> entry : deployed.entrySet()) {
                 tasks.add(deployThreadPool.submit(() -> {
                     try {
                         entry.getValue().waitDeployed();
