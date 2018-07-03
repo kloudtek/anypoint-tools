@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class Asset extends AnypointObject<Organization> {
+public class ExchangeAsset extends AnypointObject<Organization> {
     @JsonProperty("productAPIVersion")
     private String productAPIVersion;
     @JsonProperty("runtimeVersion")
@@ -73,10 +73,10 @@ public class Asset extends AnypointObject<Organization> {
     @JsonProperty("numberOfRates")
     private Integer numberOfRates;
 
-    public Asset() {
+    public ExchangeAsset() {
     }
 
-    public Asset(Organization organization) {
+    public ExchangeAsset(Organization organization) {
         super(organization);
     }
 

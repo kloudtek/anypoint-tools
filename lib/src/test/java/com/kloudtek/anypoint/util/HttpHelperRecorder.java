@@ -16,24 +16,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HttpHelperRecorder extends HttpHelper {
-    private List<HttpHelperOperation> operations = new ArrayList<>();
+    private HttpHelperRecording recording = new HttpHelperRecording();
 
-    public HttpHelperRecorder(AnypointClient client, String username, String password) {
+    public HttpHelperRecorder(AnypointClient client, String username, String password, String orgName) {
         super(client, username, password);
+        recording.setOrgName(orgName);
     }
 
-    public HttpHelperRecorder(CloseableHttpClient httpClient, AnypointClient client, String username, String password) {
+    public HttpHelperRecorder(CloseableHttpClient httpClient, AnypointClient client, String username, String password, String orgName) {
         super(httpClient, client, username, password);
+        recording.setOrgName(orgName);
     }
 
-    public List<HttpHelperOperation> getOperations() {
-        return operations;
+    public HttpHelperRecording getRecording() {
+        return recording;
     }
 
     @Override
     protected String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest) throws HttpException {
         HttpHelperOperation op = new HttpHelperOperation(method.getMethod(),method.getURI().toString());
-        operations.add(op);
+        recording.addOperation(op);
         if( method instanceof HttpEntityEnclosingRequestBase ) {
             HttpEntity entity = ((HttpEntityEnclosingRequestBase) method).getEntity();
             if(entity != null && entity.isRepeatable() ) {

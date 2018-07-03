@@ -1,12 +1,19 @@
 package com.kloudtek.anypoint.api.provision;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.*;
 
 public class APIProvisioningConfig {
     private String descriptorLocation = "anypoint.json";
+    @JsonProperty
     private Map<String, String> variables = new HashMap<>();
+    @JsonProperty
     private final List<String> accessedBy = new ArrayList<>();
+    @JsonProperty
     private String apiLabel;
+    @JsonProperty
+    private boolean autoApproveAPIAccessRequest = true;
 
     public APIProvisioningConfig() {
     }
@@ -58,12 +65,21 @@ public class APIProvisioningConfig {
         this.apiLabel = apiLabel;
     }
 
+    public boolean isAutoApproveAPIAccessRequest() {
+        return autoApproveAPIAccessRequest;
+    }
+
+    public void setAutoApproveAPIAccessRequest(boolean autoApproveAPIAccessRequest) {
+        this.autoApproveAPIAccessRequest = autoApproveAPIAccessRequest;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof APIProvisioningConfig)) return false;
         APIProvisioningConfig that = (APIProvisioningConfig) o;
-        return Objects.equals(descriptorLocation, that.descriptorLocation) &&
+        return autoApproveAPIAccessRequest == that.autoApproveAPIAccessRequest &&
+                Objects.equals(descriptorLocation, that.descriptorLocation) &&
                 Objects.equals(variables, that.variables) &&
                 Objects.equals(accessedBy, that.accessedBy) &&
                 Objects.equals(apiLabel, that.apiLabel);
@@ -71,7 +87,7 @@ public class APIProvisioningConfig {
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel);
+        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel, autoApproveAPIAccessRequest);
     }
 
     @Override
@@ -81,6 +97,7 @@ public class APIProvisioningConfig {
                 ", variables=" + variables +
                 ", accessedBy=" + accessedBy +
                 ", apiLabel='" + apiLabel + '\'' +
+                ", autoApproveAPIAccessRequest=" + autoApproveAPIAccessRequest +
                 '}';
     }
 }

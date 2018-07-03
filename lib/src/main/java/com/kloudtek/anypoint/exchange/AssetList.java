@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class AssetList extends PaginatedList<AssetOverview, Organization> {
+public class AssetList extends PaginatedList<ExchangeAssetOverview, Organization> {
     private static final Logger logger = LoggerFactory.getLogger(AssetList.class);
     private final String filter;
 
@@ -37,19 +37,19 @@ public class AssetList extends PaginatedList<AssetOverview, Organization> {
 
     @Override
     protected void parseJson(String json, JsonHelper jsonHelper) {
-        list = jsonHelper.readJsonList(AssetOverview.class,json,parent);
+        list = jsonHelper.readJsonList(ExchangeAssetOverview.class,json,parent);
     }
 
-    public List<AssetOverview> getAssets() {
+    public List<ExchangeAssetOverview> getAssets() {
         return list;
     }
 
-    public void setAssets(List<AssetOverview> assetOverviews) {
+    public void setAssets(List<ExchangeAssetOverview> assetOverviews) {
         list = assetOverviews;
     }
 
     public void delete() throws HttpException {
-        for (AssetOverview assetOverview: this) {
+        for (ExchangeAssetOverview assetOverview: this) {
             for (AssetVersion assetVersion: assetOverview.getAsset().getVersions()) {
                 assetVersion.delete();
             }

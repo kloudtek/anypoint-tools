@@ -11,7 +11,7 @@ import com.kloudtek.anypoint.HttpException;
 import java.util.List;
 
 
-public class AssetVersion extends AnypointObject<Asset> {
+public class AssetVersion extends AnypointObject<ExchangeAsset> {
     @JsonProperty("productAPIVersion")
     private String productAPIVersion;
     @JsonProperty("runtimeVersion")

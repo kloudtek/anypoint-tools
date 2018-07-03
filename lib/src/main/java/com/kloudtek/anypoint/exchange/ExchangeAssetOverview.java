@@ -13,7 +13,7 @@ import com.kloudtek.anypoint.Organization;
 import java.util.List;
 
 
-public class AssetOverview extends AnypointObject<Organization> {
+public class ExchangeAssetOverview extends AnypointObject<Organization> {
     @JsonProperty("productAPIVersion")
     private String productAPIVersion;
     @JsonProperty("runtimeVersion")
@@ -216,8 +216,8 @@ public class AssetOverview extends AnypointObject<Organization> {
     }
 
     @JsonIgnore
-    public Asset getAsset() throws HttpException {
+    public ExchangeAsset getAsset() throws HttpException {
         String json = client.getHttpHelper().httpGet("/exchange/api/v1/assets/" + groupId + "/" + assetId);
-        return client.getJsonHelper().readJson(new Asset(parent), json);
+        return client.getJsonHelper().readJson(new ExchangeAsset(parent), json);
     }
 }

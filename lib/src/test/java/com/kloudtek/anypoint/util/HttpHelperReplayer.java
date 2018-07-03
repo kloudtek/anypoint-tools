@@ -14,12 +14,13 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpHelperReplayer extends HttpHelper {
+    private String orgName;
     private Map<String,List<HttpHelperOperation>> opMap = new HashMap<>();
 
     public HttpHelperReplayer(@NotNull File recordingFile) throws IOException {
-        List<HttpHelperOperation> ops = new ObjectMapper().readValue(recordingFile,
-                new TypeReference<List<HttpHelperOperation>>(){});
-        for (HttpHelperOperation op: ops) {
+        HttpHelperRecording recording = new ObjectMapper().readValue(recordingFile,HttpHelperRecording.class);
+        orgName = recording.getOrgName();
+        for (HttpHelperOperation op: recording.getOperations()) {
             String idx = op.getMethod() + "-" + op.getPath();
             List<HttpHelperOperation> ol = opMap.computeIfAbsent(idx, k -> new ArrayList<>());
             ol.add(op);
@@ -38,5 +39,9 @@ public class HttpHelperReplayer extends HttpHelper {
         } else {
             throw new HttpException("no recorded operation for "+method.getMethod() + "-" + method.getURI().toString());
         }
+    }
+
+    public String getOrgName() {
+        return orgName;
     }
 }

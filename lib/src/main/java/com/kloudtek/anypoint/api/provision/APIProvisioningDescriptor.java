@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
-import com.kloudtek.anypoint.api.API;
-import com.kloudtek.anypoint.api.APISpec;
-import com.kloudtek.anypoint.api.ClientApplication;
+import com.kloudtek.anypoint.api.*;
 import com.kloudtek.anypoint.api.policy.Policy;
+import com.kloudtek.util.InvalidStateException;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.slf4j.Logger;
@@ -15,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class APIProvisioningDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIProvisioningDescriptor.class);
@@ -29,6 +28,7 @@ public class APIProvisioningDescriptor {
     private Boolean mule4;
     private boolean createClientApplication = true;
     private ClientApplicationDescriptor clientApp;
+    private List<SLATierDescriptor> slaTiers;
 
     public APIProvisioningDescriptor() {
     }
@@ -45,8 +45,8 @@ public class APIProvisioningDescriptor {
         config.setVariable("environment.lname", environment.getName().toLowerCase());
         config.setVariable("organization.name", environment.getOrganization().getName());
         config.setVariable("organization.lname", environment.getOrganization().getName().toLowerCase());
-        ValidationUtils.notEmpty(IllegalStateException.class,"API Descriptor missing value: name",name);
-        ValidationUtils.notEmpty(IllegalStateException.class,"API Descriptor missing value: version",version);
+        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: name", name);
+        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: version", version);
         logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());
         logger.debug("Provisioning " + this.getName());
         String apiName = applyVars(this.getName(), config);
@@ -76,35 +76,62 @@ public class APIProvisioningDescriptor {
         if (policies != null) {
             polList.addAll(policies);
         }
-        for (PolicyDescriptor policyDescriptor : polList) {
+        for (PolicyDescriptor policyDescriptor: polList) {
             try {
-                Policy policy = api.findPolicyByAsset(policyDescriptor.getGroupId(), policyDescriptor.getAssetId(), policyDescriptor.getAssetVersion(), false);
-                if( policy.getConfigurationData().equals(policyDescriptor.getData())) {
+                Policy policy = api.findPolicyByAsset(policyDescriptor.getGroupId(), policyDescriptor.getAssetId(), policyDescriptor.getAssetVersion());
+                if (Objects.deepEquals(policy.getConfigurationData(), policyDescriptor.getData()) && Objects.deepEquals(policy.getPointcutData(), policyDescriptor.getPointcutData())) {
                     logger.debug("Policy data is same as descriptor");
                 } else {
                     logger.debug("Policy data changed, updating");
+                    policy.update(policyDescriptor);
                 }
             } catch (NotFoundException e) {
                 logger.debug("Policy not found, creating: " + policyDescriptor);
                 api.createPolicy(policyDescriptor);
             }
         }
-        if (isCreateClientApplication()) {
-            ClientApplication clientApplication;
-            try {
-                clientApplication = environment.getOrganization().findClientApplication(clientAppName);
-                logger.debug("Client application found: " + clientAppName);
-            } catch (NotFoundException e) {
-                logger.debug("Client application not found, creating: " + clientAppName);
-                clientApplication = environment.getOrganization().createClientApplication(clientAppName, clientApp.getUrl(), clientApp.getDescription());
-            }
-            result.setClientApplication(clientApplication);
+        ClientApplication clientApplication = null;
+        try {
+            clientApplication = environment.getOrganization().findClientApplication(clientAppName);
+            logger.debug("Client application found: " + clientAppName);
+        } catch (NotFoundException e) {
+            //
         }
-        if( access != null ) {
-            for (APIAccessDescriptor accessDescriptor : access) {
+        if (clientApplication == null && isCreateClientApplication()) {
+            logger.debug("Client application not found, creating: " + clientAppName);
+            clientApplication = environment.getOrganization().createClientApplication(clientAppName, clientApp.getUrl(), clientApp.getDescription());
+        }
+        result.setClientApplication(clientApplication);
+        if( slaTiers != null ) {
+            for (SLATierDescriptor slaTierDescriptor: slaTiers) {
+                try {
+                    SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
+                } catch (NotFoundException e) {
+                    api.createSLATier(slaTierDescriptor.getName(),slaTierDescriptor.getDescription(),slaTierDescriptor.isAutoApprove(),slaTierDescriptor.getLimits());
+                }
+            }
+        }
+        if (access != null) {
+            if (clientApplication == null) {
+                throw new InvalidStateException("Client Application doesn't exist and automatic client application creation (createClientApplication) set to false");
+            }
+            for (APIAccessDescriptor accessDescriptor: access) {
                 API accessedAPI = environment.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
                         accessDescriptor.getVersion(), accessDescriptor.getLabel());
-                // TODO implement
+                APIContract contract;
+                try {
+                    contract = accessedAPI.findContract(clientApplication);
+                } catch (NotFoundException e) {
+                    SLATier slaTier = accessDescriptor.getSlaTier() != null ? accessedAPI.findSLATier(accessDescriptor.getSlaTier()) : null;
+                    contract = clientApplication.requestAPIAccess(accessedAPI, slaTier);
+                }
+                if (!contract.isApproved() && config.isAutoApproveAPIAccessRequest()) {
+                    if( contract.isRevoked() ) {
+                        contract.restoreAccess();
+                    } else {
+                        contract.approveAccess();
+                    }
+                }
             }
         }
         return result;
@@ -179,12 +206,30 @@ public class APIProvisioningDescriptor {
     }
 
     @JsonProperty
-    public List<APIAccessDescriptor> getAccess() {
+    public synchronized List<APIAccessDescriptor> getAccess() {
         return access != null ? access : Collections.emptyList();
     }
 
-    public void setAccess(List<APIAccessDescriptor> access) {
+    public synchronized void setAccess(List<APIAccessDescriptor> access) {
         this.access = access;
+    }
+
+    public synchronized APIProvisioningDescriptor addAccess(APIAccessDescriptor accessDescriptor) {
+        if (access == null) {
+            access = new ArrayList<>();
+        }
+        access.add(accessDescriptor);
+        return this;
+    }
+
+    public synchronized APIProvisioningDescriptor addAccess(API api) {
+        addAccess(new APIAccessDescriptor(api, null));
+        return this;
+    }
+
+    public synchronized APIProvisioningDescriptor addAccess(API api, String slaTier) {
+        addAccess(new APIAccessDescriptor(api, slaTier));
+        return this;
     }
 
     @JsonProperty
@@ -211,8 +256,8 @@ public class APIProvisioningDescriptor {
 
     @JsonProperty
     public synchronized List<PolicyDescriptor> getPolicies() {
-        if(policies==null){
-            policies=new ArrayList<>();
+        if (policies == null) {
+            policies = new ArrayList<>();
         }
         return policies;
     }
@@ -237,5 +282,29 @@ public class APIProvisioningDescriptor {
 
     public void setCreateClientApplication(boolean createClientApplication) {
         this.createClientApplication = createClientApplication;
+    }
+
+    public synchronized List<SLATierDescriptor> getSlaTiers() {
+        return slaTiers;
+    }
+
+    public synchronized void setSlaTiers(List<SLATierDescriptor> slaTiers) {
+        this.slaTiers = slaTiers;
+    }
+
+    public synchronized APIProvisioningDescriptor addSlaTier(String name, String description, boolean autoApprove, SLATierLimits... limits) {
+        return addSlaTier(new SLATierDescriptor(name, description, autoApprove, limits));
+    }
+
+    public synchronized APIProvisioningDescriptor addSlaTier(String name, boolean autoApprove, SLATierLimits... limits) {
+        return addSlaTier(name,null,autoApprove, limits);
+    }
+
+    public synchronized APIProvisioningDescriptor addSlaTier(SLATierDescriptor slaTierDescriptor) {
+        if( slaTiers == null ) {
+            slaTiers = new ArrayList<>();
+        }
+        slaTiers.add(slaTierDescriptor);
+        return this;
     }
 }

@@ -120,56 +120,39 @@ public class ClientApplication extends AnypointObject<Organization> {
         httpHelper.httpDelete(getUriPath());
     }
 
-    public APIAccessContract requestAPIAccess(API apiVersion) throws HttpException {
-        return requestAPIAccess(apiVersion, null, null, null, false);
+    public APIContract requestAPIAccess(API apiVersion) throws HttpException {
+        return requestAPIAccess(apiVersion, null, false);
     }
 
-    public APIAccessContract requestAPIAccess(API apiVersion, SLATier tier) throws HttpException {
-        return requestAPIAccess(apiVersion, tier, null, null, false);
+    public APIContract requestAPIAccess(API apiVersion, SLATier tier) throws HttpException {
+        return requestAPIAccess(apiVersion, tier, true);
     }
 
-    public APIAccessContract requestAPIAccess(API apiVersion, SLATier tier, String partyId, String partyName, boolean acceptedTerms) throws HttpException {
+    public APIContract requestAPIAccess(API apiVersion, SLATier tier, boolean acceptedTerms) throws HttpException {
         JsonHelper.MapBuilder mapBuilder = jsonHelper.buildJsonMap()
-                .set("apiVersionId", apiVersion.getId()).set("applicationId", id)
-                .set("partyId", partyId).set("partyName", partyName)
-                .set("acceptedTerms", acceptedTerms);
-        if (tier != null) {
-            mapBuilder.set("requestedTierId", tier.getId());
+                .set("apiId", apiVersion.getId())
+                .set("environmentId", apiVersion.getParent().getId())
+                .set("acceptedTerms", acceptedTerms)
+                .set("organizationId", apiVersion.getParent().getParent().getId())
+                .set("groupId", apiVersion.getGroupId())
+                .set("assetId", apiVersion.getAssetId())
+                .set("version", apiVersion.getAssetVersion())
+                .set("productAPIVersion", apiVersion.getProductVersion());
+        if( tier != null && tier.getId() == null ) {
+            throw new IllegalArgumentException("Tier is missing tier id");
         }
-        Map<String, Object> req = mapBuilder.toMap();
-        String json = httpHelper.httpPost(parent.getUriPath() + "/applications/" + id + "/contracts", req);
-        APIAccessContract apiAccessContract = jsonHelper.readJson(new APIAccessContract(this), json);
-        API v = apiAccessContract.getApiVersion();
-        if (v != null) {
-            if (v.getOrganizationId() == null) {
-                v.setOrganizationId(apiVersion.getOrganizationId());
+        Long tierId = tier != null ? tier.getId() : null;
+        if( tierId == null ) {
+            SLATierList apiTiers = apiVersion.findSLATiers();
+            if( apiTiers.size() == 1 ) {
+                tierId = apiTiers.iterator().next().getId();
             }
         }
-        return apiAccessContract;
-    }
-//
-//    public List<APIAccessContract> findContracts() throws HttpException {
-//        String json = httpHelper.httpGet(parent.getUriPath() + "/applications/" + id + "/contracts");
-//        return jsonHelper.readJsonList(APIAccessContract.class, json, this);
-//    }
-//
-//    public APIAccessContract findContract(API version) throws HttpException, NotFoundException {
-//        for (APIAccessContract contract : findContracts()) {
-//            API cVersion = contract.getApiVersion();
-//            if (cVersion.getId().equals(version.getId()) && cVersion.getApiId().equals(version.getApiId())) {
-//                return contract;
-//            }
-//        }
-//        throw new NotFoundException("Can't find contract for API Version " + version.getId() + " in client application " + getNameOrId());
-//    }
-
-    public String getNameOrId() {
-        if (name != null) {
-            return name;
-        } else if (id != null) {
-            return id.toString();
-        } else {
-            return null;
+        if (tierId != null) {
+            mapBuilder.set("requestedTierId", tierId);
         }
+        Map<String, Object> req = mapBuilder.toMap();
+        String json = httpHelper.httpPost("/exchange/api/v1/organizations/"+ parent.getId() +"/applications/" + id + "/contracts", req);
+        return jsonHelper.readJson(new APIContract(apiVersion), json);
     }
 }

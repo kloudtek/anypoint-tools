@@ -124,10 +124,20 @@ public class DesignCenterProjectExchange extends AnypointObject<DesignCenterProj
     }
 
     public void publish() throws HttpException {
-        Matcher m = majorVersionRegex.matcher(nextVersion);
-        if( !m.find()) {
-            throw new InvalidStateException("Invalid version "+nextVersion);
+        publish(null, null);
+    }
+
+    public void publish(String version, String apiVersion) throws HttpException {
+        if (version == null) {
+            version = nextVersion;
         }
-        parent.publishExchange(branch,assetId,name, main, nextVersion, "v"+m.group(1) );
+        if (apiVersion == null) {
+            Matcher m = majorVersionRegex.matcher(version);
+            if (!m.find()) {
+                throw new InvalidStateException("Invalid version " + version);
+            }
+            apiVersion = "v" + m.group(1);
+        }
+        parent.publishExchange(branch, assetId, name, main, version, apiVersion);
     }
 }

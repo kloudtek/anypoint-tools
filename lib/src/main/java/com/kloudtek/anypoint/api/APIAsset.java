@@ -110,6 +110,12 @@ public class APIAsset extends AnypointObject<Environment> {
 
     public void delete() throws HttpException {
         for (API api: apis) {
+            for (APIContract contract: api.findContracts()) {
+                if( contract.isApproved() ) {
+                    contract.revokeAccess();
+                }
+                contract.delete();
+            }
             httpHelper.httpDelete("/apimanager/api/v1/organizations/"+parent.getParent().getId()+"/environments/"+parent.getId()+"/apis/"+api.getId());
         }
     }
