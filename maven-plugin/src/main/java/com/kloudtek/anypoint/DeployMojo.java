@@ -39,6 +39,10 @@ public class DeployMojo extends AbstractMojo {
     private boolean force;
     @Parameter( property = "anypoint.deploy.skipwait", required = false )
     private boolean skipWait;
+    @Parameter( property = "anypoint.deploy.timeout", required = false )
+    private long deployTimeout = 120000L;
+    @Parameter( property = "anypoint.deploy.retrydelay", required = false )
+    private long deployRetryDelay = 2500L;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -78,10 +82,7 @@ public class DeployMojo extends AbstractMojo {
                 DeploymentResult app = t.deploy(appName, file);
                 if( !skipWait ) {
                     log.info("Waiting for application start");
-                    // TODO this needs to be fixed correctly by checking the
-                    // TODO checksum, in order to avoid getting status of pre-deployment
-                    ThreadUtils.sleep(2500L);
-                    app.waitDeployed();
+                    app.waitDeployed(deployTimeout,deployRetryDelay);
                     log.info("Application started successfully");
                 }
                 log.info("Deployment completed successfully");
