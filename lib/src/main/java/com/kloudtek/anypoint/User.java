@@ -80,7 +80,7 @@ public class User extends AnypointObject {
     @Override
     public void setClient(AnypointClient client) {
         super.setClient(client);
-        if( organization != null ) {
+        if (organization != null) {
             organization.setClient(client);
         }
     }

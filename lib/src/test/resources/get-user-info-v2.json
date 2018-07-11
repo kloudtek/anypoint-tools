@@ -1,0 +1,317 @@
+{
+  "user": {
+    "id": "e92cbb9c-da9f-401e-8d03-66d720c278de",
+    "createdAt": "2018-03-29T16:03:25.395Z",
+    "updatedAt": "2018-05-31T08:50:18.083Z",
+    "organizationId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+    "firstName": "Yannick",
+    "lastName": "Menager",
+    "email": "yannick.menager@mulesoft.com",
+    "phoneNumber": "9166070480",
+    "idprovider_id": "mulesoft",
+    "username": "ymenager-citi",
+    "enabled": true,
+    "deleted": false,
+    "lastLogin": "2018-05-31T08:50:00.000Z",
+    "type": "host",
+    "organization": {
+      "name": "city_national_bank",
+      "id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+      "createdAt": "2018-01-02T21:29:16.073Z",
+      "updatedAt": "2018-05-31T08:50:07.721Z",
+      "ownerId": "2b041e05-8ab9-4195-9dac-c7d713ccfb9c",
+      "clientId": "c90f804c7f0b464197598e2b63a38dc3",
+      "domain": "city-national-bank-3",
+      "idprovider_id": "sso.cityntl.com:CNB.anypoint.mulesoft.com",
+      "isFederated": true,
+      "parentOrganizationIds": [],
+      "subOrganizationIds": [
+        "f31b2b20-fdd0-4fe4-a5e2-2cb90d69c05d",
+        "afac985c-1a3b-4750-89ab-58589dca0bb8"
+      ],
+      "tenantOrganizationIds": [],
+      "isMaster": true,
+      "subscription": {
+        "type": "Customer - Platinum",
+        "expiration": "2021-01-30T21:29:16.068Z"
+      },
+      "properties": {
+        "exchangeCustomization": {
+          "projectId": "c9c9fbf1-cbf1-4bf4-8dcc-d322c41de1a0",
+          "publishedVersionReferenceId": "194cbf6907f4ca66445468a17ce0e64c1ee04d4f",
+          "assetId": {
+            "groupId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+            "assetId": "919d36ab-ad60-49ca-815f-61cf61a9113e",
+            "version": "1.2.0"
+          }
+        },
+        "identity_management": {
+          "type": {
+            "description": "SAML 2.0",
+            "name": "saml"
+          },
+          "service_provider": {
+            "urls": {
+              "sign_on": "https://sso.cityntl.com:443/idp/startSSO.ping?PartnerSpId=CNB.anypoint.mulesoft.com",
+              "sign_out": "https://sso.cityntl.com:443/idp/startSLO.ping"
+            },
+            "name": "SAML Service Provider"
+          },
+          "saml": {
+            "issuer": "sso.cityntl.com",
+            "public_key": "-----BEGIN CERTIFICATE-----\nMIIFZTCCBE2gAwIBAgIRAPCI2gQR8/6/AAAAAFDgCW4wDQYJKoZIhvcNAQELBQAwgboxCzAJBgNV\nBAYTAlVTMRYwFAYDVQQKEw1FbnRydXN0LCBJbmMuMSgwJgYDVQQLEx9TZWUgd3d3LmVudHJ1c3Qu\nbmV0L2xlZ2FsLXRlcm1zMTkwNwYDVQQLEzAoYykgMjAxMiBFbnRydXN0LCBJbmMuIC0gZm9yIGF1\ndGhvcml6ZWQgdXNlIG9ubHkxLjAsBgNVBAMTJUVudHJ1c3QgQ2VydGlmaWNhdGlvbiBBdXRob3Jp\ndHkgLSBMMUswHhcNMTgwMTI2MTQ0MTU1WhcNMjAwNDI1MTUxMTU0WjBvMQswCQYDVQQGEwJVUzET\nMBEGA1UECBMKQ2FsaWZvcm5pYTEUMBIGA1UEBxMLTG9zIEFuZ2VsZXMxGzAZBgNVBAoTEkNpdHkg\nTmF0aW9uYWwgQmFuazEYMBYGA1UEAxMPc3NvLmNpdHludGwuY29tMIIBIjANBgkqhkiG9w0BAQEF\nAAOCAQ8AMIIBCgKCAQEAtLbVmEDecubLYPS4Xtl4Y3TnMr1ajGU/XKDOQbVeCD6CoBlEx/LtpN5j\nYuBwcyx3QkdMnSh+xoradlO/zFLEx0JxOQHrEKt4pSp99mFLDBcyewZb2RayQKhf6IdQVcyciR6S\n15kgAIFpSEwXR3Ka+UirLxpwuv+EsfbD3Roz6hgis8v/ZCbkrAwhGNRb7wlnGeSREVaPbuK80MbE\nC8cCAmN29AGmnOwSWyldvemYgiFG8zpv+3UFERGeDd9ClLRRqTOwcMa+SE0sCB1fu2M3beT4C8sa\n5z0PF+mgfTcC6KOVXgHJo3nIdzL9/GxbZ2dYUK0Kxwy9SqHU0TsIzH2liQIDAQABo4IBrjCCAaow\nDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAzBgNVHR8ELDAq\nMCigJqAkhiJodHRwOi8vY3JsLmVudHJ1c3QubmV0L2xldmVsMWsuY3JsMEsGA1UdIAREMEIwNgYK\nYIZIAYb6bAoBBTAoMCYGCCsGAQUFBwIBFhpodHRwOi8vd3d3LmVudHJ1c3QubmV0L3JwYTAIBgZn\ngQwBAgIwaAYIKwYBBQUHAQEEXDBaMCMGCCsGAQUFBzABhhdodHRwOi8vb2NzcC5lbnRydXN0Lm5l\ndDAzBggrBgEFBQcwAoYnaHR0cDovL2FpYS5lbnRydXN0Lm5ldC9sMWstY2hhaW4yNTYuY2VyMEIG\nA1UdEQQ7MDmCD3Nzby5jaXR5bnRsLmNvbYISc3NvLnNuLmNpdHludGwuY29tghJzc28ubGEuY2l0\neW50bC5jb20wHwYDVR0jBBgwFoAUgqJwdN28Uz/Pe9T3zX+nYMYKTL8wHQYDVR0OBBYEFOaReinu\nAcvoGGuMTiu8zSueHBi8MAkGA1UdEwQCMAAwDQYJKoZIhvcNAQELBQADggEBAMKSCbO07uXsKhzF\nXFR7PofwIgGJTn3E2srj9m2SxYcFA5o+LMevvQ2yd/3FY788o7WSiQJ4KGwqz+wJ2YcU7O3dghUb\nzQHEQg3/T8wew9zKQWTFYjMKTDxmgNw0++fP1CA5ghC58nJQcgYtKbqw3qDNnGU2X+n8RbbHTch/\nnyGbiTj6MIA6Nm50EgaYu2KCUHWD/icGtUUVBT4F2zQFCRoaA8GreVBN+C6NsVPbGgMdIXtkUblI\nqm2/XQmbMjLralfISg/pNEDGDH/yePa4D8hTGxncOTrIVjUFWwp0ITd5B6vHNHoNg5UtCPdf/tyl\nZKkVvwuc9ha5QyZZeM0QJN0=\n-----END CERTIFICATE-----",
+            "audience": "CNB.anypoint.mulesoft.com",
+            "name": "SAML 2.0"
+          }
+        }
+      },
+      "entitlements": {
+        "createEnvironments": true,
+        "partnersProduction": {
+          "assigned": 0
+        },
+        "globalDeployment": true,
+        "autoscaling": false,
+        "createSubOrgs": true,
+        "hybridInsight": true,
+        "externalIdentity": true,
+        "hybrid": {
+          "enabled": true
+        },
+        "partnersSandbox": {
+          "assigned": 0
+        },
+        "hybridAutoDiscoverProperties": true,
+        "loadBalancer": {
+          "assigned": 0,
+          "reassigned": 0
+        },
+        "kpiDashboard": {
+          "enabled": false
+        },
+        "vpcs": {
+          "assigned": 2,
+          "reassigned": 0
+        },
+        "apis": {
+          "enabled": true
+        },
+        "workerLoggingOverride": {
+          "enabled": false
+        },
+        "cam": {
+          "enabled": false
+        },
+        "mqAdvancedFeatures": {
+          "enabled": false
+        },
+        "designCenter": {
+          "apiExample": false,
+          "apiVisual": false,
+          "mozart": true,
+          "api": true
+        },
+        "armAlerts": true,
+        "crowd": {
+          "hideApiManagerDesigner": true,
+          "hideFormerApiPlatform": true,
+          "environments": true
+        },
+        "pcf": false,
+        "staticIps": {
+          "assigned": 0,
+          "reassigned": 0
+        },
+        "vCoresProduction": {
+          "assigned": 0,
+          "reassigned": 0
+        },
+        "vCoresSandbox": {
+          "assigned": 0,
+          "reassigned": 0
+        },
+        "apiMonitoring": {
+          "schedules": 0
+        },
+        "appViz": false,
+        "exchange2": {
+          "enabled": false
+        },
+        "workerClouds": {
+          "assigned": 0,
+          "reassigned": 0
+        },
+        "crowdSelfServiceMigration": {
+          "enabled": false
+        },
+        "objectStoreRequestUnits": {
+          "base": 0,
+          "addOn": 0
+        },
+        "mqRequests": {
+          "base": 0,
+          "addOn": 0
+        },
+        "mqMessages": {
+          "base": 0,
+          "addOn": 0
+        },
+        "objectStoreKeys": {
+          "base": 0,
+          "addOn": 0
+        },
+        "gateways": {
+          "assigned": 2147483647
+        },
+        "vCoresDesign": {
+          "assigned": 8,
+          "reassigned": 4.1
+        },
+        "monitoringCenter": {
+          "productSKU": -1
+        },
+        "messaging": {
+          "assigned": 0
+        }
+      }
+    },
+    "organizationPreferences": {},
+    "properties": {
+      "cs_auth": {
+        "activeOrganizationId": "f31b2b20-fdd0-4fe4-a5e2-2cb90d69c05d"
+      }
+    },
+    "memberOfOrganizations": [
+      {
+        "name": "city_national_bank",
+        "id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+        "createdAt": "2018-01-02T21:29:16.073Z",
+        "updatedAt": "2018-05-31T08:50:07.721Z",
+        "ownerId": "2b041e05-8ab9-4195-9dac-c7d713ccfb9c",
+        "clientId": "c90f804c7f0b464197598e2b63a38dc3",
+        "domain": "city-national-bank-3",
+        "idprovider_id": "sso.cityntl.com:CNB.anypoint.mulesoft.com",
+        "isFederated": true,
+        "parentOrganizationIds": [],
+        "subOrganizationIds": [
+          "f31b2b20-fdd0-4fe4-a5e2-2cb90d69c05d",
+          "afac985c-1a3b-4750-89ab-58589dca0bb8"
+        ],
+        "tenantOrganizationIds": [],
+        "parentName": null,
+        "parentId": null,
+        "isMaster": true,
+        "subscription": {
+          "type": "Customer - Platinum",
+          "expiration": "2021-01-30T21:29:16.068Z"
+        }
+      },
+      {
+        "name": "BATS",
+        "id": "f31b2b20-fdd0-4fe4-a5e2-2cb90d69c05d",
+        "createdAt": "2018-04-03T17:08:11.703Z",
+        "updatedAt": "2018-05-30T00:55:49.353Z",
+        "ownerId": "2b041e05-8ab9-4195-9dac-c7d713ccfb9c",
+        "clientId": "354fa44d4b80497680a6537440f2d21c",
+        "domain": null,
+        "idprovider_id": "mulesoft",
+        "isFederated": true,
+        "parentOrganizationIds": [
+          "88d26fee-1ab8-4462-beb5-0481da09529e"
+        ],
+        "subOrganizationIds": [],
+        "tenantOrganizationIds": [],
+        "parentName": "city_national_bank",
+        "parentId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+        "isMaster": false
+      },
+      {
+        "name": "Sandbox",
+        "id": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+        "createdAt": "2018-05-26T17:43:51.730Z",
+        "updatedAt": "2018-05-30T00:55:49.353Z",
+        "ownerId": "2b041e05-8ab9-4195-9dac-c7d713ccfb9c",
+        "clientId": "39072f5e397c45b1bba62090d0219a3a",
+        "domain": null,
+        "idprovider_id": "mulesoft",
+        "isFederated": true,
+        "parentOrganizationIds": [
+          "88d26fee-1ab8-4462-beb5-0481da09529e"
+        ],
+        "subOrganizationIds": [],
+        "tenantOrganizationIds": [],
+        "parentName": "city_national_bank",
+        "parentId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+        "isMaster": false
+      }
+    ],
+    "contributorOfOrganizations": [
+      {
+        "name": "city_national_bank",
+        "id": "88d26fee-1ab8-4462-beb5-0481da09529e",
+        "createdAt": "2018-01-02T21:29:16.073Z",
+        "updatedAt": "2018-05-31T08:50:07.721Z",
+        "ownerId": "2b041e05-8ab9-4195-9dac-c7d713ccfb9c",
+        "clientId": "c90f804c7f0b464197598e2b63a38dc3",
+        "domain": "city-national-bank-3",
+        "idprovider_id": "sso.cityntl.com:CNB.anypoint.mulesoft.com",
+        "isFederated": true,
+        "parentOrganizationIds": [],
+        "subOrganizationIds": [
+          "f31b2b20-fdd0-4fe4-a5e2-2cb90d69c05d",
+          "afac985c-1a3b-4750-89ab-58589dca0bb8"
+        ],
+        "tenantOrganizationIds": [],
+        "parentName": null,
+        "parentId": null,
+        "isMaster": true,
+        "subscription": {
+          "type": "Customer - Platinum",
+          "expiration": "2021-01-30T21:29:16.068Z"
+        }
+      },
+      {
+        "name": "BATS",
+        "id": "f31b2b20-fdd0-4fe4-a5e2-2cb90d69c05d",
+        "createdAt": "2018-04-03T17:08:11.703Z",
+        "updatedAt": "2018-05-30T00:55:49.353Z",
+        "ownerId": "2b041e05-8ab9-4195-9dac-c7d713ccfb9c",
+        "clientId": "354fa44d4b80497680a6537440f2d21c",
+        "domain": null,
+        "idprovider_id": "mulesoft",
+        "isFederated": true,
+        "parentOrganizationIds": [
+          "88d26fee-1ab8-4462-beb5-0481da09529e"
+        ],
+        "subOrganizationIds": [],
+        "tenantOrganizationIds": [],
+        "parentName": "city_national_bank",
+        "parentId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+        "isMaster": false
+      },
+      {
+        "name": "Sandbox",
+        "id": "afac985c-1a3b-4750-89ab-58589dca0bb8",
+        "createdAt": "2018-05-26T17:43:51.730Z",
+        "updatedAt": "2018-05-30T00:55:49.353Z",
+        "ownerId": "2b041e05-8ab9-4195-9dac-c7d713ccfb9c",
+        "clientId": "39072f5e397c45b1bba62090d0219a3a",
+        "domain": null,
+        "idprovider_id": "mulesoft",
+        "isFederated": true,
+        "parentOrganizationIds": [
+          "88d26fee-1ab8-4462-beb5-0481da09529e"
+        ],
+        "subOrganizationIds": [],
+        "tenantOrganizationIds": [],
+        "parentName": "city_national_bank",
+        "parentId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+        "isMaster": false
+      }
+    ]
+  },
+  "access_token": {
+    "access_token": "0eb2d2b8-f14d-4abd-9cd4-698880aaf920",
+    "expires_in": 3600
+  }
+}

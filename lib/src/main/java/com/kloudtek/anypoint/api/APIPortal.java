@@ -7,18 +7,18 @@ import com.kloudtek.anypoint.HttpException;
 
 import java.util.Map;
 
-public class APIPortal extends AnypointObject<APIVersion> {
+public class APIPortal extends AnypointObject<API> {
     @JsonProperty
     private String id;
     @JsonProperty
     private String name;
     @JsonIgnore
-    private APIVersion apiVersion;
+    private API apiVersion;
 
     public APIPortal() {
     }
 
-    public APIPortal(APIVersion apiVersion) {
+    public APIPortal(API apiVersion) {
         super(apiVersion);
         this.apiVersion = apiVersion;
     }
@@ -39,13 +39,13 @@ public class APIPortal extends AnypointObject<APIVersion> {
         this.name = name;
     }
 
-    public APIVersion getApiVersion() {
+    public API getApiVersion() {
         return apiVersion;
     }
 
-    public APIPortal updateName(String name ) throws HttpException {
+    public APIPortal updateName(String name) throws HttpException {
         Map<String, Object> req = jsonHelper.buildJsonMap().set("name", name).set("id", id).toMap();
         String json = client.getHttpHelper().httpPatch(apiVersion.getUriPath() + "/portal", req);
-        return jsonHelper.readJson(new APIPortal(parent),json);
+        return jsonHelper.readJson(new APIPortal(parent), json);
     }
 }

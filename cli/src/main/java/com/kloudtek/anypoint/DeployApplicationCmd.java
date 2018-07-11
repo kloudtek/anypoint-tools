@@ -1,6 +1,6 @@
 package com.kloudtek.anypoint;
 
-import com.kloudtek.anypoint.provision.ProvisioningConfig;
+import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.ApplicationDeploymentFailedException;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
@@ -46,12 +46,10 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
     private boolean skipProvisioning;
     @Option(description = "Environment suffix (will create a variable 'env' which will be appended to all provisioned API versions and all client application names)", names = {"-s", "--envsuffix"})
     private String envSuffix;
-    @Option(description = "Enable legacy mode for older style anypoint.sh.json", hidden = true, names = {"--legacymode"})
-    private boolean legacyMode;
     @Option(names = {"-ab", "--accessed-by"}, description = "Extra client applications which should be granted access to all APIs in the application (note envSuffix will not be automatically applied to those)")
     private List<String> extraAccess;
-    @Option(names = {"-tr", "--transform"}, description = "json configuration for a package transformer")
-    private List<String> transforms;
+//    @Option(names = {"-tr", "--transform"}, description = "json configuration for a package transformer")
+//    private List<String> transforms;
     @Option(names = "-D", description = "Provisioning parameters")
     private Map<String, String> provisioningParams = new HashMap<>();
 
@@ -80,13 +78,9 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
                 try {
                     if (appArch.exists()) {
                         if (!skipProvisioning) {
-                            ProvisioningConfig provisioningConfig = new ProvisioningConfig(provisioningParams, extraAccess);
-                            if (legacyMode) {
-                                provisioningConfig.setLegacyMode(true);
-                                provisioningConfig.setDescriptorLocation("classes/anypoint.sh.json");
-                            }
+                            APIProvisioningConfig APIProvisioningConfig = new APIProvisioningConfig(provisioningParams, extraAccess);
                             logger.info("Provisioning: " + appName);
-                            List<Transformer> transformers = parent.getClient().provision(server.getParent().getParent(), appArch, provisioningConfig, envSuffix);
+                            List<Transformer> transformers = parent.getClient().provision(server.getParent().getParent(), appArch, APIProvisioningConfig, envSuffix);
                             if (transformers != null && !transformers.isEmpty()) {
                                 try {
                                     File oldAppArch = appArch;

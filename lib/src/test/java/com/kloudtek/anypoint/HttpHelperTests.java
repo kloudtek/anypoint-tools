@@ -1,6 +1,6 @@
-package com.kloudtek.anypoint.util;
+package com.kloudtek.anypoint;
 
-import com.kloudtek.anypoint.AnypointClient;
+import com.kloudtek.anypoint.util.HttpHelper;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -14,7 +14,7 @@ import org.mockito.stubbing.Answer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-class HttpHelperTest {
+class HttpHelperTests {
     public static final String MYUSERNAME = "myusername";
     public static final String MYPASSWORD = "mypassword";
     private int callCount = 0;

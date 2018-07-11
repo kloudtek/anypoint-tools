@@ -2,17 +2,20 @@ package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.kloudtek.anypoint.api.*;
+import com.kloudtek.anypoint.api.APISpec;
+import com.kloudtek.anypoint.api.APISpecList;
+import com.kloudtek.anypoint.api.ClientApplication;
+import com.kloudtek.anypoint.api.ClientApplicationList;
 import com.kloudtek.anypoint.util.JsonHelper;
-import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Organization extends AnypointObject {
     private static final Logger logger = LoggerFactory.getLogger(Organization.class);
@@ -56,38 +59,37 @@ public class Organization extends AnypointObject {
         return Environment.getEnvironmentByName(name, client, this);
     }
 
-    public API getAPI(@NotNull String name) throws HttpException, NotFoundException {
-        for (API api : getAPIs(name)) {
-            if (name.equals(api.getName())) {
-                return api;
-            }
-        }
-        throw new NotFoundException("API not found: " + name);
-    }
-
-    public APIList getAPIs() throws HttpException {
-        return getAPIs(null);
-    }
-
-    public APIList getAPIs(String nameFilter) throws HttpException {
-        return getAPIs(nameFilter, 0, 25);
-    }
-
-    public APIList getAPIs(String nameFilter, int offset, int limit) throws HttpException {
-        URLBuilder urlBuilder = new URLBuilder("/apiplatform/repository/v2/organizations/" + id + "/apis").param("ascending", "false").param("limit", limit).param("offset", offset).param("sort", "createdDate");
-        if (nameFilter != null) {
-            urlBuilder.param("query", nameFilter);
-        }
-        String json = httpHelper.httpGet(urlBuilder.toString());
-        JsonNode jsonTree = jsonHelper.readJsonTree(json);
-        int total = jsonTree.get("total").intValue();
-        JsonNode nodes = jsonTree.at("/apis");
-        ArrayList<API> list = new ArrayList<>();
-        for (JsonNode node : nodes) {
-            list.add(jsonHelper.readJson(new API(this),node));
-        }
-        return new APIList(this, nameFilter, offset, limit, total, list);
-    }
+//    public API getAPI(@NotNull String name) throws HttpException, NotFoundException {
+//        for (API api : getAPIs(name)) {
+//            if (name.equals(api.getName())) {
+//                return api;
+//            }
+//        }
+//        throw new NotFoundException("API not found: " + name);
+//    }
+//    public APIList getAPIs() throws HttpException {
+//        return getAPIs(null);
+//    }
+//
+//    public APIList getAPIs(String nameFilter) throws HttpException {
+//        return getAPIs(nameFilter, 0, 25);
+//    }
+//
+//    public APIList getAPIs(String nameFilter, int offset, int limit) throws HttpException {
+//        URLBuilder urlBuilder = new URLBuilder("/apiplatform/repository/v2/organizations/" + id + "/apis").param("ascending", "false").param("limit", limit).param("offset", offset).param("sort", "createdDate");
+//        if (nameFilter != null) {
+//            urlBuilder.param("query", nameFilter);
+//        }
+//        String json = httpHelper.httpGet(urlBuilder.toString());
+//        JsonNode jsonTree = jsonHelper.readJsonTree(json);
+//        int total = jsonTree.get("total").intValue();
+//        JsonNode nodes = jsonTree.at("/apis");
+//        ArrayList<API> list = new ArrayList<>();
+//        for (JsonNode node : nodes) {
+//            list.add(jsonHelper.readJson(new API(this),node));
+//        }
+//        return new APIList(this, nameFilter, offset, limit, total, list);
+//    }
 
     public Organization getParentOrganization() throws HttpException {
         if (parentId != null) {
@@ -115,20 +117,20 @@ public class Organization extends AnypointObject {
         request.put("type", type.name().toLowerCase());
         request.put("organizationId", id);
         String json = client.getHttpHelper().httpPost("https://anypoint.mulesoft.com/accounts/api/organizations/" + id + "/environments", request);
-        return jsonHelper.readJson(new Environment(this),json);
+        return jsonHelper.readJson(new Environment(this), json);
     }
 
-    public API createAPI(@NotNull String name, @NotNull String version) throws HttpException {
-        return createAPI(name, version, null, null);
-    }
-
-    public API createAPI(@NotNull String name, @NotNull String version, @Nullable String endpoint) throws HttpException {
-        return createAPI(name, version, endpoint, null);
-    }
-
-    public API createAPI(@NotNull String name, @NotNull String version, @Nullable String endpoint, @Nullable String description) throws HttpException {
-        return API.create(this, name, version, endpoint, description);
-    }
+//    public API createAPI(@NotNull String name, @NotNull String version) throws HttpException {
+//        return createAPI(name, version, null, null);
+//    }
+//
+//    public API createAPI(@NotNull String name, @NotNull String version, @Nullable String endpoint) throws HttpException {
+//        return createAPI(name, version, endpoint, null);
+//    }
+//
+//    public API createAPI(@NotNull String name, @NotNull String version, @Nullable String endpoint, @Nullable String description) throws HttpException {
+//        return API.create(this, name, version, endpoint, description);
+//    }
 
     public ClientApplication createClientApplication(String name, String url, String description) throws HttpException {
         // must always create the application in the root org because anypoint is a piece of @#$@#$#@$@#$#@$#@#@$
@@ -159,11 +161,11 @@ public class Organization extends AnypointObject {
 
     public ClientApplication findClientApplication(@NotNull String name, boolean fullData) throws HttpException, NotFoundException {
         ClientApplication app = findClientApplication(new ClientApplicationList(this, name), name, fullData);
-        if( app == null ) {
+        if (app == null) {
             // #@$@##@$ anypoint filtering sometimes doesn't work
             app = findClientApplication(listClientApplications(name), name, fullData);
         }
-        if( app == null ) {
+        if (app == null) {
             throw new NotFoundException("Client application not found: " + name);
         } else {
             return app;
@@ -173,7 +175,7 @@ public class Organization extends AnypointObject {
     @Nullable
     private ClientApplication findClientApplication(Iterable<ClientApplication> list, @NotNull String name, boolean fullData) throws HttpException {
         for (ClientApplication app : list) {
-            if( name.equals(app.getName()) ) {
+            if (name.equals(app.getName())) {
                 if (fullData) {
                     return jsonHelper.readJson(app, httpHelper.httpGet(app.getUriPath()));
                 } else {
@@ -184,9 +186,23 @@ public class Organization extends AnypointObject {
         return null;
     }
 
+    @NotNull
+    public APISpecList findAPISpecs(@Nullable String filter) throws HttpException {
+        return new APISpecList(this, filter);
+    }
+
+    public APISpec findAPISpecsByNameAndVersion(String name, String version) throws NotFoundException, HttpException {
+        for (APISpec apiSpec : findAPISpecs(name)) {
+            if (apiSpec.getName().equalsIgnoreCase(name) && apiSpec.getVersion().equalsIgnoreCase(version)) {
+                return apiSpec;
+            }
+        }
+        throw new NotFoundException("Couldn't find api spec " + name + " " + version);
+    }
+
     public Organization createSubOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments,
-                                           boolean globalDeployment, int vCoresProduction, int vCoresSandbox, int vCoresDesign,
-                                           int staticIps, int vpcs, int loadBalancer) throws HttpException {
+                                              boolean globalDeployment, int vCoresProduction, int vCoresSandbox, int vCoresDesign,
+                                              int staticIps, int vpcs, int loadBalancer) throws HttpException {
         JsonHelper.MapBuilder builder = client.getJsonHelper().buildJsonMap().set("name", name).set("parentOrganizationId", id).set("ownerId", ownerId);
         Map<String, Object> req = builder.addMap("entitlements").set("createSubOrgs", createSubOrgs).set("createEnvironments", createEnvironments)
                 .set("globalDeployment", globalDeployment)
@@ -198,7 +214,7 @@ public class Organization extends AnypointObject {
                 .setNested("loadBalancer", "assigned", loadBalancer)
                 .setNested("staticIps", "assigned", staticIps).toMap();
         String json = httpHelper.httpPost("/accounts/api/organizations", req);
-        return jsonHelper.readJson(new Organization(client),json);
+        return jsonHelper.readJson(new Organization(client), json);
     }
 
     public void delete() throws HttpException {
@@ -210,59 +226,59 @@ public class Organization extends AnypointObject {
         return "/apiplatform/repository/v2/organizations/" + id;
     }
 
-    public RequestAPIAccessResult requestAPIAccess(String clientApplicationName, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
-        ClientApplication clientApplication;
-        try {
-            clientApplication = findClientApplication(clientApplicationName);
-        } catch (NotFoundException e) {
-            clientApplication = createClientApplication(clientApplicationName, "", "");
-        }
-        return requestAPIAccess(clientApplication, apiName, apiVersionName, autoApprove, autoRestore, slaTier);
-    }
+//    public RequestAPIAccessResult requestAPIAccess(String clientApplicationName, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
+//        ClientApplication clientApplication;
+//        try {
+//            clientApplication = findClientApplication(clientApplicationName);
+//        } catch (NotFoundException e) {
+//            clientApplication = createClientApplication(clientApplicationName, "", "");
+//        }
+//        return requestAPIAccess(clientApplication, apiName, apiVersionName, autoApprove, autoRestore, slaTier);
+//    }
 
-    public RequestAPIAccessResult requestAPIAccess(ClientApplication clientApplication, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
-        logger.info("Requesting access from client application {} to api {} version {} with autoApprove {} autoRestore {} slaTier {}",
-                clientApplication.getName(),apiName,apiVersionName,autoApprove,autoRestore,slaTier);
-        APIVersion version = getAPI(apiName).getVersion(apiVersionName);
-        APIAccessContract contract;
-        try {
-            contract = clientApplication.findContract(version);
-        } catch (NotFoundException e) {
-            if (StringUtils.isEmpty(slaTier)) {
-                List<SLATier> tiers = version.getSLATiers();
-                slaTier = tiers.size() == 1 ? tiers.get(0).getName() : null;
-            }
-            SLATier tier = slaTier != null ? version.getSLATier(slaTier) : null;
-            contract = clientApplication.requestAPIAccess(version, tier);
-        }
-        if (contract.isPending()) {
-            if (autoApprove) {
-                contract = contract.approveAccess();
-                if (contract.isApproved()) {
-                    return RequestAPIAccessResult.GRANTED;
-                } else {
-                    throw new RequestAPIAccessException("Failed to auto-approve API access (status: " + contract.getStatus() + " )");
-                }
-            } else {
-                return RequestAPIAccessResult.PENDING;
-            }
-        } else if (contract.isRevoked()) {
-            if (autoRestore) {
-                contract = contract.restoreAccess();
-                if (contract.isApproved()) {
-                    return RequestAPIAccessResult.RESTORED;
-                } else {
-                    throw new RequestAPIAccessException("Failed to restore access to client application");
-                }
-            } else {
-                throw new RequestAPIAccessException("API access is currently revoked, cannot grant access");
-            }
-        } else if (contract.isApproved()) {
-            return RequestAPIAccessResult.GRANTED;
-        } else {
-            throw new RequestAPIAccessException("Unknown contract status: " + contract.getStatus());
-        }
-    }
+//    public RequestAPIAccessResult requestAPIAccess(ClientApplication clientApplication, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
+//        logger.info("Requesting access from client application {} to api {} version {} with autoApprove {} autoRestore {} slaTier {}",
+//                clientApplication.getName(),apiName,apiVersionName,autoApprove,autoRestore,slaTier);
+//        APIVersion version = getAPI(apiName).getVersion(apiVersionName);
+//        APIAccessContract contract;
+//        try {
+//            contract = clientApplication.findContract(version);
+//        } catch (NotFoundException e) {
+//            if (StringUtils.isEmpty(slaTier)) {
+//                List<SLATier> tiers = version.getSLATiers();
+//                slaTier = tiers.size() == 1 ? tiers.get(0).getName() : null;
+//            }
+//            SLATier tier = slaTier != null ? version.getSLATier(slaTier) : null;
+//            contract = clientApplication.requestAPIAccess(version, tier);
+//        }
+//        if (contract.isPending()) {
+//            if (autoApprove) {
+//                contract = contract.approveAccess();
+//                if (contract.isApproved()) {
+//                    return RequestAPIAccessResult.GRANTED;
+//                } else {
+//                    throw new RequestAPIAccessException("Failed to auto-approve API access (status: " + contract.getStatus() + " )");
+//                }
+//            } else {
+//                return RequestAPIAccessResult.PENDING;
+//            }
+//        } else if (contract.isRevoked()) {
+//            if (autoRestore) {
+//                contract = contract.restoreAccess();
+//                if (contract.isApproved()) {
+//                    return RequestAPIAccessResult.RESTORED;
+//                } else {
+//                    throw new RequestAPIAccessException("Failed to restore access to client application");
+//                }
+//            } else {
+//                throw new RequestAPIAccessException("API access is currently revoked, cannot grant access");
+//            }
+//        } else if (contract.isApproved()) {
+//            return RequestAPIAccessResult.GRANTED;
+//        } else {
+//            throw new RequestAPIAccessException("Unknown contract status: " + contract.getStatus());
+//        }
+//    }
 
     @Override
     public String toString() {

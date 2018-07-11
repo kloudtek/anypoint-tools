@@ -1,14 +1,15 @@
 package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.kloudtek.anypoint.provision.*;
+import com.kloudtek.anypoint.deploy.APIProvisioningService;
+import com.kloudtek.anypoint.deploy.APIProvisioningServiceImpl;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
-import com.kloudtek.unpack.transformer.Transformer;
-import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,7 +23,7 @@ public class AnypointClient implements Closeable, Serializable {
     private transient ExecutorService deploymentThreadPool;
     private String username;
     private String password;
-    private ProvisioningService provisioningService;
+    private com.kloudtek.anypoint.deploy.APIProvisioningService APIProvisioningService;
 
     /**
      * Contructor used for serialization only
@@ -33,15 +34,15 @@ public class AnypointClient implements Closeable, Serializable {
 
     private void init() {
         jsonHelper = new JsonHelper(this);
-        ServiceLoader<ProvisioningService> provisioningServiceLoader = ServiceLoader.load(ProvisioningService.class);
-        Iterator<ProvisioningService> provisioningServiceIterator = provisioningServiceLoader.iterator();
+        ServiceLoader<APIProvisioningService> provisioningServiceLoader = ServiceLoader.load(APIProvisioningService.class);
+        Iterator<APIProvisioningService> provisioningServiceIterator = provisioningServiceLoader.iterator();
         if (provisioningServiceIterator.hasNext()) {
-            provisioningService = provisioningServiceIterator.next();
+            APIProvisioningService = provisioningServiceIterator.next();
             if (provisioningServiceIterator.hasNext()) {
                 throw new IllegalStateException("Found multiple implementations of ProvisioningService");
             }
         } else {
-            provisioningService = new ProvisioningServiceImpl();
+            APIProvisioningService = new APIProvisioningServiceImpl();
         }
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
     }
@@ -64,10 +65,9 @@ public class AnypointClient implements Closeable, Serializable {
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
     }
 
-
-    public List<Transformer> provision(Organization parent, File file, ProvisioningConfig provisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
-        return provisioningService.provision(this, parent, file, provisioningConfig, envSuffix);
-    }
+//    public List<Transformer> provision(Organization parent, File file, APIProvisioningConfig APIProvisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
+//        return APIProvisioningService.provision(this, parent, file, APIProvisioningConfig, envSuffix);
+//    }
 
     public int getMaxParallelDeployments() {
         return maxParallelDeployments;
@@ -87,7 +87,7 @@ public class AnypointClient implements Closeable, Serializable {
     @Override
     public void close() throws IOException {
         httpHelper.close();
-        if( deploymentThreadPool != null ) {
+        if (deploymentThreadPool != null) {
             deploymentThreadPool.shutdown();
         }
     }

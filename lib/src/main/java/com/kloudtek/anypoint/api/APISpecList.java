@@ -9,31 +9,32 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ClientApplicationList extends PaginatedList<ClientApplication, Organization> {
+public class APISpecList extends PaginatedList<APISpec, Organization> {
     private final String filter;
 
-    public ClientApplicationList(Organization organization, String filter) throws HttpException {
+    public APISpecList(Organization organization, String filter) throws HttpException {
         super(organization);
         this.filter = filter;
+        limit = 50;
         download();
     }
 
     @NotNull
     @Override
     protected URLBuilder buildUrl() {
-        URLBuilder urlBuilder = new URLBuilder(parent.getUriPath() + "/applications").param("targetAdminSite", "true");
+        URLBuilder url = new URLBuilder("/apimanager/xapi/v1/organizations/" + parent.getId() + "/apiSpecs");
         if (filter != null) {
-            urlBuilder.param("query", filter);
+            url.param("searchTerm", filter);
         }
-        return urlBuilder;
+        return url;
     }
 
     @JsonProperty
-    public List<ClientApplication> getApplications() {
+    public List<APISpec> getApiDefinitions() {
         return list;
     }
 
-    public void setApplications(List<ClientApplication> applications) {
-        this.list = applications;
+    public void setApiDefinitions(List<APISpec> list) {
+        this.list = list;
     }
 }

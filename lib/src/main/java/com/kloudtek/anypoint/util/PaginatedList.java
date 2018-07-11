@@ -13,9 +13,8 @@ public abstract class PaginatedList<X, Z extends AnypointObject> implements Iter
     protected Z parent;
     protected int limit = 100;
     protected int offset = 0;
-    protected int total;
+    protected int total = -1;
     protected List<X> list;
-    protected int listSize;
 
     public PaginatedList(Z parent) {
         this.parent = parent;
@@ -26,11 +25,12 @@ public abstract class PaginatedList<X, Z extends AnypointObject> implements Iter
         this.limit = limit;
     }
 
+    @NotNull
     protected abstract URLBuilder buildUrl();
 
     @SuppressWarnings("unchecked")
     public void download() throws HttpException {
-        String url = buildUrl().param("limit", limit).param("offset", offset).param("ascending", "true").param("targetAdminSite", "true").toString();
+        String url = buildUrl().param("limit", limit).param("offset", offset).param("ascending", "true").toString();
         String json = parent.getClient().getHttpHelper().httpGet(url);
         parent.getClient().getJsonHelper().readJson(this, json);
         for (X obj : list) {
@@ -38,7 +38,6 @@ public abstract class PaginatedList<X, Z extends AnypointObject> implements Iter
                 ((AnypointObject) obj).setParent(parent);
             }
         }
-        listSize = list.size();
     }
 
     @JsonProperty
@@ -48,6 +47,10 @@ public abstract class PaginatedList<X, Z extends AnypointObject> implements Iter
 
     public void setTotal(int total) {
         this.total = total;
+    }
+
+    public int size() {
+        return list != null ? list.size() : -1;
     }
 
     @NotNull

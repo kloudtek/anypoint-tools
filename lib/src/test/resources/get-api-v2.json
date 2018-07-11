@@ -1,0 +1,44 @@
+{
+  "audit": {
+    "created": {
+      "date": "2018-05-30T21:45:21.509Z"
+    },
+    "updated": {}
+  },
+  "masterOrganizationId": "88d26fee-1ab8-4462-beb5-0481da09529e",
+  "organizationId": "f31b2b20-fdd0-4fe4-a5e2-2cb90d69c05d",
+  "id": 14406958,
+  "instanceLabel": null,
+  "groupId": "f31b2b20-fdd0-4fe4-a5e2-2cb90d69c05d",
+  "assetId": "staff-experience-api",
+  "assetVersion": "1.0.0",
+  "productVersion": "v1",
+  "description": null,
+  "tags": [],
+  "order": 1,
+  "deprecated": false,
+  "lastActiveDate": null,
+  "endpointUri": null,
+  "environmentId": "e3d2838b-3528-43bf-8aa8-27647afb5afa",
+  "isPublic": false,
+  "endpoint": {
+    "audit": {
+      "created": {},
+      "updated": {}
+    },
+    "id": 197750,
+    "type": "raml",
+    "uri": null,
+    "proxyUri": null,
+    "proxyRegistrationUri": null,
+    "lastActiveDate": null,
+    "isCloudHub": null,
+    "policiesVersion": null,
+    "referencesUserDomain": null,
+    "muleVersion4OrAbove": true,
+    "responseTimeout": null,
+    "wsdlConfig": null
+  },
+  "deployment": null,
+  "autodiscoveryInstanceName": "v1:14406958"
+}

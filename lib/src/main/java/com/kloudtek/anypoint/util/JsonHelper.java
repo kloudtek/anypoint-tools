@@ -2,6 +2,7 @@ package com.kloudtek.anypoint.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kloudtek.anypoint.AnypointClient;
@@ -22,6 +23,7 @@ public class JsonHelper implements Serializable {
 
     public JsonHelper(AnypointClient client) {
         this.client = client;
+        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public ObjectMapper getJsonMapper() {
@@ -49,7 +51,7 @@ public class JsonHelper implements Serializable {
     @SuppressWarnings("unchecked")
     public Map<String, Object> toJsonMap(JsonNode node) {
         try {
-            return jsonMapper.treeToValue(node,Map.class);
+            return jsonMapper.treeToValue(node, Map.class);
         } catch (JsonProcessingException e) {
             throw new InvalidJsonException(e);
         }
@@ -60,7 +62,7 @@ public class JsonHelper implements Serializable {
     }
 
     public MapBuilder buildJsonMap(Map<String, Object> data) {
-        return new MapBuilder(null,data);
+        return new MapBuilder(null, data);
     }
 
     public JsonNode readJsonTree(String json) {
@@ -107,7 +109,7 @@ public class JsonHelper implements Serializable {
 
     @SuppressWarnings("unchecked")
     public <X> List<X> readJsonList(Class<X> objClass, String json, AnypointObject<?> parent) {
-        return readJsonList(objClass,json,parent,null);
+        return readJsonList(objClass, json, parent, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -115,7 +117,7 @@ public class JsonHelper implements Serializable {
         try {
             ArrayList<X> list = new ArrayList<>();
             JsonNode node = jsonMapper.readTree(json);
-            if( path != null ) {
+            if (path != null) {
                 node = node.at(path);
             }
             for (JsonNode n : node) {

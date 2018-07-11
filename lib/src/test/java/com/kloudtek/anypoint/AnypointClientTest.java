@@ -20,7 +20,7 @@ public class AnypointClientTest {
 //    private static AnypointClient client = new AnypointClient(System.getProperty("username"), System.getProperty("password"));
 //    private static User user;
 //    private static Organization org;
-//
+
 //    @BeforeAll
 //    public static void init() throws HttpException {
 //        user = client.getUser();

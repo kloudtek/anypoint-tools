@@ -1,26 +1,29 @@
 package com.kloudtek.anypoint.api.policy;
 
 import com.kloudtek.anypoint.AnypointObject;
-import com.kloudtek.anypoint.api.APIVersion;
-import com.kloudtek.anypoint.util.JsonHelper;
+import com.kloudtek.anypoint.api.API;
 
-import java.util.Map;
-
-public abstract class Policy extends AnypointObject<APIVersion> {
-    protected Integer id;
-    protected String policyTemplateId;
+public class Policy extends AnypointObject<API> {
+    private Integer id;
+    private String policyTemplateId;
+    private String masterOrganizationId;
+    private String organizationId;
+    private Object configurationData;
+    private int order;
+    private boolean disabled;
+    private Object pointcutData;
+    private String groupId;
+    private String assetId;
+    private String assetVersion;
+    private String type;
+    private Integer apiId;
 
     public Policy() {
     }
 
-    public Policy(APIVersion parent) {
-        super(parent);
-    }
 
-    public Policy(APIVersion parent, Map<String,Object> data) {
+    public Policy(API parent) {
         super(parent);
-        id = (Integer) data.get("id");
-        policyTemplateId = (String) data.get("policyTemplateId");
     }
 
     public Integer getId() {
@@ -39,16 +42,91 @@ public abstract class Policy extends AnypointObject<APIVersion> {
         this.policyTemplateId = policyTemplateId;
     }
 
-    public JsonHelper.MapBuilder toJson() {
-        return jsonHelper.buildJsonMap().set("id",id).set("apiVersionId",parent.getId());
+    public String getMasterOrganizationId() {
+        return masterOrganizationId;
     }
 
-    public static Policy parseJson( APIVersion apiVersion, Map<String,Object> data ) {
-        String policyTemplateId = (String) data.get("policyTemplateId");
-        if (policyTemplateId.equals("client-id-enforcement")) {
-            return new ClientIdEnforcementPolicy(apiVersion, data);
-        } else {
-            return new CustomPolicy(apiVersion,data);
-        }
+    public void setMasterOrganizationId(String masterOrganizationId) {
+        this.masterOrganizationId = masterOrganizationId;
+    }
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    public Object getConfigurationData() {
+        return configurationData;
+    }
+
+    public void setConfigurationData(Object configurationData) {
+        this.configurationData = configurationData;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    public Object getPointcutData() {
+        return pointcutData;
+    }
+
+    public void setPointcutData(Object pointcutData) {
+        this.pointcutData = pointcutData;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getAssetId() {
+        return assetId;
+    }
+
+    public void setAssetId(String assetId) {
+        this.assetId = assetId;
+    }
+
+    public String getAssetVersion() {
+        return assetVersion;
+    }
+
+    public void setAssetVersion(String assetVersion) {
+        this.assetVersion = assetVersion;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Integer getApiId() {
+        return apiId;
+    }
+
+    public void setApiId(Integer apiId) {
+        this.apiId = apiId;
     }
 }

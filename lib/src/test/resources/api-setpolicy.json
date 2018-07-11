@@ -1,0 +1,20 @@
+{
+  "apiVersionId": 14718023,
+  "configurationData": [
+    {
+      "itemName": "Default configuration",
+      "itemData": {
+        "message": "#['doo']",
+        "level": "INFO",
+        "firstSection": true,
+        "secondSection": false
+      }
+    }
+  ],
+  "id": null,
+  "pointcutData": null,
+  "policyTemplateId": 57,
+  "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913",
+  "assetId": "message-logging",
+  "assetVersion": "1.0.0"
+}
