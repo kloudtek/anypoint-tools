@@ -49,9 +49,9 @@ public class API extends AnypointObject<Environment> {
         }
     }
 
-    public API refresh() {
-
-    }
+//    public API refresh() {
+//
+//    }
 
     public void createPolicy(PolicyDescriptor policyDescriptor) throws HttpException {
         Map<String, Object> reqMap = jsonHelper.buildJsonMap()

@@ -6,10 +6,7 @@ import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.DesignCenterProject;
 import com.kloudtek.anypoint.api.DesignCenterProjectExchange;
 import com.kloudtek.anypoint.api.policy.Policy;
-import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
-import com.kloudtek.anypoint.api.provision.APIProvisioningDescriptor;
-import com.kloudtek.anypoint.api.provision.APIProvisioningResult;
-import com.kloudtek.anypoint.api.provision.PolicyDescriptorJsonImpl;
+import com.kloudtek.anypoint.api.provision.*;
 import com.kloudtek.util.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -140,7 +137,7 @@ public class AbstractAnypointTest {
         return apiProject;
     }
 
-    protected APIProvisioningResult provision(APIProvisioningConfig config, APIProvisioningDescriptor apd2) throws NotFoundException, HttpException {
+    protected APIProvisioningResult provision(APIProvisioningConfig config, APIProvisioningDescriptor apd2) throws ProvisioningException {
         APIProvisioningResult provision = apd2.provision(env, config);
         // todo register client and delete them after tests
         return provision;

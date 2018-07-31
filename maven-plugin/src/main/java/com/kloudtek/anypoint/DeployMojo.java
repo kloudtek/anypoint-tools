@@ -1,5 +1,6 @@
 package com.kloudtek.anypoint;
 
+import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.runtime.Application;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
@@ -29,6 +30,8 @@ public class DeployMojo extends AbstractMojo {
     private String env;
     @Parameter( name = "target", property = "anypoint.target", required = true )
     private String target;
+    @Parameter( property = "anypoint.api.provisioning.skip", required = false )
+    private boolean skipApiProvisioning;
     @Parameter( property = "anypoint.deploy.skip", required = false )
     private boolean skipDeploy;
     @Parameter( property = "anypoint.deploy.file", required = false )
@@ -79,7 +82,11 @@ public class DeployMojo extends AbstractMojo {
                 Server t = e.findServer(target);
                 log.debug("Found target "+target+" : "+t.getId());
                 log.debug("Deploying "+file.getName());
-                DeploymentResult app = t.deploy(appName, file);
+                APIProvisioningConfig apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
+                if( apiProvisioningConfig != null ) {
+                    // TODO
+                }
+                DeploymentResult app = t.deploy(appName, file, apiProvisioningConfig);
                 if( !skipWait ) {
                     log.info("Waiting for application start");
                     app.waitDeployed(deployTimeout,deployRetryDelay);

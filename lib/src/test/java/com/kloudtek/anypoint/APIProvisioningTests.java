@@ -34,6 +34,6 @@ public class APIProvisioningTests extends AbstractAnypointTest {
         // request access to api2 from api1
         apd1.addAccess(res2.getApi());
         provision(config, apd1);
-        res2.getApi().refresh();
+//        res2.getApi().refresh();
     }
 }
