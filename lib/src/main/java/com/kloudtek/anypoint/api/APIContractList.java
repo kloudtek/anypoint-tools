@@ -9,12 +9,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class APISpecList extends PaginatedList<APISpec, Organization> {
-    private final String filter;
-
-    public APISpecList(Organization organization, String filter) throws HttpException {
-        super(organization);
-        this.filter = filter;
+public class APIContractList extends PaginatedList<APIContract, API> {
+    public APIContractList(API api) throws HttpException {
+        super(api);
         limit = 50;
         download();
     }
@@ -22,20 +19,17 @@ public class APISpecList extends PaginatedList<APISpec, Organization> {
     @NotNull
     @Override
     protected URLBuilder buildUrl() {
-        URLBuilder url = new URLBuilder("/apimanager/xapi/v1/organizations/" + parent.getId() + "/apiSpecs")
+        URLBuilder url = new URLBuilder("/apimanager/api/v1/organizations/"+parent.getParent().getParent().getId()+"/environments/"+parent.getParent().getId()+"/apis/"+parent.getId()+"/contracts")
                 .param("ascending", "true");
-        if (filter != null) {
-            url.param("searchTerm", filter);
-        }
         return url;
     }
 
     @JsonProperty
-    public List<APISpec> getApiDefinitions() {
+    public List<APIContract> getContracts() {
         return list;
     }
 
-    public void setApiDefinitions(List<APISpec> list) {
+    public void setContracts(List<APIContract> list) {
         this.list = list;
     }
 }

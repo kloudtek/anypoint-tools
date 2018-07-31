@@ -165,6 +165,10 @@ public class Environment extends AnypointObject<Organization> {
                 "} " + super.toString();
     }
 
+    public APIList findAPIs() throws HttpException {
+        return findAPIs(null);
+    }
+
     public APIList findAPIs(String filter) throws HttpException {
         return new APIList(this, filter);
     }
@@ -191,7 +195,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @Nullable String version, @Nullable String label) throws HttpException, NotFoundException {
-        for (APIAsset asset : findAPIs(name)) {
+        for (APIAsset asset : findAPIs()) {
             if (asset.getGroupId().equalsIgnoreCase(groupId) && asset.getAssetId().equalsIgnoreCase(assetId) ) {
                 for (API api : asset.getApis()) {
                     if (api.getAssetVersion().equalsIgnoreCase(version) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {

@@ -92,7 +92,7 @@ public class AnypointClient implements Closeable, Serializable {
         }
     }
 
-    public List<Organization> getOrganizations() throws HttpException {
+    public List<Organization> findOrganizations() throws HttpException {
         String json = httpHelper.httpGet("/accounts/api/me");
         ArrayList<Organization> list = new ArrayList<>();
         for (JsonNode node : jsonHelper.readJsonTree(json).at("/user/memberOfOrganizations")) {
@@ -103,7 +103,7 @@ public class AnypointClient implements Closeable, Serializable {
 
     @NotNull
     public Organization findOrganization(String name) throws NotFoundException, HttpException {
-        for (Organization organization : getOrganizations()) {
+        for (Organization organization : findOrganizations()) {
             if (organization.getName().equals(name)) {
                 return organization;
             }
@@ -160,6 +160,11 @@ public class AnypointClient implements Closeable, Serializable {
         return httpHelper;
     }
 
+    public void setHttpHelper(HttpHelper httpHelper) {
+        this.httpHelper = httpHelper;
+        httpHelper.setClient(this);
+    }
+
     public String authenticate(String username, String password) throws HttpException {
         Map<String, String> request = new HashMap<>();
         request.put("username", username);
@@ -188,5 +193,10 @@ public class AnypointClient implements Closeable, Serializable {
                 throw e;
             }
         }
+    }
+
+    public String getUserId() throws HttpException {
+        // TODO cache this
+        return getUser().getId();
     }
 }

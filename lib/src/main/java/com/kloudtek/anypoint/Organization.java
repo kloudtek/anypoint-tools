@@ -2,20 +2,20 @@ package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.anypoint.api.APISpec;
-import com.kloudtek.anypoint.api.APISpecList;
-import com.kloudtek.anypoint.api.ClientApplication;
-import com.kloudtek.anypoint.api.ClientApplicationList;
+import com.kloudtek.anypoint.api.*;
+import com.kloudtek.anypoint.exchange.AssetVersion;
+import com.kloudtek.anypoint.exchange.ExchangeAsset;
+import com.kloudtek.anypoint.exchange.AssetList;
+import com.kloudtek.anypoint.exchange.ExchangeAssetOverview;
 import com.kloudtek.anypoint.util.JsonHelper;
+import com.kloudtek.util.ThreadUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class Organization extends AnypointObject {
     private static final Logger logger = LoggerFactory.getLogger(Organization.class);
@@ -50,7 +50,7 @@ public class Organization extends AnypointObject {
         this.name = name;
     }
 
-    public List<Environment> getEnvironments() throws HttpException {
+    public List<Environment> findEnvironments() throws HttpException {
         return Environment.getEnvironments(client, this);
     }
 
@@ -58,38 +58,6 @@ public class Organization extends AnypointObject {
     public Environment findEnvironment(@NotNull String name) throws NotFoundException, HttpException {
         return Environment.getEnvironmentByName(name, client, this);
     }
-
-//    public API getAPI(@NotNull String name) throws HttpException, NotFoundException {
-//        for (API api : getAPIs(name)) {
-//            if (name.equals(api.getName())) {
-//                return api;
-//            }
-//        }
-//        throw new NotFoundException("API not found: " + name);
-//    }
-//    public APIList getAPIs() throws HttpException {
-//        return getAPIs(null);
-//    }
-//
-//    public APIList getAPIs(String nameFilter) throws HttpException {
-//        return getAPIs(nameFilter, 0, 25);
-//    }
-//
-//    public APIList getAPIs(String nameFilter, int offset, int limit) throws HttpException {
-//        URLBuilder urlBuilder = new URLBuilder("/apiplatform/repository/v2/organizations/" + id + "/apis").param("ascending", "false").param("limit", limit).param("offset", offset).param("sort", "createdDate");
-//        if (nameFilter != null) {
-//            urlBuilder.param("query", nameFilter);
-//        }
-//        String json = httpHelper.httpGet(urlBuilder.toString());
-//        JsonNode jsonTree = jsonHelper.readJsonTree(json);
-//        int total = jsonTree.get("total").intValue();
-//        JsonNode nodes = jsonTree.at("/apis");
-//        ArrayList<API> list = new ArrayList<>();
-//        for (JsonNode node : nodes) {
-//            list.add(jsonHelper.readJson(new API(this),node));
-//        }
-//        return new APIList(this, nameFilter, offset, limit, total, list);
-//    }
 
     public Organization getParentOrganization() throws HttpException {
         if (parentId != null) {
@@ -120,21 +88,8 @@ public class Organization extends AnypointObject {
         return jsonHelper.readJson(new Environment(this), json);
     }
 
-//    public API createAPI(@NotNull String name, @NotNull String version) throws HttpException {
-//        return createAPI(name, version, null, null);
-//    }
-//
-//    public API createAPI(@NotNull String name, @NotNull String version, @Nullable String endpoint) throws HttpException {
-//        return createAPI(name, version, endpoint, null);
-//    }
-//
-//    public API createAPI(@NotNull String name, @NotNull String version, @Nullable String endpoint, @Nullable String description) throws HttpException {
-//        return API.create(this, name, version, endpoint, description);
-//    }
-
     public ClientApplication createClientApplication(String name, String url, String description) throws HttpException {
-        // must always create the application in the root org because anypoint is a piece of @#$@#$#@$@#$#@$#@#@$
-        Organization rootOrg = getRootOrganization();
+        // must always create the application in the root org because anypoint sucks
         return ClientApplication.create(getRootOrganization(), name, url, description, Collections.emptyList(), null);
     }
 
@@ -174,7 +129,7 @@ public class Organization extends AnypointObject {
 
     @Nullable
     private ClientApplication findClientApplication(Iterable<ClientApplication> list, @NotNull String name, boolean fullData) throws HttpException {
-        for (ClientApplication app : list) {
+        for (ClientApplication app: list) {
             if (name.equals(app.getName())) {
                 if (fullData) {
                     return jsonHelper.readJson(app, httpHelper.httpGet(app.getUriPath()));
@@ -192,7 +147,7 @@ public class Organization extends AnypointObject {
     }
 
     public APISpec findAPISpecsByNameAndVersion(String name, String version) throws NotFoundException, HttpException {
-        for (APISpec apiSpec : findAPISpecs(name)) {
+        for (APISpec apiSpec: findAPISpecs(name)) {
             if (apiSpec.getName().equalsIgnoreCase(name) && apiSpec.getVersion().equalsIgnoreCase(version)) {
                 return apiSpec;
             }
@@ -218,7 +173,30 @@ public class Organization extends AnypointObject {
     }
 
     public void delete() throws HttpException {
-        httpHelper.httpDelete("/accounts/api/organizations/" + id);
+        deleteSubElements();
+        long timeout = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60);
+        for(;;) {
+            try {
+                httpHelper.httpDelete("/accounts/api/organizations/" + id);
+                break;
+            } catch (HttpException e) {
+                if( System.currentTimeMillis() > timeout ) {
+                    throw e;
+                } else {
+                    deleteSubElements();
+                    ThreadUtils.sleep(1500);
+                }
+            }
+        };
+    }
+
+    private void deleteSubElements() throws HttpException {
+        for (Environment environment: findEnvironments()) {
+            for (APIAsset api: environment.findAPIs(null)) {
+                api.delete();
+            }
+        }
+        findExchangeAssets().delete();
     }
 
     @JsonIgnore
@@ -286,6 +264,51 @@ public class Organization extends AnypointObject {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 "} " + super.toString();
+    }
+
+    public List<DesignCenterProject> findDesignCenterProjects() throws HttpException {
+        // TODO implement pagination !!!!!!!
+        String json = httpHelper.httpGet("/designcenter/api/v1/organizations/" + id + "/projects?pageSize=500&pageIndex=0");
+        return jsonHelper.readJsonList(DesignCenterProject.class, json, this);
+    }
+
+    public DesignCenterProject findDesignCenterProject(String name) throws NotFoundException, HttpException {
+        for (DesignCenterProject project: findDesignCenterProjects()) {
+            if (name.equalsIgnoreCase(project.getName())) {
+                return project;
+            }
+        }
+        throw new NotFoundException();
+    }
+
+    public DesignCenterProject createDesignCenterProject(String name, String type, boolean visualDesignerMode, String ownerId) throws HttpException {
+        return DesignCenterProject.create(this, name, type, visualDesignerMode, ownerId);
+    }
+
+    public AssetList findExchangeAssets() throws HttpException {
+        return new AssetList(this, null, 50);
+    }
+
+    public AssetList findExchangeAssets(String filter, int limit) throws HttpException {
+        return new AssetList(this, filter, limit);
+    }
+
+    public ExchangeAsset findExchangeAsset(@NotNull String groupId, @NotNull String assetId) throws HttpException, NotFoundException {
+        for (ExchangeAssetOverview assetOverview: findExchangeAssets()) {
+            if( groupId.equals(assetOverview.getGroupId()) && assetId.equals(assetOverview.getAssetId()) ) {
+                return assetOverview.getAsset();
+            }
+        }
+        throw new NotFoundException("Asset not found: "+groupId+":"+assetId);
+    }
+
+    public AssetVersion findExchangeAssetVersion(@NotNull String groupId, @NotNull String assetId, @NotNull String version) throws HttpException, NotFoundException {
+        for (AssetVersion assetVersion: findExchangeAsset(groupId,assetId).getVersions()) {
+            if( version.equals(assetVersion.getVersion()) ) {
+                return assetVersion;
+            }
+        }
+        throw new NotFoundException("Asset not found: "+groupId+":"+assetId+":"+version);
     }
 
     public enum RequestAPIAccessResult {

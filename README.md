@@ -5,7 +5,7 @@ scalability.
 
 Anypoint-tools was created to solve those issues by allowing to fully automate API management tasks.
 
-With anypoint tools you can just add a descriptor file to your API project, and when you deploy the application it will
+with anypoint tools you can just add a descriptor file to your API project, and when you deploy the application it will
 automatically perform all API management setup.
 
 For example with this JSON, it would automatically create the API and a corresponding client application, apply a header injection policy and request access to

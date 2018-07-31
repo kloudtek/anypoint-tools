@@ -78,21 +78,22 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
                 try {
                     if (appArch.exists()) {
                         if (!skipProvisioning) {
-                            APIProvisioningConfig APIProvisioningConfig = new APIProvisioningConfig(provisioningParams, extraAccess);
-                            logger.info("Provisioning: " + appName);
-                            List<Transformer> transformers = parent.getClient().provision(server.getParent().getParent(), appArch, APIProvisioningConfig, envSuffix);
-                            if (transformers != null && !transformers.isEmpty()) {
-                                try {
-                                    File oldAppArch = appArch;
-                                    appArch = new TempFile(appArch.getName(), ".zip");
-                                    Unpacker unpacker = new Unpacker(oldAppArch, FileType.ZIP, appArch, FileType.ZIP);
-                                    unpacker.addTransformers(transformers);
-                                    unpacker.unpack();
-                                } catch (Exception e) {
-                                    throw new UserDisplayableException("An error occured while applying application " + appName + " transformations: " + e.getMessage(), e);
-                                }
-                            }
-                            logger.info("Provisioning completed: " + appName);
+                            throw new UserDisplayableException("Provisioning not supported for command line right now, please use maven plugin or skip provisioning or wait for next release");
+//                            APIProvisioningConfig APIProvisioningConfig = new APIProvisioningConfig(provisioningParams, extraAccess);
+//                            logger.info("Provisioning: " + appName);
+//                            List<Transformer> transformers = parent.getClient().provision(server.getParent().getParent(), appArch, APIProvisioningConfig, envSuffix);
+//                            if (transformers != null && !transformers.isEmpty()) {
+//                                try {
+//                                    File oldAppArch = appArch;
+//                                    appArch = new TempFile(appArch.getName(), ".zip");
+//                                    Unpacker unpacker = new Unpacker(oldAppArch, FileType.ZIP, appArch, FileType.ZIP);
+//                                    unpacker.addTransformers(transformers);
+//                                    unpacker.unpack();
+//                                } catch (Exception e) {
+//                                    throw new UserDisplayableException("An error occured while applying application " + appName + " transformations: " + e.getMessage(), e);
+//                                }
+//                            }
+//                            logger.info("Provisioning completed: " + appName);
                         }
                         if (!force) {
                             if (server.checkApplicationExist(appName, appArch, true)) {
@@ -102,7 +103,7 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
                         }
                         logger.info("Deploying application: " + appName);
                         try {
-                            DeploymentResult application = server.deploy(appName, appArch, appArchFileName);
+                            DeploymentResult application = server.deploy(appName, appArch, appArchFileName, null);
                             deployed.put(appArch.getName(), application);
                         } catch (IOException e) {
                             throw new UserDisplayableException("Error loading application " + appName + " : " + e.getMessage(), e);

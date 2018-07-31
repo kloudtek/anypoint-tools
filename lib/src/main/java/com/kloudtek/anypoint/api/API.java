@@ -6,6 +6,8 @@ import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.policy.Policy;
 import com.kloudtek.anypoint.api.provision.PolicyDescriptor;
+import com.kloudtek.anypoint.api.provision.SLATierCreateRequest;
+import com.kloudtek.anypoint.util.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -46,18 +48,9 @@ public class API extends AnypointObject<Environment> {
             throw new IllegalStateException("Insufficient data available in api to build uri");
         }
     }
+
+//    public API refresh() {
 //
-//    public Policy createPolicy(Policy policy) throws HttpException {
-//        String json = httpHelper.httpPost(getUriPath() + "/policies", policy.toJson().toMap());
-//        return Policy.parseJson(this, jsonHelper.toJsonMap(json));
-//    }
-//
-//    public Policy updatePolicy(Policy policy) throws HttpException {
-//        if (policy.getId() == null) {
-//            throw new IllegalArgumentException("Policy id musn't be null for update");
-//        }
-//        String json = httpHelper.httpPatch(new URLBuilder(getUriPath()).path("policies/" + policy.getId()).toString(), policy.toJson().toMap());
-//        return Policy.parseJson(this, jsonHelper.toJsonMap(json));
 //    }
 
     public void createPolicy(PolicyDescriptor policyDescriptor) throws HttpException {
@@ -74,30 +67,41 @@ public class API extends AnypointObject<Environment> {
                 getParent().getId() + "/apis/" + id + "/policies", reqMap);
     }
 
-    public APIAccessContract requestAPIAccess(ClientApplication clientApplication) throws HttpException {
+    public APIContract requestAPIAccess(ClientApplication clientApplication) throws HttpException {
         return clientApplication.requestAPIAccess(this);
     }
 
-    public APIAccessContract requestAPIAccess(ClientApplication clientApplication, SLATier tier) throws HttpException {
+    public APIContract requestAPIAccess(ClientApplication clientApplication, SLATier tier) throws HttpException {
         return clientApplication.requestAPIAccess(this, tier);
     }
 
-    public APIAccessContract requestAPIAccess(ClientApplication clientApplication, SLATier tier, String partyId, String partyName, boolean acceptedTerms) throws HttpException {
-        return clientApplication.requestAPIAccess(this, tier, partyId, partyName, acceptedTerms);
-    }
-
-    public List<SLATier> getSLATiers() throws HttpException {
-        String json = httpHelper.httpGet(getUriPath() + "/tiers");
-        return jsonHelper.readJsonList(SLATier.class, json, this, "/tiers");
-    }
-
-    public SLATier getSLATier(String name) throws NotFoundException, HttpException {
-        for (SLATier tier : getSLATiers()) {
-            if (name.equalsIgnoreCase(tier.getName())) {
-                return tier;
+    public APIContract findContract(ClientApplication clientApplication) throws HttpException, NotFoundException {
+        for (APIContract contract: findContracts()) {
+            if( contract.getApplicationId().equals(clientApplication.getId()) ) {
+                return contract;
             }
         }
-        throw new NotFoundException("Unable to find SLA Tier " + name);
+        throw new NotFoundException();
+    }
+
+    public SLATierList findSLATiers() throws HttpException {
+        return new SLATierList(this);
+    }
+
+    public SLATier findSLATier(@NotNull String name) throws HttpException, NotFoundException {
+        for (SLATier slaTier: findSLATiers()) {
+            if( slaTier.getName().equals(name) ) {
+                return slaTier;
+            }
+        }
+        throw new NotFoundException();
+    }
+
+    public SLATier createSLATier(String name, String description, boolean autoApprove, List<SLATierLimits> limits) throws HttpException {
+        String json = client.getHttpHelper().httpPost("https://anypoint.mulesoft.com/apimanager/api/v1/organizations/" +
+                parent.getParent().getId() + "/environments/" + parent.getId() + "/apis/" + id + "/tiers",
+                new SLATierCreateRequest(this,name,description,autoApprove,limits));
+        return jsonHelper.readJson(new SLATier(this), json );
     }
 
     public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, boolean mule4, @Nullable String endpointUrl, @Nullable String label) throws HttpException {
@@ -122,19 +126,25 @@ public class API extends AnypointObject<Environment> {
         return environment.getClient().getJsonHelper().readJson(new API(environment), json);
     }
 
-    public List<Policy> findPolicies(boolean fullInfo) throws HttpException {
-        String json = parent.getClient().getHttpHelper().httpGet("/apimanager/api/v1/organizations/" + getParent().getParent().getId() + "/environments/" + getParent().getId() + "/apis/" + id + "/policies?fullInfo=" + fullInfo);
-        return parent.getClient().getJsonHelper().readJsonList(Policy.class, json, this);
+    public List<Policy> findPolicies() throws HttpException {
+        String json = parent.getClient().getHttpHelper().httpGet("/apimanager/api/v1/organizations/" + getParent().getParent().getId() + "/environments/" + getParent().getId() + "/apis/" + id + "/policies?fullInfo=false");
+        JsonHelper jsonHelper = parent.getClient().getJsonHelper();
+        return jsonHelper.readJsonList(Policy.class, json, this);
     }
 
-    public Policy findPolicyByAsset(String groupId, String assetId, String assetVersion, boolean fullInfo) throws HttpException, NotFoundException {
-        for (Policy policy : findPolicies(fullInfo)) {
+    public Policy findPolicyByAsset(String groupId, String assetId, String assetVersion) throws HttpException, NotFoundException {
+        for (Policy policy : findPolicies()) {
             if (policy.getGroupId().equalsIgnoreCase(groupId) && policy.getAssetId().equalsIgnoreCase(assetId)
                     && policy.getAssetVersion().equalsIgnoreCase(assetVersion)) {
                 return policy;
             }
         }
         throw new NotFoundException("Policy not found");
+    }
+
+
+    public APIContractList findContracts() throws HttpException {
+        return new APIContractList(this);
     }
 
     public int getId() {

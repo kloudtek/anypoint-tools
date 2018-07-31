@@ -28,11 +28,16 @@ public abstract class PaginatedList<X, Z extends AnypointObject> implements Iter
     @NotNull
     protected abstract URLBuilder buildUrl();
 
-    @SuppressWarnings("unchecked")
     public void download() throws HttpException {
-        String url = buildUrl().param("limit", limit).param("offset", offset).param("ascending", "true").toString();
+        String url = buildUrl().param("limit", limit).param("offset", offset).toString();
         String json = parent.getClient().getHttpHelper().httpGet(url);
-        parent.getClient().getJsonHelper().readJson(this, json);
+        JsonHelper jsonHelper = parent.getClient().getJsonHelper();
+        parseJson(json, jsonHelper);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void parseJson(String json, JsonHelper jsonHelper) {
+        jsonHelper.readJson(this, json);
         for (X obj : list) {
             if (obj instanceof AnypointObject<?>) {
                 ((AnypointObject) obj).setParent(parent);

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.List;
+import java.util.Map;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
@@ -32,5 +33,5 @@ public abstract class PolicyDescriptor {
 
     public abstract String getAssetVersion();
 
-    public abstract Object getData();
+    public abstract Map<String,Object> getData();
 }

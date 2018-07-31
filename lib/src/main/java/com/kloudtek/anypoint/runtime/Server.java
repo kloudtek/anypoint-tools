@@ -5,13 +5,14 @@ import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
-import com.kloudtek.anypoint.util.FileStreamSource;
+import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
+import com.kloudtek.anypoint.api.provision.APIProvisioningDescriptor;
+import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.StreamSource;
 import com.kloudtek.kryptotek.DigestAlgorithm;
 import com.kloudtek.kryptotek.DigestUtils;
 import com.kloudtek.util.Hex;
-import com.kloudtek.util.TimeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 public class Server extends AnypointObject<Environment> {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -75,11 +79,34 @@ public class Server extends AnypointObject<Environment> {
         }
     }
 
-    public DeploymentResult deploy(@NotNull String name, @NotNull File file) throws IOException, HttpException {
-        return deploy(name,file,file.getName());
+    public DeploymentResult deploy(@NotNull String name, @NotNull File file, APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException, ProvisioningException {
+        return deploy(name,file,file.getName(),apiProvisioningConfig);
     }
 
-    public DeploymentResult deploy(@NotNull String name, @NotNull File file, @NotNull String filename) throws IOException, HttpException {
+    /**
+     * Deploy application
+     * @param name Application name
+     * @param file Application archive file
+     * @param filename Application archive filename
+     * @param apiProvisioningConfig API Provisioning config (if null no API provisioning will be done)
+     * @return Deployment result
+     * @throws IOException If an error occurs reading the application file
+     * @throws HttpException If an error occurs commnunicating with anypoint
+     */
+    public DeploymentResult deploy(@NotNull String name, @NotNull File file, @NotNull String filename, APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException, ProvisioningException {
+        // TODO provision API
+        if( apiProvisioningConfig != null ) {
+            ZipFile zipFile = new ZipFile(file);
+            ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
+            if( anypointJson != null ) {
+                logger.debug("Found anypoint.json, provisioning");
+                APIProvisioningDescriptor apiProvisioningDescriptor;
+                try( InputStream is = zipFile.getInputStream(anypointJson) ) {
+                    apiProvisioningDescriptor = client.getJsonHelper().getJsonMapper().readValue(is, APIProvisioningDescriptor.class);
+                }
+                apiProvisioningDescriptor.provision(parent,apiProvisioningConfig);
+            }
+        }
         return deploy(name, new StreamSource() {
             @Override
             public String getFileName() {
@@ -106,8 +133,8 @@ public class Server extends AnypointObject<Environment> {
             request = httpHelper.createMultiPartPostRequest("/hybrid/api/v1/applications", parent);
         }
         json = request.addText("targetId", id).addText("artifactName", name).addBinary("file", stream).execute();
-        if( logger.isDebugEnabled() ) {
-            logger.debug("File upload took "+ TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()-start)+" seconds");
+        if (logger.isDebugEnabled()) {
+            logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
         }
         Application application = jsonHelper.readJson(new Application(this), json, "/data");
         return new DeploymentResult(application);

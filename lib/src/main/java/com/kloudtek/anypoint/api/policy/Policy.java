@@ -1,29 +1,51 @@
 package com.kloudtek.anypoint.api.policy;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.AnypointObject;
+import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.api.API;
+import com.kloudtek.anypoint.api.provision.PolicyDescriptor;
 
 public class Policy extends AnypointObject<API> {
+    @JsonProperty
     private Integer id;
+    @JsonProperty
     private String policyTemplateId;
+    @JsonProperty
     private String masterOrganizationId;
+    @JsonProperty
     private String organizationId;
+    @JsonProperty
     private Object configurationData;
+    @JsonProperty
     private int order;
+    @JsonProperty
     private boolean disabled;
+    @JsonProperty
     private Object pointcutData;
+    @JsonProperty
     private String groupId;
+    @JsonProperty
     private String assetId;
+    @JsonProperty
     private String assetVersion;
+    @JsonProperty
     private String type;
+    @JsonProperty
     private Integer apiId;
 
     public Policy() {
     }
 
-
     public Policy(API parent) {
         super(parent);
+    }
+
+
+    public void update(PolicyDescriptor policyDescriptor) throws HttpException {
+        configurationData = policyDescriptor.getData();
+        pointcutData = policyDescriptor.getPointcutData();
+        httpHelper.httpPatch("https://anypoint.mulesoft.com/apimanager/api/v1/organizations/"+parent.getParent().getParent().getId()+"/environments/"+parent.getParent().getId()+"/apis/"+parent.getId()+"/policies/"+id,this);
     }
 
     public Integer getId() {

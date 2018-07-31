@@ -5,13 +5,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.kloudtek.anypoint.api.policy.Policy;
 
+import java.util.Map;
+
 public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
     public static final String TYPE = "json";
     protected String policyTemplateId;
     protected String groupId;
     protected String assetId;
     protected String assetVersion;
-    protected Object data;
+    protected Map<String,Object> data;
+
+    public PolicyDescriptorJsonImpl() {
+    }
+
+    public PolicyDescriptorJsonImpl(String groupId, String assetId, String assetVersion, Map<String,Object> data) {
+        this.groupId = groupId;
+        this.assetId = assetId;
+        this.assetVersion = assetVersion;
+        this.data = data;
+    }
 
     @Override
     @JsonIgnore
@@ -39,11 +51,11 @@ public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
     }
 
     @JsonRawValue
-    public Object getData() {
+    public Map<String,Object> getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(Map<String,Object> data) {
         this.data = data;
     }
 
