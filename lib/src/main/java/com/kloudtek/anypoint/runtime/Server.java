@@ -7,12 +7,19 @@ import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.api.provision.APIProvisioningDescriptor;
+import com.kloudtek.anypoint.api.provision.APIProvisioningResult;
 import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.StreamSource;
 import com.kloudtek.kryptotek.DigestAlgorithm;
 import com.kloudtek.kryptotek.DigestUtils;
+import com.kloudtek.unpack.FileType;
+import com.kloudtek.unpack.Unpacker;
+import com.kloudtek.unpack.transformer.SetPropertyTransformer;
+import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.Hex;
+import com.kloudtek.util.TempFile;
+import com.kloudtek.util.UserDisplayableException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
@@ -94,30 +102,55 @@ public class Server extends AnypointObject<Environment> {
      * @throws HttpException If an error occurs commnunicating with anypoint
      */
     public DeploymentResult deploy(@NotNull String name, @NotNull File file, @NotNull String filename, APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException, ProvisioningException {
-        // TODO provision API
-        if( apiProvisioningConfig != null ) {
-            ZipFile zipFile = new ZipFile(file);
-            ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
-            if( anypointJson != null ) {
-                logger.debug("Found anypoint.json, provisioning");
-                APIProvisioningDescriptor apiProvisioningDescriptor;
-                try( InputStream is = zipFile.getInputStream(anypointJson) ) {
-                    apiProvisioningDescriptor = client.getJsonHelper().getJsonMapper().readValue(is, APIProvisioningDescriptor.class);
+        boolean tmpFile = false;
+        try {
+            if( apiProvisioningConfig != null ) {
+                ZipFile zipFile = new ZipFile(file);
+                ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
+                if( anypointJson != null ) {
+                    logger.debug("Found anypoint.json, provisioning");
+                    APIProvisioningDescriptor apiProvisioningDescriptor;
+                    try( InputStream is = zipFile.getInputStream(anypointJson) ) {
+                        apiProvisioningDescriptor = client.getJsonHelper().getJsonMapper().readValue(is, APIProvisioningDescriptor.class);
+                    }
+                    APIProvisioningResult provisioningResult = apiProvisioningDescriptor.provision(parent, apiProvisioningConfig);
+                    List<Transformer> transformers = new ArrayList<>();
+                    if(apiProvisioningConfig.isInjectApiId()) {
+                        transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getInjectApiIdFile(),
+                                apiProvisioningConfig.getInjectApiIdKey(),Integer.toString(provisioningResult.getApi().getId())));
+                    }
+
+                    if (!transformers.isEmpty()) {
+                        try {
+                            File oldFile = file;
+                            file = new TempFile("tranformed", filename);
+                            Unpacker unpacker = new Unpacker(oldFile, FileType.ZIP, file, FileType.ZIP);
+                            unpacker.addTransformers(transformers);
+                            unpacker.unpack();
+                        } catch (Exception e) {
+                            throw new ProvisioningException("An error occurred while applying application " + name + " transformations: " + e.getMessage(), e);
+                        }
+                        tmpFile = true;
+                    }
                 }
-                apiProvisioningDescriptor.provision(parent,apiProvisioningConfig);
+            }
+            final File f = file;
+            return deploy(name, new StreamSource() {
+                @Override
+                public String getFileName() {
+                    return filename;
+                }
+
+                @Override
+                public InputStream createInputStream() throws IOException {
+                    return new FileInputStream(f);
+                }
+            });
+        } finally {
+            if( tmpFile ) {
+                ((TempFile) file).close();
             }
         }
-        return deploy(name, new StreamSource() {
-            @Override
-            public String getFileName() {
-                return filename;
-            }
-
-            @Override
-            public InputStream createInputStream() throws IOException {
-                return new FileInputStream(file);
-            }
-        });
     }
 
     public DeploymentResult deploy(@NotNull String name, @NotNull StreamSource stream) throws HttpException, IOException {
