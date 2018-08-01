@@ -126,7 +126,7 @@ public class Server extends AnypointObject<Environment> {
                         HashMap<String,String> clientCreds = new HashMap<>();
                         clientCreds.put(apiProvisioningConfig.getInjectClientIdSecretKey()+".id", clientApp.getClientId());
                         clientCreds.put(apiProvisioningConfig.getInjectClientIdSecretKey()+".secret", clientApp.getClientSecret());
-                        transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getInjectClientIdSecretFile(), clientCreds);
+                        transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getInjectClientIdSecretFile(), clientCreds));
                     }
                     if (!transformers.isEmpty()) {
                         try {
