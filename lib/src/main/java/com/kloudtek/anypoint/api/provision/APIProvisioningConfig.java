@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.*;
 
 public class APIProvisioningConfig {
+    private static final String APICONFIG_PROPERTIES = "apiconfig.properties";
     @JsonProperty(defaultValue = "anypoint.json")
     private String descriptorLocation = "anypoint.json";
     @JsonProperty
@@ -17,10 +18,16 @@ public class APIProvisioningConfig {
     private boolean autoApproveAPIAccessRequest = true;
     @JsonProperty(defaultValue = "true")
     private boolean injectApiId = true;
-    @JsonProperty(defaultValue = "apiconfig.properties")
-    private String injectApiIdFile = "apiconfig.properties";
+    @JsonProperty(defaultValue = APICONFIG_PROPERTIES)
+    private String injectApiIdFile = APICONFIG_PROPERTIES;
     @JsonProperty(defaultValue = "anypoint.apiId")
     private String injectApiIdKey = "anypoint.apiId";
+    @JsonProperty(defaultValue = "true")
+    private boolean injectClientIdSecret = true;
+    @JsonProperty(defaultValue = APICONFIG_PROPERTIES)
+    private String injectClientIdSecretFile = APICONFIG_PROPERTIES;
+    @JsonProperty(defaultValue = "anypoint.client")
+    private String injectClientIdSecretKey = "anypoint.client";
 
     public APIProvisioningConfig() {
     }
@@ -104,6 +111,30 @@ public class APIProvisioningConfig {
         this.injectApiIdKey = injectApiIdKey;
     }
 
+    public boolean isInjectClientIdSecret() {
+        return injectClientIdSecret;
+    }
+
+    public void setInjectClientIdSecret(boolean injectClientIdSecret) {
+        this.injectClientIdSecret = injectClientIdSecret;
+    }
+
+    public String getInjectClientIdSecretFile() {
+        return injectClientIdSecretFile;
+    }
+
+    public void setInjectClientIdSecretFile(String injectClientIdSecretFile) {
+        this.injectClientIdSecretFile = injectClientIdSecretFile;
+    }
+
+    public String getInjectClientIdSecretKey() {
+        return injectClientIdSecretKey;
+    }
+
+    public void setInjectClientIdSecretKey(String injectClientIdSecretKey) {
+        this.injectClientIdSecretKey = injectClientIdSecretKey;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -111,17 +142,20 @@ public class APIProvisioningConfig {
         APIProvisioningConfig that = (APIProvisioningConfig) o;
         return autoApproveAPIAccessRequest == that.autoApproveAPIAccessRequest &&
                 injectApiId == that.injectApiId &&
+                injectClientIdSecret == that.injectClientIdSecret &&
                 Objects.equals(descriptorLocation, that.descriptorLocation) &&
                 Objects.equals(variables, that.variables) &&
                 Objects.equals(accessedBy, that.accessedBy) &&
                 Objects.equals(apiLabel, that.apiLabel) &&
                 Objects.equals(injectApiIdFile, that.injectApiIdFile) &&
-                Objects.equals(injectApiIdKey, that.injectApiIdKey);
+                Objects.equals(injectApiIdKey, that.injectApiIdKey) &&
+                Objects.equals(injectClientIdSecretFile, that.injectClientIdSecretFile) &&
+                Objects.equals(injectClientIdSecretKey, that.injectClientIdSecretKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel, autoApproveAPIAccessRequest, injectApiId, injectApiIdFile, injectApiIdKey);
+        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel, autoApproveAPIAccessRequest, injectApiId, injectApiIdFile, injectApiIdKey, injectClientIdSecret, injectClientIdSecretFile, injectClientIdSecretKey);
     }
 
     @Override
@@ -135,6 +169,9 @@ public class APIProvisioningConfig {
                 .add("injectApiId=" + injectApiId)
                 .add("injectApiIdFile='" + injectApiIdFile + "'")
                 .add("injectApiIdKey='" + injectApiIdKey + "'")
+                .add("injectClientIdSecret=" + injectClientIdSecret)
+                .add("injectClientIdSecretFile='" + injectClientIdSecretFile + "'")
+                .add("injectClientIdSecretKey='" + injectClientIdSecretKey + "'")
                 .toString();
     }
 }

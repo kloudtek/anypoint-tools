@@ -5,6 +5,7 @@ import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
+import com.kloudtek.anypoint.api.ClientApplication;
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.api.provision.APIProvisioningDescriptor;
 import com.kloudtek.anypoint.api.provision.APIProvisioningResult;
@@ -29,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
@@ -119,7 +121,13 @@ public class Server extends AnypointObject<Environment> {
                         transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getInjectApiIdFile(),
                                 apiProvisioningConfig.getInjectApiIdKey(),Integer.toString(provisioningResult.getApi().getId())));
                     }
-
+                    ClientApplication clientApp = provisioningResult.getClientApplication();
+                    if( clientApp != null && apiProvisioningConfig.isInjectClientIdSecret() ) {
+                        HashMap<String,String> clientCreds = new HashMap<>();
+                        clientCreds.put(apiProvisioningConfig.getInjectClientIdSecretKey()+".id", clientApp.getClientId());
+                        clientCreds.put(apiProvisioningConfig.getInjectClientIdSecretKey()+".secret", clientApp.getClientSecret());
+                        transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getInjectClientIdSecretFile(), clientCreds);
+                    }
                     if (!transformers.isEmpty()) {
                         try {
                             File oldFile = file;
