@@ -7,7 +7,9 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "anypoint", showDefaultValues = true, notRequiredWithDefault = true, sortOptions = false,
-        subcommands = {DeployApplicationCmd.class, GetRegistrationKeyCmd.class,
+        subcommands = {
+//        DeployApplicationCmd.class,
+                GetRegistrationKeyCmd.class,
                 UpdateConfigCmd.class, RequestAPIAccessCmd.class, AddServerToGroupCmd.class})
 public class AnypointCli extends CliCommand<CliCommand> {
     @Option(description = "Anypoint username", names = {"-u", "--username"})

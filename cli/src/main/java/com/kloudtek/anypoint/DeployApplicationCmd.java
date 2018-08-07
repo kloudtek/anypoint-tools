@@ -102,12 +102,12 @@ public class DeployApplicationCmd extends AbstractEnvironmentCmd {
                             }
                         }
                         logger.info("Deploying application: " + appName);
-                        try {
-                            DeploymentResult application = server.deploy(appName, appArch, appArchFileName, null);
-                            deployed.put(appArch.getName(), application);
-                        } catch (IOException e) {
-                            throw new UserDisplayableException("Error loading application " + appName + " : " + e.getMessage(), e);
-                        }
+//                        try {
+//                            DeploymentResult application = server.deploy(appName, appArch, appArchFileName, null);
+//                            deployed.put(appArch.getName(), application);
+//                        } catch (IOException e) {
+//                            throw new UserDisplayableException("Error loading application " + appName + " : " + e.getMessage(), e);
+//                        }
                     } else {
                         throw new UserDisplayableException("File not found: " + appArch.getPath());
                     }

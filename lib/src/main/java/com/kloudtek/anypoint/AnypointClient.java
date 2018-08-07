@@ -1,10 +1,10 @@
 package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.kloudtek.anypoint.deploy.APIProvisioningService;
-import com.kloudtek.anypoint.deploy.APIProvisioningServiceImpl;
+import com.kloudtek.anypoint.deploy.DeploymentService;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
+import com.kloudtek.util.UnexpectedException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
@@ -23,7 +23,7 @@ public class AnypointClient implements Closeable, Serializable {
     private transient ExecutorService deploymentThreadPool;
     private String username;
     private String password;
-    private com.kloudtek.anypoint.deploy.APIProvisioningService APIProvisioningService;
+    private DeploymentService deploymentService;
 
     /**
      * Contructor used for serialization only
@@ -34,17 +34,34 @@ public class AnypointClient implements Closeable, Serializable {
 
     private void init() {
         jsonHelper = new JsonHelper(this);
-        ServiceLoader<APIProvisioningService> provisioningServiceLoader = ServiceLoader.load(APIProvisioningService.class);
-        Iterator<APIProvisioningService> provisioningServiceIterator = provisioningServiceLoader.iterator();
-        if (provisioningServiceIterator.hasNext()) {
-            APIProvisioningService = provisioningServiceIterator.next();
-            if (provisioningServiceIterator.hasNext()) {
+        deploymentService = loadService(DeploymentService.class);
+        deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
+    }
+
+    private <X> X loadService(Class<X> serviceClass) {
+        X service;
+        ServiceLoader<X> serviceLoader = ServiceLoader.load(serviceClass);
+        Iterator<X> iterator = serviceLoader.iterator();
+        if (iterator.hasNext()) {
+            service = iterator.next();
+            if (iterator.hasNext()) {
                 throw new IllegalStateException("Found multiple implementations of ProvisioningService");
             }
         } else {
-            APIProvisioningService = new APIProvisioningServiceImpl();
+            try {
+                if( serviceClass.isInterface() ) {
+                    service = Class.forName(serviceClass.getName()+"Impl").asSubclass(serviceClass).newInstance();
+                } else {
+                    service = serviceClass.newInstance();
+                }
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new UnexpectedException(e);
+            }
         }
-        deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
+        if( service instanceof Service ) {
+            ((Service) service).setClient(this);
+        }
+        return service;
     }
 
     public AnypointClient(String username, String password) {
@@ -64,10 +81,6 @@ public class AnypointClient implements Closeable, Serializable {
         in.defaultReadObject();
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
     }
-
-//    public List<Transformer> provision(Organization parent, File file, APIProvisioningConfig APIProvisioningConfig, String envSuffix) throws IOException, NotFoundException, HttpException, InvalidAnypointDescriptorException {
-//        return APIProvisioningService.provision(this, parent, file, APIProvisioningConfig, envSuffix);
-//    }
 
     public int getMaxParallelDeployments() {
         return maxParallelDeployments;
@@ -198,5 +211,9 @@ public class AnypointClient implements Closeable, Serializable {
     public String getUserId() throws HttpException {
         // TODO cache this
         return getUser().getId();
+    }
+
+    public DeploymentService getDeploymentService() {
+        return deploymentService;
     }
 }
