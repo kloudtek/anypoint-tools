@@ -6,21 +6,21 @@ import com.kloudtek.anypoint.api.API;
 public class APIAccessDescriptor {
     private String groupId;
     private String assetId;
-    private String version;
+    private String assetVersion;
     private String label;
     private String slaTier;
 
     public APIAccessDescriptor() {
     }
 
-    public APIAccessDescriptor(String groupId, String assetId, String version) {
-        this(groupId,assetId,version,null,null);
+    public APIAccessDescriptor(String groupId, String assetId, String assetVersion) {
+        this(groupId,assetId, assetVersion,null,null);
     }
 
-    public APIAccessDescriptor(String groupId, String assetId, String version, String label, String slaTier) {
+    public APIAccessDescriptor(String groupId, String assetId, String assetVersion, String label, String slaTier) {
         this.groupId = groupId;
         this.assetId = assetId;
-        this.version = version;
+        this.assetVersion = assetVersion;
         this.label = label;
         this.slaTier = slaTier;
     }
@@ -52,12 +52,12 @@ public class APIAccessDescriptor {
     }
 
     @JsonProperty(required = true)
-    public String getVersion() {
-        return version;
+    public String getAssetVersion() {
+        return assetVersion;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setAssetVersion(String assetVersion) {
+        this.assetVersion = assetVersion;
     }
 
     @JsonProperty(required = false)

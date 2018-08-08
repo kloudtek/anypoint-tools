@@ -32,13 +32,13 @@ public class ProvisionedAPI extends APIAccessDescriptor {
 
     @JsonProperty
     @Override
-    public String getVersion() {
+    public String getAssetVersion() {
         return version;
     }
 
     @Override
-    public void setVersion(String version) {
-        this.version = version;
+    public void setAssetVersion(String assetVersion) {
+        this.version = assetVersion;
     }
 
     public Boolean getMule4() {

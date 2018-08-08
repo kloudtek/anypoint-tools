@@ -2,7 +2,6 @@ package com.kloudtek.anypoint.api.provision;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.Environment;
-import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.*;
 import com.kloudtek.anypoint.api.policy.Policy;
@@ -118,7 +117,7 @@ public class APIProvisioningDescriptor {
                 }
                 for (APIAccessDescriptor accessDescriptor: access) {
                     API accessedAPI = environment.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
-                            accessDescriptor.getVersion(), accessDescriptor.getLabel());
+                            accessDescriptor.getAssetVersion(), accessDescriptor.getLabel());
                     APIContract contract;
                     try {
                         contract = accessedAPI.findContract(clientApplication);
