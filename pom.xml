@@ -28,6 +28,7 @@
         <system>Github</system>
         <url>https://github.com/Kloudtek/anypoint-tools/issues</url>
     </issueManagement>
+
     <scm>
         <url>scm:git:git@github.com:Kloudtek/anypoint-tools.git</url>
         <connection>scm:git:git@github.com:Kloudtek/anypoint-tools.git</connection>
@@ -71,7 +72,19 @@
     </reporting>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>com.github.platform-team</groupId>
+                <artifactId>aws-maven</artifactId>
+                <version>6.0.0</version>
+            </extension>
+        </extensions>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.7.1</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -136,6 +149,11 @@
     </repositories>
 
     <distributionManagement>
+        <site>
+            <name>S3 Site</name>
+            <id>kloudtek-s3-docs</id>
+            <url>s3://docs.kloudtek.com/anypoint-tools</url>
+        </site>
         <repository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>

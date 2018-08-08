@@ -17,30 +17,69 @@ import java.io.File;
 
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.DEPLOY, requiresProject = false)
 public class DeployMojo extends AbstractMojo {
+    /**
+     * Anypoint username
+     */
     @Parameter(property = "anypoint.username", required = true)
     private String username;
+    /**
+     * Anypoint password
+     */
     @Parameter(property = "anypoint.password", required = true)
     private String password;
+    /**
+     * Anypoint organization name
+     */
     @Parameter(name = "org", property = "anypoint.org", required = true)
     private String org;
+    /**
+     * Anypoint Environment name
+     */
     @Parameter(name = "env", property = "anypoint.env", required = true)
     private String env;
+    /**
+     * Anypoint target name (Server / Server Group / Cluster)
+     */
     @Parameter(name = "target", property = "anypoint.target", required = true)
     private String target;
+    /**
+     * If true API provisioning will be skipped
+     */
     @Parameter(property = "anypoint.api.provisioning.skip", required = false)
     private boolean skipApiProvisioning;
+    /**
+     * If true deployment will be skipped
+     */
     @Parameter(property = "anypoint.deploy.skip", required = false)
     private boolean skipDeploy;
+    /**
+     * File to deploy (only needed when invoking standalone without a valid pom)
+     */
     @Parameter(property = "anypoint.deploy.file", required = false)
     private File file;
+    /**
+     * Application name
+     */
     @Parameter(property = "anypoint.deploy.name", required = false)
     private String appName;
+    /**
+     * Force deployment even if same already deployed application exists
+     */
     @Parameter(property = "anypoint.deploy.force", required = false)
     private boolean force;
+    /**
+     * If true will skip wait for application to start (successfully or not)
+     */
     @Parameter(property = "anypoint.deploy.skipwait", required = false)
     private boolean skipWait;
+    /**
+     * Deployment timeout
+     */
     @Parameter(property = "anypoint.deploy.timeout", required = false)
     private long deployTimeout = 120000L;
+    /**
+     * Delay (in milliseconds) in retrying a deployment
+     */
     @Parameter(property = "anypoint.deploy.retrydelay", required = false)
     private long deployRetryDelay = 2500L;
 

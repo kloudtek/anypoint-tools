@@ -9,18 +9,20 @@ import com.kloudtek.anypoint.api.APIList;
 import com.kloudtek.anypoint.api.APISpec;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.runtime.ServerGroup;
+import com.kloudtek.util.validation.ValidationUtils;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class Environment extends AnypointObject<Organization> {
-    private static final Logger logger = Logger.getLogger(Environment.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(Environment.class);
     private String id;
     private String name;
     private boolean production;
@@ -190,11 +192,12 @@ public class Environment extends AnypointObject<Organization> {
         throw new NotFoundException("API " + name + " " + version + " not found");
     }
 
-    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @Nullable String version) throws HttpException, NotFoundException {
+    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @NotNull String version) throws HttpException, NotFoundException {
         return findAPIByExchangeAsset(groupId, assetId, version, null);
     }
 
-    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @Nullable String version, @Nullable String label) throws HttpException, NotFoundException {
+    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
+        ValidationUtils.notEmpty(IllegalArgumentException.class,groupId,assetId,version);
         for (APIAsset asset : findAPIs()) {
             if (asset.getGroupId().equalsIgnoreCase(groupId) && asset.getAssetId().equalsIgnoreCase(assetId) ) {
                 for (API api : asset.getApis()) {
