@@ -9,6 +9,7 @@ import com.kloudtek.anypoint.api.APIList;
 import com.kloudtek.anypoint.api.APISpec;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.runtime.ServerGroup;
+import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.kloudtek.util.StringUtils.isBlank;
+import static com.kloudtek.util.StringUtils.isEmpty;
 
 public class Environment extends AnypointObject<Organization> {
     private static final Logger logger = LoggerFactory.getLogger(Environment.class);
@@ -192,22 +196,30 @@ public class Environment extends AnypointObject<Organization> {
         throw new NotFoundException("API " + name + " " + version + " not found");
     }
 
-    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @NotNull String version) throws HttpException, NotFoundException {
-        return findAPIByExchangeAsset(groupId, assetId, version, null);
+    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @NotNull String assetVersion) throws HttpException, NotFoundException {
+        return findAPIByExchangeAsset(groupId, assetId, assetVersion, null);
     }
 
-    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
-        ValidationUtils.notEmpty(IllegalArgumentException.class,groupId,assetId,version);
+    public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @NotNull String assetVersion, @Nullable String label) throws HttpException, NotFoundException {
+        if(isBlank(groupId)) {
+            throw new IllegalArgumentException("groupId missing (null or blank)");
+        }
+        if(isBlank(assetId)) {
+            throw new IllegalArgumentException("assetId missing (null or blank)");
+        }
+        if(isBlank(assetVersion)) {
+            throw new IllegalArgumentException("assetVersion missing (null or blank)");
+        }
         for (APIAsset asset : findAPIs()) {
             if (asset.getGroupId().equalsIgnoreCase(groupId) && asset.getAssetId().equalsIgnoreCase(assetId) ) {
                 for (API api : asset.getApis()) {
-                    if (api.getAssetVersion().equalsIgnoreCase(version) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
+                    if (api.getAssetVersion().equalsIgnoreCase(assetVersion) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
                         return api;
                     }
                 }
             }
         }
-        throw new NotFoundException("API groupId=" + groupId + ", assetId=" + assetId + ", version="+version+", label="+label+" not found");
+        throw new NotFoundException("API based on exchange asset not found: groupId=" + groupId + ", assetId=" + assetId + ", assetVersion="+assetVersion+", label="+label);
     }
 
     public enum Type {
