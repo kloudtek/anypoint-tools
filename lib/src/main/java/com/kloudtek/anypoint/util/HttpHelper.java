@@ -111,6 +111,11 @@ public class HttpHelper implements Closeable {
         return execute(new HttpPut(convertPath(path)), data);
     }
 
+    public String httpPut(String path, Object data, Environment environment) throws HttpException {
+        logger.debug("HTTP PUT " + path);
+        return executeWithDataAndEnv(new HttpPut(convertPath(path)), data, environment);
+    }
+
     public String httpDelete(String path) throws HttpException {
         logger.debug("HTTP DELETE " + path);
         return executeWrapper(new HttpDelete(convertPath(path)), null);

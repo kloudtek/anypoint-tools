@@ -85,7 +85,7 @@ public class Organization extends AnypointObject {
         request.put("type", type.name().toLowerCase());
         request.put("organizationId", id);
         String json = client.getHttpHelper().httpPost("https://anypoint.mulesoft.com/accounts/api/organizations/" + id + "/environments", request);
-        return jsonHelper.readJson(new Environment(this), json);
+        return jsonHelper.readJson(createEnvironmentObject(), json);
     }
 
     public ClientApplication createClientApplication(String name, String url, String description) throws HttpException {
@@ -309,6 +309,16 @@ public class Organization extends AnypointObject {
             }
         }
         throw new NotFoundException("Asset not found: "+groupId+":"+assetId+":"+version);
+    }
+
+    @NotNull
+    protected Environment createEnvironmentObject() {
+        return new Environment(this);
+    }
+
+    @NotNull
+    protected Class<? extends Environment> getEnvironmentClass() {
+        return Environment.class;
     }
 
     public enum RequestAPIAccessResult {

@@ -230,9 +230,10 @@ public class Environment extends AnypointObject<Organization> {
         return API.create(this, apiSpec, mule4, endpointUrl, label);
     }
 
+    @SuppressWarnings("unchecked")
     public static List<Environment> getEnvironments(@NotNull AnypointClient client, @NotNull Organization organization) throws HttpException {
         String json = client.getHttpHelper().httpGet("/accounts/api/organizations/" + organization.getId() + "/environments");
-        return client.getJsonHelper().readJsonList(Environment.class, json, organization, "/data");
+        return client.getJsonHelper().readJsonList((Class<Environment>) organization.getEnvironmentClass(), json, organization, "/data");
     }
 
     @NotNull
@@ -243,5 +244,9 @@ public class Environment extends AnypointObject<Organization> {
             }
         }
         throw new NotFoundException("Environment not found: " + name);
+    }
+
+    public String getNameOrId() {
+        return name != null ? "(name) "+name : "(id) "+id;
     }
 }

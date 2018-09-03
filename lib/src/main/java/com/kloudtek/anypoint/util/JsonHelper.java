@@ -94,12 +94,26 @@ public class JsonHelper implements Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public <X> X readJson(Class<?> objClass, JsonNode node, AnypointObject<?> parent) {
+    public <X> X readJson(Class<X> objClass, JsonNode node, AnypointObject<?> parent) {
         try {
             Object obj = jsonMapper.treeToValue(node, objClass);
             if (obj instanceof AnypointObject) {
                 ((AnypointObject) obj).setJson(node.toString());
                 ((AnypointObject) obj).setParent(parent);
+            }
+            return (X) obj;
+        } catch (JsonProcessingException e) {
+            throw new InvalidJsonException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <X> X readJson(Class<X> objClass, JsonNode node, AnypointClient client) {
+        try {
+            Object obj = jsonMapper.treeToValue(node, objClass);
+            if (obj instanceof AnypointObject) {
+                ((AnypointObject) obj).setJson(node.toString());
+                ((AnypointObject) obj).setClient(client);
             }
             return (X) obj;
         } catch (JsonProcessingException e) {

@@ -8,6 +8,7 @@ import com.kloudtek.util.UnexpectedException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
@@ -109,7 +110,7 @@ public class AnypointClient implements Closeable, Serializable {
         String json = httpHelper.httpGet("/accounts/api/me");
         ArrayList<Organization> list = new ArrayList<>();
         for (JsonNode node : jsonHelper.readJsonTree(json).at("/user/memberOfOrganizations")) {
-            list.add(jsonHelper.readJson(new Organization(this), node));
+            list.add(jsonHelper.readJson(createOrganizationObject(), node));
         }
         return list;
     }
@@ -215,5 +216,14 @@ public class AnypointClient implements Closeable, Serializable {
 
     public DeploymentService getDeploymentService() {
         return deploymentService;
+    }
+
+    public void applyAlerts(File alertsJsonFile) throws IOException, HttpException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @NotNull
+    protected Organization createOrganizationObject() {
+        return new Organization(this);
     }
 }

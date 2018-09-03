@@ -14,15 +14,15 @@ import picocli.CommandLine.Option;
 public class AnypointCli extends CliCommand<CliCommand> {
     @Option(description = "Anypoint username", names = {"-u", "--username"})
     @JsonProperty
-    private String username;
+    protected String username;
     @Option(description = "Anypoint password", names = {"-pw", "--password"}, defaultValueMask = "*************")
     @JsonProperty
-    private String password;
+    protected String password;
     @JsonProperty
-    private String defaultOrganization;
+    protected String defaultOrganization;
     @JsonProperty
-    private String defaultEnvironment;
-    private AnypointClient client;
+    protected String defaultEnvironment;
+    protected AnypointClient client;
 
     public AnypointCli() {
     }
