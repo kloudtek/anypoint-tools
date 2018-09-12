@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "anypoint", showDefaultValues = true, notRequiredWithDefault = true, sortOptions = false,
         subcommands = {
-//        DeployApplicationCmd.class,
+                CHDeployApplicationCmd.class,
                 GetRegistrationKeyCmd.class,
                 UpdateConfigCmd.class, RequestAPIAccessCmd.class, AddServerToGroupCmd.class})
 public class AnypointCli extends CliCommand<CliCommand> {

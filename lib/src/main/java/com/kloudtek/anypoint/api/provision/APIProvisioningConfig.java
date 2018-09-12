@@ -11,7 +11,7 @@ public class APIProvisioningConfig {
     @JsonProperty
     private Map<String, String> variables = new HashMap<>();
     @JsonProperty
-    private final List<String> accessedBy = new ArrayList<>();
+    private List<String> accessedBy = new ArrayList<>();
     @JsonProperty
     private String apiLabel;
     @JsonProperty(defaultValue = "true")
@@ -57,6 +57,10 @@ public class APIProvisioningConfig {
 
     public void addAccessedBy(String clientAppName) {
         accessedBy.add(clientAppName);
+    }
+
+    public void setAccessedBy(List<String> accessedBy) {
+        this.accessedBy = accessedBy;
     }
 
     public String getDescriptorLocation() {

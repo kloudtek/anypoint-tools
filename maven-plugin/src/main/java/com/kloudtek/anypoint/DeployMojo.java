@@ -1,7 +1,7 @@
 package com.kloudtek.anypoint;
 
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
-import com.kloudtek.anypoint.runtime.DeploymentResult;
+import com.kloudtek.anypoint.runtime.HDeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -119,7 +119,7 @@ public class DeployMojo extends AbstractMojo {
                 log.debug("Found target " + target + " : " + t.getId());
                 log.debug("Deploying " + file.getName());
                 APIProvisioningConfig apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
-                DeploymentResult app = t.deployOnPrem(appName, file, apiProvisioningConfig);
+                HDeploymentResult app = t.deployOnPrem(appName, file, apiProvisioningConfig);
                 if (!skipWait) {
                     log.info("Waiting for application start");
                     app.waitDeployed(deployTimeout, deployRetryDelay);

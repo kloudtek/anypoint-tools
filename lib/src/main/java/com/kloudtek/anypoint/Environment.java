@@ -7,23 +7,30 @@ import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.APIAsset;
 import com.kloudtek.anypoint.api.APIList;
 import com.kloudtek.anypoint.api.APISpec;
+import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
+import com.kloudtek.anypoint.api.provision.ProvisioningException;
+import com.kloudtek.anypoint.cloudhub.CHMuleVersion;
+import com.kloudtek.anypoint.cloudhub.CHRegion;
+import com.kloudtek.anypoint.cloudhub.CHWorkerType;
+import com.kloudtek.anypoint.runtime.CHApplication;
+import com.kloudtek.anypoint.runtime.HDeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.runtime.ServerGroup;
-import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.validation.ValidationUtils;
+import com.kloudtek.util.UnexpectedException;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.kloudtek.util.StringUtils.isBlank;
-import static com.kloudtek.util.StringUtils.isEmpty;
 
 public class Environment extends AnypointObject<Organization> {
     private static final Logger logger = LoggerFactory.getLogger(Environment.class);
@@ -201,17 +208,17 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @NotNull String assetVersion, @Nullable String label) throws HttpException, NotFoundException {
-        if(isBlank(groupId)) {
+        if (isBlank(groupId)) {
             throw new IllegalArgumentException("groupId missing (null or blank)");
         }
-        if(isBlank(assetId)) {
+        if (isBlank(assetId)) {
             throw new IllegalArgumentException("assetId missing (null or blank)");
         }
-        if(isBlank(assetVersion)) {
+        if (isBlank(assetVersion)) {
             throw new IllegalArgumentException("assetVersion missing (null or blank)");
         }
         for (APIAsset asset : findAPIs()) {
-            if (asset.getGroupId().equalsIgnoreCase(groupId) && asset.getAssetId().equalsIgnoreCase(assetId) ) {
+            if (asset.getGroupId().equalsIgnoreCase(groupId) && asset.getAssetId().equalsIgnoreCase(assetId)) {
                 for (API api : asset.getApis()) {
                     if (api.getAssetVersion().equalsIgnoreCase(assetVersion) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
                         return api;
@@ -219,7 +226,11 @@ public class Environment extends AnypointObject<Organization> {
                 }
             }
         }
-        throw new NotFoundException("API based on exchange asset not found: groupId=" + groupId + ", assetId=" + assetId + ", assetVersion="+assetVersion+", label="+label);
+        throw new NotFoundException("API based on exchange asset not found: groupId=" + groupId + ", assetId=" + assetId + ", assetVersion=" + assetVersion + ", label=" + label);
+    }
+
+    public CHApplication findCHApplication(String domain) throws HttpException, NotFoundException {
+        return CHApplication.find(this,domain);
     }
 
     public enum Type {
@@ -247,6 +258,67 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public String getNameOrId() {
-        return name != null ? "(name) "+name : "(id) "+id;
+        return name != null ? "(name) " + name : "(id) " + id;
+    }
+
+    public List<CHMuleVersion> findCHMuleVersions() throws HttpException {
+        String json = client.getHttpHelper().httpGet("/cloudhub/api/mule-versions", this);
+        return client.getJsonHelper().readJsonList(CHMuleVersion.class, json, this, "/data");
+    }
+
+    public CHMuleVersion findDefaultCHMuleVersion() throws HttpException {
+        for (CHMuleVersion version : findCHMuleVersions()) {
+            if( version.isDefaultVersion() ) {
+                return version;
+            }
+        }
+        throw new UnexpectedException("No default mule version found");
+    }
+
+    public CHMuleVersion findCHMuleVersion(String muleVersion) throws NotFoundException, HttpException {
+        for (CHMuleVersion version : findCHMuleVersions()) {
+            if( version.getVersion().equalsIgnoreCase(muleVersion)) {
+                return version;
+            }
+        }
+        throw new NotFoundException("Unable to find mule version "+muleVersion);
+    }
+
+    public List<CHRegion> findCHRegions() throws HttpException {
+        String json = client.getHttpHelper().httpGet("/cloudhub/api/regions", this);
+        return client.getJsonHelper().readJsonList(CHRegion.class, json, this);
+    }
+
+    public CHRegion findDefaultCHRegion() throws HttpException {
+        for (CHRegion region : findCHRegions()) {
+            if( region.isDefaultRegion() ) {
+                return region;
+            }
+        }
+        throw new UnexpectedException("No default mule version found");
+    }
+
+    public List<CHWorkerType> findWorkerTypes() throws HttpException {
+        String json = client.getHttpHelper().httpGet("/cloudhub/api/organization", this);
+        return client.getJsonHelper().readJsonList(CHWorkerType.class, json, this,"/plan/workerTypes");
+    }
+
+    public CHWorkerType findWorkerType(String name) throws HttpException, NotFoundException {
+        for (CHWorkerType workerType : findWorkerTypes()) {
+            if( workerType.getName().equalsIgnoreCase(name)) {
+                return workerType;
+            }
+        }
+        throw new NotFoundException("Unable to find worker type in plan: "+name);
+    }
+
+    public CHWorkerType findSmallestWorkerType() throws HttpException {
+        CHWorkerType smallest = null;
+        for (CHWorkerType workerType : findWorkerTypes()) {
+            if( smallest == null || smallest.getWorkerVal().compareTo(workerType.getWorkerVal()) > 0 ) {
+                smallest = workerType;
+            }
+        }
+        return smallest;
     }
 }

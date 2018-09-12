@@ -53,16 +53,16 @@ public class ApplicationDeploymentFailedException extends Exception {
         this.messages = messages;
     }
 
-    public static ApplicationDeploymentFailedException create(Application application) {
+    public static ApplicationDeploymentFailedException create(HApplication application) {
         if (application.getApplicationDeployments() != null) {
             int successful = 0;
             int failed = 0;
             int other = 0;
             ArrayList<String> messages = new ArrayList<>();
             for (ApplicationDeployment deployment : application.getApplicationDeployments()) {
-                if (DeploymentResult.DEPLOYMENT_FAILED.equals(deployment.getLastReportedStatus())) {
+                if (HDeploymentResult.DEPLOYMENT_FAILED.equals(deployment.getLastReportedStatus())) {
                     failed++;
-                } else if (DeploymentResult.STARTED.equals(deployment.getLastReportedStatus())) {
+                } else if (HDeploymentResult.STARTED.equals(deployment.getLastReportedStatus())) {
                     successful++;
                 } else {
                     other++;

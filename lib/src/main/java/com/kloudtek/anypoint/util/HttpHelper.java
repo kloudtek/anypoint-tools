@@ -138,6 +138,13 @@ public class HttpHelper implements Closeable {
         return new MultiPartRequest(request);
     }
 
+
+    public MultiPartRequest createMultiPartPutRequest(String url, Environment environment) {
+        HttpPut request = new HttpPut(convertPath(url));
+        environment.addHeaders(request);
+        return new MultiPartRequest(request);
+    }
+
     private String execute(@NotNull HttpEntityEnclosingRequestBase method, Object data) throws HttpException {
         if (data != null) {
             if (data instanceof HttpEntity) {

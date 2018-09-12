@@ -3,11 +3,10 @@ package com.kloudtek.anypoint.runtime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.HttpException;
-import com.kloudtek.util.ThreadUtils;
 
 import java.util.List;
 
-public class Application extends AnypointObject<Server> {
+public class HApplication extends AnypointObject<Server> {
     private Integer id;
     private String name;
     private String desiredStatus;
@@ -16,11 +15,11 @@ public class Application extends AnypointObject<Server> {
     private ApplicationArtifact artifact;
     private List<ApplicationDeployment> applicationDeployments;
 
-    public Application(Server parent) {
+    public HApplication(Server parent) {
         super(parent);
     }
 
-    public Application() {
+    public HApplication() {
     }
 
     public String getUriPath() {
@@ -94,8 +93,8 @@ public class Application extends AnypointObject<Server> {
         return artifact != null && artifact.getFileChecksum().equals(digest);
     }
 
-    public Application refresh() throws HttpException {
+    public HApplication refresh() throws HttpException {
         String json = httpHelper.httpGet(getUriPath(), parent.getParent());
-        return jsonHelper.readJson(new Application(parent), json, "/data");
+        return jsonHelper.readJson(new HApplication(parent), json, "/data");
     }
 }
