@@ -7,8 +7,8 @@
     <groupId>com.kloudtek.anypoint-tools</groupId>
     <artifactId>anypoint-tools</artifactId>
     <name>Anypoint tools</name>
-    <description>Various tools and library for interacting with anypoint server</description>
-    <url>https://github.com/Kloudtek/anypoint-tools</url>
+    <description>Anypoint tools greatly facilitate interaction with mulesoft's anypoint services</description>
+    <url>https://github.com/kloudtek/anypoint-tools</url>
     <packaging>pom</packaging>
     <version>0.9-SNAPSHOT</version>
 
@@ -26,7 +26,7 @@
 
     <issueManagement>
         <system>Github</system>
-        <url>https://github.com/Kloudtek/anypoint-tools/issues</url>
+        <url>https://github.com/kloudtek/anypoint-tools/issues</url>
     </issueManagement>
 
     <scm>

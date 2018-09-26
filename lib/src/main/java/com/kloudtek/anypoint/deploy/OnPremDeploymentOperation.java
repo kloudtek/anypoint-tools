@@ -2,26 +2,18 @@ package com.kloudtek.anypoint.deploy;
 
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
-import com.kloudtek.anypoint.NotFoundException;
-import com.kloudtek.anypoint.runtime.HApplication;
 import com.kloudtek.anypoint.runtime.HDeploymentResult;
-import com.kloudtek.anypoint.runtime.Server;
-import com.kloudtek.anypoint.util.HttpHelper;
-import com.kloudtek.anypoint.util.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
 
 public class OnPremDeploymentOperation implements DeploymentOperation {
     private static final Logger logger = LoggerFactory.getLogger(OnPremDeploymentOperation.class);
-    private final OnPremDeploymentRequest request;
+    private final HDeploymentRequest request;
 
-    public OnPremDeploymentOperation(OnPremDeploymentRequest request) {
+    public OnPremDeploymentOperation(HDeploymentRequest request) {
         this.request = request;
     }
 

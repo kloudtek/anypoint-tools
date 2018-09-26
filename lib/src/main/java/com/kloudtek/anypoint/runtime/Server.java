@@ -70,10 +70,6 @@ public class Server extends AnypointObject<Environment> {
         }
     }
 
-    public HDeploymentResult deployOnPrem(@NotNull String name, @NotNull File file, APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException, ProvisioningException {
-        return client.getDeploymentService().deployOnPrem(this,name,file,file.getName(),apiProvisioningConfig);
-    }
-
     public List<HApplication> listApplication() throws HttpException {
         String json = httpHelper.httpGet("/hybrid/api/v1/applications?targetId=" + id, parent);
         return jsonHelper.readJsonList(HApplication.class, json, this, "/data");

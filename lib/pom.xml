@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>anypoint-lib</artifactId>
+    <name>Anypoint Tools Library</name>
 
     <properties>
         <skipTests>true</skipTests>

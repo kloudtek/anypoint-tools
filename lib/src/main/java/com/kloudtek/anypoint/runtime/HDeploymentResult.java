@@ -7,7 +7,7 @@ import com.kloudtek.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class HDeploymentResult extends DeploymentResult {
+public class HDeploymentResult extends DeploymentResult {
     private static final Logger logger = LoggerFactory.getLogger(HDeploymentResult.class);
     static final String DEPLOYMENT_FAILED = "DEPLOYMENT_FAILED";
     static final String STARTED = "STARTED";

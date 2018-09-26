@@ -5,7 +5,7 @@
         <version>1.7</version>
     </skin>
     <bannerLeft>
-        <src>http://www.kloudtek.com/logo-dark.png</src>
+        <src>https://www.kloudtek.com/javax.faces.resource/img/logo-sm.png.xhtml?ln=kt</src>
     </bannerLeft>
     <body>
         <menu ref="parent"/>
