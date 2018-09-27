@@ -59,6 +59,10 @@ public class Organization extends AnypointObject {
         return Environment.getEnvironmentByName(name, client, this);
     }
 
+    public String getParentId() {
+        return parentId;
+    }
+
     public Organization getParentOrganization() throws HttpException {
         if (parentId != null) {
             try {
