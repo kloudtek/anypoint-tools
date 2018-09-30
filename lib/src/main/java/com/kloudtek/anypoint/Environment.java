@@ -252,6 +252,16 @@ public class Environment extends AnypointObject<Organization> {
         throw new NotFoundException("Environment not found: " + name);
     }
 
+    @NotNull
+    public static Environment fineEnvironmentById(@NotNull String id, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, NotFoundException {
+        for (Environment environment : findEnvironmentsByOrg(client, organization)) {
+            if (id.equals(environment.getId())) {
+                return environment;
+            }
+        }
+        throw new NotFoundException("Environment with id "+id+" not found within org "+organization.getId());
+    }
+
     public String getNameOrId() {
         return name != null ? "(name) " + name : "(id) " + id;
     }

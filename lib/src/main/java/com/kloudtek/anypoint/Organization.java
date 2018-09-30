@@ -66,6 +66,11 @@ public class Organization extends AnypointObject {
         return Environment.fineEnvironmentByName(name, client, this);
     }
 
+    @NotNull
+    public Environment findEnvironmentById(@NotNull String id) throws NotFoundException, HttpException {
+        return Environment.fineEnvironmentById(id, client, this);
+    }
+
     public String getParentId() {
         return parentId;
     }
