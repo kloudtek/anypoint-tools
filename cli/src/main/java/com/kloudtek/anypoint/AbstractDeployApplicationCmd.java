@@ -67,7 +67,7 @@ public abstract class AbstractDeployApplicationCmd extends AbstractEnvironmentCm
         if (file == null) {
             throw new UserDisplayableException("File to deploy not specified");
         }
-        if( filename == null ) {
+        if (filename == null) {
             filename = file.getName();
         }
         apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();

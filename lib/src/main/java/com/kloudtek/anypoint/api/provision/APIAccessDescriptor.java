@@ -14,7 +14,7 @@ public class APIAccessDescriptor {
     }
 
     public APIAccessDescriptor(String groupId, String assetId, String assetVersion) {
-        this(groupId,assetId, assetVersion,null,null);
+        this(groupId, assetId, assetVersion, null, null);
     }
 
     public APIAccessDescriptor(String groupId, String assetId, String assetVersion, String label, String slaTier) {
@@ -26,11 +26,11 @@ public class APIAccessDescriptor {
     }
 
     public APIAccessDescriptor(API api) {
-        this(api,null);
+        this(api, null);
     }
 
     public APIAccessDescriptor(API api, String slaTier) {
-        this(api.getGroupId(),api.getAssetId(),api.getAssetVersion(),api.getInstanceLabel(),slaTier);
+        this(api.getGroupId(), api.getAssetId(), api.getAssetVersion(), api.getInstanceLabel(), slaTier);
     }
 
     @JsonProperty(required = true)

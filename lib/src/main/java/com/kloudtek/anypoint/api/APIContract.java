@@ -62,8 +62,8 @@ public class APIContract extends AnypointObject<API> {
     }
 
     private String getOpsURLPath() {
-        return "/apimanager/xapi/v1/organizations/" + parent.getParent().getParent().getId() + "/environments/"+
-                parent.getParent().getId() + "/apis/" + parent.getId() +"/contracts/"+id;
+        return "/apimanager/xapi/v1/organizations/" + parent.getParent().getParent().getId() + "/environments/" +
+                parent.getParent().getId() + "/apis/" + parent.getId() + "/contracts/" + id;
     }
 
     public String getURLPath() {

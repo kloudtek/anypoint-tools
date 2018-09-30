@@ -271,8 +271,8 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public void setVersions(List<AssetVersion> versions) {
         this.versions = versions;
-        if(versions!=null) {
-            for (AssetVersion assetVersion: versions) {
+        if (versions != null) {
+            for (AssetVersion assetVersion : versions) {
                 assetVersion.setParent(this);
             }
         }

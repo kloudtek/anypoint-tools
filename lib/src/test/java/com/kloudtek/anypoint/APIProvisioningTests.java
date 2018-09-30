@@ -23,7 +23,7 @@ public class APIProvisioningTests extends AbstractAnypointTest {
         // provision api 2
         APIProvisioningDescriptor apd2 = addClientIdPolicy(new APIProvisioningDescriptor(TESTAPI2, V1));
         apd2.addAccess(res1.getApi());
-        apd2.addSlaTier(new SLATierDescriptor("testtier",false, new SLATierLimits(true,1,1)));
+        apd2.addSlaTier(new SLATierDescriptor("testtier", false, new SLATierLimits(true, 1, 1)));
         APIProvisioningResult res2 = provision(config, apd2);
         // test changing client id expression
         assertEquals(2, env.findAPIs(null).size());

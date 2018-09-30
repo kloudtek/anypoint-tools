@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "addservertogroup", description = "Add a server to a group", sortOptions = false)
@@ -25,12 +24,12 @@ public class AddServerToGroupCmd extends AbstractEnvironmentCmd {
         logger.info("Adding server " + serverName + " to server group/cluster " + groupName + " within env " + environment.getName() + " of org " + environment.getOrganization().getName());
         Server server;
         try {
-            server = environment.findServer(serverName);
+            server = environment.findServerByName(serverName);
         } catch (NotFoundException e) {
             throw new UserDisplayableException("Unable to find server " + serverName + " in org '" + environment.getOrganization().getName() + "', env '" + environment.getName() + "'");
         }
         try {
-            Server group = environment.findServer(groupName);
+            Server group = environment.findServerByName(groupName);
             if (group instanceof ServerGroup) {
                 ((ServerGroup) group).addServer(server);
             } else {

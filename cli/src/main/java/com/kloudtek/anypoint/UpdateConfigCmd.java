@@ -51,7 +51,7 @@ public class UpdateConfigCmd extends CliCommand<AnypointCli> {
                     Organization organization = anypointClient.findOrganization(defaultOrg);
                     if (defaultEnv != null) {
                         try {
-                            organization.findEnvironment(defaultEnv);
+                            organization.findEnvironmentByName(defaultEnv);
                         } catch (NotFoundException e) {
                             logger.warn("WARNING: Default environment " + defaultEnv + " not found");
                         }

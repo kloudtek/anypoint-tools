@@ -21,13 +21,13 @@ public class SLATierDescriptor {
         this.name = name;
         this.description = description;
         this.autoApprove = autoApprove;
-        if( limits != null ) {
+        if (limits != null) {
             this.limits = Arrays.asList(limits);
         }
     }
 
     public SLATierDescriptor(String name, boolean autoApprove, SLATierLimits... limits) {
-        this(name,null,autoApprove,limits);
+        this(name, null, autoApprove, limits);
     }
 
     public String getName() {

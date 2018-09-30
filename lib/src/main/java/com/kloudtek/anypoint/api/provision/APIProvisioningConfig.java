@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.*;
 
 public class APIProvisioningConfig {
-    private static final String APICONFIG_PROPERTIES = "apiconfig.properties";
+    private static final String CONFIG_FILE = "config.properties";
     @JsonProperty(defaultValue = "anypoint.json")
     private String descriptorLocation = "anypoint.json";
     @JsonProperty
@@ -18,14 +18,12 @@ public class APIProvisioningConfig {
     private boolean autoApproveAPIAccessRequest = true;
     @JsonProperty(defaultValue = "true")
     private boolean injectApiId = true;
-    @JsonProperty(defaultValue = APICONFIG_PROPERTIES)
-    private String injectApiIdFile = APICONFIG_PROPERTIES;
+    @JsonProperty(defaultValue = CONFIG_FILE)
+    private String configFile = CONFIG_FILE;
     @JsonProperty(defaultValue = "anypoint.apiId")
     private String injectApiIdKey = "anypoint.apiId";
     @JsonProperty(defaultValue = "true")
     private boolean injectClientIdSecret = true;
-    @JsonProperty(defaultValue = APICONFIG_PROPERTIES)
-    private String injectClientIdSecretFile = APICONFIG_PROPERTIES;
     @JsonProperty(defaultValue = "anypoint.client")
     private String injectClientIdSecretKey = "anypoint.client";
 
@@ -48,6 +46,9 @@ public class APIProvisioningConfig {
     }
 
     public void setVariable(String key, String value) {
+        if( variables == null ) {
+            variables = new HashMap<>();
+        }
         variables.put(key, value);
     }
 
@@ -99,12 +100,12 @@ public class APIProvisioningConfig {
         this.injectApiId = injectApiId;
     }
 
-    public String getInjectApiIdFile() {
-        return injectApiIdFile;
+    public String getConfigFile() {
+        return configFile;
     }
 
-    public void setInjectApiIdFile(String injectApiIdFile) {
-        this.injectApiIdFile = injectApiIdFile;
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
     }
 
     public String getInjectApiIdKey() {
@@ -121,14 +122,6 @@ public class APIProvisioningConfig {
 
     public void setInjectClientIdSecret(boolean injectClientIdSecret) {
         this.injectClientIdSecret = injectClientIdSecret;
-    }
-
-    public String getInjectClientIdSecretFile() {
-        return injectClientIdSecretFile;
-    }
-
-    public void setInjectClientIdSecretFile(String injectClientIdSecretFile) {
-        this.injectClientIdSecretFile = injectClientIdSecretFile;
     }
 
     public String getInjectClientIdSecretKey() {
@@ -151,15 +144,14 @@ public class APIProvisioningConfig {
                 Objects.equals(variables, that.variables) &&
                 Objects.equals(accessedBy, that.accessedBy) &&
                 Objects.equals(apiLabel, that.apiLabel) &&
-                Objects.equals(injectApiIdFile, that.injectApiIdFile) &&
+                Objects.equals(configFile, that.configFile) &&
                 Objects.equals(injectApiIdKey, that.injectApiIdKey) &&
-                Objects.equals(injectClientIdSecretFile, that.injectClientIdSecretFile) &&
                 Objects.equals(injectClientIdSecretKey, that.injectClientIdSecretKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel, autoApproveAPIAccessRequest, injectApiId, injectApiIdFile, injectApiIdKey, injectClientIdSecret, injectClientIdSecretFile, injectClientIdSecretKey);
+        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel, autoApproveAPIAccessRequest, injectApiId, configFile, injectApiIdKey, injectClientIdSecret, injectClientIdSecretKey);
     }
 
     @Override
@@ -171,10 +163,9 @@ public class APIProvisioningConfig {
                 .add("apiLabel='" + apiLabel + "'")
                 .add("autoApproveAPIAccessRequest=" + autoApproveAPIAccessRequest)
                 .add("injectApiId=" + injectApiId)
-                .add("injectApiIdFile='" + injectApiIdFile + "'")
+                .add("configFile='" + configFile + "'")
                 .add("injectApiIdKey='" + injectApiIdKey + "'")
                 .add("injectClientIdSecret=" + injectClientIdSecret)
-                .add("injectClientIdSecretFile='" + injectClientIdSecretFile + "'")
                 .add("injectClientIdSecretKey='" + injectClientIdSecretKey + "'")
                 .toString();
     }

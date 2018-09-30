@@ -23,7 +23,7 @@ public abstract class AbstractEnvironmentCmd extends AbstractOrganizationalCmd {
         }
         Environment environment = null;
         try {
-            environment = organization.findEnvironment(environmentName);
+            environment = organization.findEnvironmentByName(environmentName);
         } catch (NotFoundException e) {
             if (createEnvironment) {
                 organization.createEnvironment(environmentName, createEnvironmentType);

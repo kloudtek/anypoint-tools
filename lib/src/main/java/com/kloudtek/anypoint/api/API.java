@@ -76,8 +76,8 @@ public class API extends AnypointObject<Environment> {
     }
 
     public APIContract findContract(ClientApplication clientApplication) throws HttpException, NotFoundException {
-        for (APIContract contract: findContracts()) {
-            if( contract.getApplicationId().equals(clientApplication.getId()) ) {
+        for (APIContract contract : findContracts()) {
+            if (contract.getApplicationId().equals(clientApplication.getId())) {
                 return contract;
             }
         }
@@ -89,8 +89,8 @@ public class API extends AnypointObject<Environment> {
     }
 
     public SLATier findSLATier(@NotNull String name) throws HttpException, NotFoundException {
-        for (SLATier slaTier: findSLATiers()) {
-            if( slaTier.getName().equals(name) ) {
+        for (SLATier slaTier : findSLATiers()) {
+            if (slaTier.getName().equals(name)) {
                 return slaTier;
             }
         }
@@ -99,9 +99,9 @@ public class API extends AnypointObject<Environment> {
 
     public SLATier createSLATier(String name, String description, boolean autoApprove, List<SLATierLimits> limits) throws HttpException {
         String json = client.getHttpHelper().httpPost("https://anypoint.mulesoft.com/apimanager/api/v1/organizations/" +
-                parent.getParent().getId() + "/environments/" + parent.getId() + "/apis/" + id + "/tiers",
-                new SLATierCreateRequest(this,name,description,autoApprove,limits));
-        return jsonHelper.readJson(new SLATier(this), json );
+                        parent.getParent().getId() + "/environments/" + parent.getId() + "/apis/" + id + "/tiers",
+                new SLATierCreateRequest(this, name, description, autoApprove, limits));
+        return jsonHelper.readJson(new SLATier(this), json);
     }
 
     public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, boolean mule4, @Nullable String endpointUrl, @Nullable String label) throws HttpException {

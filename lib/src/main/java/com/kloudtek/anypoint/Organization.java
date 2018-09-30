@@ -3,9 +3,9 @@ package com.kloudtek.anypoint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.api.*;
+import com.kloudtek.anypoint.exchange.AssetList;
 import com.kloudtek.anypoint.exchange.AssetVersion;
 import com.kloudtek.anypoint.exchange.ExchangeAsset;
-import com.kloudtek.anypoint.exchange.AssetList;
 import com.kloudtek.anypoint.exchange.ExchangeAssetOverview;
 import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.util.ThreadUtils;
@@ -14,17 +14,20 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Organization extends AnypointObject {
     private static final Logger logger = LoggerFactory.getLogger(Organization.class);
     @JsonProperty
-    private String id;
+    protected String id;
     @JsonProperty
-    private String name;
+    protected String name;
     @JsonProperty
-    private String parentId;
+    protected String parentId;
 
     public Organization() {
     }
@@ -42,6 +45,10 @@ public class Organization extends AnypointObject {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -50,17 +57,21 @@ public class Organization extends AnypointObject {
         this.name = name;
     }
 
-    public List<Environment> findEnvironments() throws HttpException {
-        return Environment.getEnvironments(client, this);
+    public List<Environment> findAllEnvironments() throws HttpException {
+        return Environment.findEnvironmentsByOrg(client, this);
     }
 
     @NotNull
-    public Environment findEnvironment(@NotNull String name) throws NotFoundException, HttpException {
-        return Environment.getEnvironmentByName(name, client, this);
+    public Environment findEnvironmentByName(@NotNull String name) throws NotFoundException, HttpException {
+        return Environment.fineEnvironmentByName(name, client, this);
     }
 
     public String getParentId() {
         return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 
     public Organization getParentOrganization() throws HttpException {
@@ -106,23 +117,23 @@ public class Organization extends AnypointObject {
                 0, 0, 0, 0, 0, 0);
     }
 
-    public List<ClientApplication> listClientApplications() throws HttpException {
-        return listClientApplications(null);
+    public List<ClientApplication> findAllClientApplications() throws HttpException {
+        return findAllClientApplications(null);
     }
 
-    public List<ClientApplication> listClientApplications(@Nullable String filter) throws HttpException {
+    public List<ClientApplication> findAllClientApplications(@Nullable String filter) throws HttpException {
         return ClientApplication.find(getRootOrganization(), filter);
     }
 
-    public ClientApplication findClientApplication(@NotNull String name) throws HttpException, NotFoundException {
-        return findClientApplication(name, true);
+    public ClientApplication findClientApplicationByName(@NotNull String name) throws HttpException, NotFoundException {
+        return findClientApplicationByName(name, true);
     }
 
-    public ClientApplication findClientApplication(@NotNull String name, boolean fullData) throws HttpException, NotFoundException {
-        ClientApplication app = findClientApplication(new ClientApplicationList(this, name), name, fullData);
+    public ClientApplication findClientApplicationByName(@NotNull String name, boolean fullData) throws HttpException, NotFoundException {
+        ClientApplication app = findClientApplicationByName(new ClientApplicationList(this, name), name, fullData);
         if (app == null) {
             // #@$@##@$ anypoint filtering sometimes doesn't work
-            app = findClientApplication(listClientApplications(name), name, fullData);
+            app = findClientApplicationByName(findAllClientApplications(name), name, fullData);
         }
         if (app == null) {
             throw new NotFoundException("Client application not found: " + name);
@@ -132,8 +143,8 @@ public class Organization extends AnypointObject {
     }
 
     @Nullable
-    private ClientApplication findClientApplication(Iterable<ClientApplication> list, @NotNull String name, boolean fullData) throws HttpException {
-        for (ClientApplication app: list) {
+    private ClientApplication findClientApplicationByName(Iterable<ClientApplication> list, @NotNull String name, boolean fullData) throws HttpException {
+        for (ClientApplication app : list) {
             if (name.equals(app.getName())) {
                 if (fullData) {
                     return jsonHelper.readJson(app, httpHelper.httpGet(app.getUriPath()));
@@ -146,12 +157,12 @@ public class Organization extends AnypointObject {
     }
 
     @NotNull
-    public APISpecList findAPISpecs(@Nullable String filter) throws HttpException {
+    public APISpecList findAPISpecsByFilter(@Nullable String filter) throws HttpException {
         return new APISpecList(this, filter);
     }
 
     public APISpec findAPISpecsByNameAndVersion(String name, String version) throws NotFoundException, HttpException {
-        for (APISpec apiSpec: findAPISpecs(name)) {
+        for (APISpec apiSpec : findAPISpecsByFilter(name)) {
             if (apiSpec.getName().equalsIgnoreCase(name) && apiSpec.getVersion().equalsIgnoreCase(version)) {
                 return apiSpec;
             }
@@ -179,24 +190,24 @@ public class Organization extends AnypointObject {
     public void delete() throws HttpException {
         deleteSubElements();
         long timeout = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60);
-        for(;;) {
+        for (; ; ) {
             try {
                 httpHelper.httpDelete("/accounts/api/organizations/" + id);
                 break;
             } catch (HttpException e) {
-                if( System.currentTimeMillis() > timeout ) {
+                if (System.currentTimeMillis() > timeout) {
                     throw e;
                 } else {
                     deleteSubElements();
                     ThreadUtils.sleep(1500);
                 }
             }
-        };
+        }
     }
 
     private void deleteSubElements() throws HttpException {
-        for (Environment environment: findEnvironments()) {
-            for (APIAsset api: environment.findAPIs(null)) {
+        for (Environment environment : findAllEnvironments()) {
+            for (APIAsset api : environment.findAPIs(null)) {
                 api.delete();
             }
         }
@@ -211,7 +222,7 @@ public class Organization extends AnypointObject {
 //    public RequestAPIAccessResult requestAPIAccess(String clientApplicationName, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
 //        ClientApplication clientApplication;
 //        try {
-//            clientApplication = findClientApplication(clientApplicationName);
+//            clientApplication = findClientApplicationByName(clientApplicationName);
 //        } catch (NotFoundException e) {
 //            clientApplication = createClientApplication(clientApplicationName, "", "");
 //        }
@@ -277,7 +288,7 @@ public class Organization extends AnypointObject {
     }
 
     public DesignCenterProject findDesignCenterProject(String name) throws NotFoundException, HttpException {
-        for (DesignCenterProject project: findDesignCenterProjects()) {
+        for (DesignCenterProject project : findDesignCenterProjects()) {
             if (name.equalsIgnoreCase(project.getName())) {
                 return project;
             }
@@ -298,21 +309,21 @@ public class Organization extends AnypointObject {
     }
 
     public ExchangeAsset findExchangeAsset(@NotNull String groupId, @NotNull String assetId) throws HttpException, NotFoundException {
-        for (ExchangeAssetOverview assetOverview: findExchangeAssets()) {
-            if( groupId.equals(assetOverview.getGroupId()) && assetId.equals(assetOverview.getAssetId()) ) {
+        for (ExchangeAssetOverview assetOverview : findExchangeAssets()) {
+            if (groupId.equals(assetOverview.getGroupId()) && assetId.equals(assetOverview.getAssetId())) {
                 return assetOverview.getAsset();
             }
         }
-        throw new NotFoundException("Asset not found: "+groupId+":"+assetId);
+        throw new NotFoundException("Asset not found: " + groupId + ":" + assetId);
     }
 
     public AssetVersion findExchangeAssetVersion(@NotNull String groupId, @NotNull String assetId, @NotNull String version) throws HttpException, NotFoundException {
-        for (AssetVersion assetVersion: findExchangeAsset(groupId,assetId).getVersions()) {
-            if( version.equals(assetVersion.getVersion()) ) {
+        for (AssetVersion assetVersion : findExchangeAsset(groupId, assetId).getVersions()) {
+            if (version.equals(assetVersion.getVersion())) {
                 return assetVersion;
             }
         }
-        throw new NotFoundException("Asset not found: "+groupId+":"+assetId+":"+version);
+        throw new NotFoundException("Asset not found: " + groupId + ":" + assetId + ":" + version);
     }
 
     @NotNull
@@ -324,6 +335,7 @@ public class Organization extends AnypointObject {
     protected Class<? extends Environment> getEnvironmentClass() {
         return Environment.class;
     }
+
 
     public enum RequestAPIAccessResult {
         GRANTED, RESTORED, PENDING

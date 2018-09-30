@@ -27,7 +27,7 @@ public class MavenUtils {
     }
 
     public static boolean isTemplateOrExample(MavenProject project) {
-        if( project != null ) {
+        if (project != null) {
             for (Artifact artifact : project.getAttachedArtifacts()) {
                 String classifier = artifact.getClassifier();
                 if (classifier.equals("mule-application-template") || classifier.equals("mule-application-example")) {

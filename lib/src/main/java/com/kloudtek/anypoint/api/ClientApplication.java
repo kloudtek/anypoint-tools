@@ -138,13 +138,13 @@ public class ClientApplication extends AnypointObject<Organization> {
                 .set("assetId", apiVersion.getAssetId())
                 .set("version", apiVersion.getAssetVersion())
                 .set("productAPIVersion", apiVersion.getProductVersion());
-        if( tier != null && tier.getId() == null ) {
+        if (tier != null && tier.getId() == null) {
             throw new IllegalArgumentException("Tier is missing tier id");
         }
         Long tierId = tier != null ? tier.getId() : null;
-        if( tierId == null ) {
+        if (tierId == null) {
             SLATierList apiTiers = apiVersion.findSLATiers();
-            if( apiTiers.size() == 1 ) {
+            if (apiTiers.size() == 1) {
                 tierId = apiTiers.iterator().next().getId();
             }
         }
@@ -152,7 +152,7 @@ public class ClientApplication extends AnypointObject<Organization> {
             mapBuilder.set("requestedTierId", tierId);
         }
         Map<String, Object> req = mapBuilder.toMap();
-        String json = httpHelper.httpPost("/exchange/api/v1/organizations/"+ parent.getId() +"/applications/" + id + "/contracts", req);
+        String json = httpHelper.httpPost("/exchange/api/v1/organizations/" + parent.getId() + "/applications/" + id + "/contracts", req);
         return jsonHelper.readJson(new APIContract(apiVersion), json);
     }
 }

@@ -47,40 +47,40 @@ public class AbstractAnypointTest {
         String password = System.getProperty("password");
         integrationTest = StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password);
         File resourceDir = new File("src/test/resources");
-        if( ! resourceDir.exists() ) {
-            throw new RuntimeException("Resource directory not found (make sure the test is using project root as working dir): "+ resourceDir.getPath());
+        if (!resourceDir.exists()) {
+            throw new RuntimeException("Resource directory not found (make sure the test is using project root as working dir): " + resourceDir.getPath());
         }
         testRecordingFile = new File(resourceDir, "test-" + getTestName(testInfo) + ".json");
         if (integrationTest) {
             String testName = getTestName(testInfo);
-            System.out.println("Recording test: "+testName);
+            System.out.println("Recording test: " + testName);
             client = new AnypointClient(username, password);
             deleteTestOrgs();
             orgName = TESTPREFIX + String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", new Date());
-            System.out.println("Creating test org "+ orgName);
+            System.out.println("Creating test org " + orgName);
             org = client.createOrganization(orgName);
             env = org.createEnvironment(orgName, Environment.Type.SANDBOX);
             httpHelperRecorder = new HttpHelperRecorder(client, username, password, orgName);
             client.setHttpHelper(httpHelperRecorder);
             org = client.findOrganization(orgName);
-            env = org.findEnvironment(orgName);
+            env = org.findEnvironmentByName(orgName);
         } else {
-            client = new AnypointClient("","");
+            client = new AnypointClient("", "");
             HttpHelperReplayer httpHelper = new HttpHelperReplayer(testRecordingFile);
             orgName = httpHelper.getOrgName();
             client.setHttpHelper(httpHelper);
             org = client.findOrganization(orgName);
-            env = org.findEnvironment(orgName);
+            env = org.findEnvironmentByName(orgName);
         }
     }
 
     private void deleteTestOrgs() throws HttpException {
-        for (Organization organization: client.findOrganizations()) {
-            if( organization.getName().startsWith(TESTPREFIX) ) {
+        for (Organization organization : client.findOrganizations()) {
+            if (organization.getName().startsWith(TESTPREFIX)) {
                 try {
                     organization.delete();
                 } catch (Exception e) {
-                    System.out.println("Unable to delete org: "+organization.getName());
+                    System.out.println("Unable to delete org: " + organization.getName());
                 }
             }
         }
@@ -88,14 +88,14 @@ public class AbstractAnypointTest {
 
     @AfterEach
     public void cleanup() throws IOException, HttpException {
-        if( httpHelperRecorder != null ) {
-            new ObjectMapper().writer().writeValue(testRecordingFile,httpHelperRecorder.getRecording());
+        if (httpHelperRecorder != null) {
+            new ObjectMapper().writer().writeValue(testRecordingFile, httpHelperRecorder.getRecording());
             deleteTestOrgs();
         }
     }
 
     public static String getTestName(TestInfo testInfo) {
-        return testInfo.getDisplayName().replaceAll("\\(\\)","");
+        return testInfo.getDisplayName().replaceAll("\\(\\)", "");
     }
 
     @Contract("_ -> param1")
@@ -114,9 +114,9 @@ public class AbstractAnypointTest {
     protected void checkPolicy(String name, String version, String secretExpr) throws HttpException, NotFoundException {
         API api = env.findAPIByExchangeAssetNameAndVersion(name, version);
         List<Policy> policies = api.findPolicies();
-        assertEquals(1,policies.size());
+        assertEquals(1, policies.size());
         Policy policy = policies.get(0);
-        Assertions.assertEquals(APIProvisioningTests.CLIENT_ID_ENFORCEMENT,policy.getAssetId());
+        Assertions.assertEquals(APIProvisioningTests.CLIENT_ID_ENFORCEMENT, policy.getAssetId());
         assertEquals(((Map) policy.getConfigurationData()).get("clientSecretExpression"), secretExpr);
     }
 
@@ -131,7 +131,7 @@ public class AbstractAnypointTest {
         if (publish) {
             DesignCenterProjectExchange exchange = apiProject.getExchange("master");
             if (!exchange.isPublishedVersion()) {
-                exchange.publish(APIProvisioningTests.V1,null);
+                exchange.publish(APIProvisioningTests.V1, null);
             }
         }
         return apiProject;

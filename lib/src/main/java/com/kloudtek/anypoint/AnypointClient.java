@@ -50,8 +50,8 @@ public class AnypointClient implements Closeable, Serializable {
             }
         } else {
             try {
-                if( serviceClass.isInterface() ) {
-                    service = Class.forName(serviceClass.getName()+"Impl").asSubclass(serviceClass).newInstance();
+                if (serviceClass.isInterface()) {
+                    service = Class.forName(serviceClass.getName() + "Impl").asSubclass(serviceClass).newInstance();
                 } else {
                     service = serviceClass.newInstance();
                 }
@@ -59,7 +59,7 @@ public class AnypointClient implements Closeable, Serializable {
                 throw new UnexpectedException(e);
             }
         }
-        if( service instanceof Service ) {
+        if (service instanceof Service) {
             ((Service) service).setClient(this);
         }
         return service;
@@ -126,7 +126,8 @@ public class AnypointClient implements Closeable, Serializable {
     }
 
     public Organization getOrganization(String id) throws HttpException, NotFoundException {
-        Organization organization = new Organization(this, id);
+        Organization organization = createOrganizationObject();
+        organization.setId(id);
         try {
             String json = httpHelper.httpGet(organization.getUriPath());
             jsonHelper.readJson(organization, json);
@@ -199,7 +200,7 @@ public class AnypointClient implements Closeable, Serializable {
             }
         }
         try {
-            return organization.findEnvironment(environmentName);
+            return organization.findEnvironmentByName(environmentName);
         } catch (NotFoundException e) {
             if (createEnvironment) {
                 return organization.createEnvironment(environmentName, createEnvironmentType);

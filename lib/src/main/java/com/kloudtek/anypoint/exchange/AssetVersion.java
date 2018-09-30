@@ -194,6 +194,6 @@ public class AssetVersion extends AnypointObject<ExchangeAsset> {
     }
 
     public void delete() throws HttpException {
-        client.getHttpHelper().httpDelete("https://anypoint.mulesoft.com/exchange/api/v1/organizations/"+parent.getParent().getId()+"/assets/"+parent.getGroupId()+"/"+parent.getAssetId()+"/"+version);
+        client.getHttpHelper().httpDelete("https://anypoint.mulesoft.com/exchange/api/v1/organizations/" + parent.getParent().getId() + "/assets/" + parent.getGroupId() + "/" + parent.getAssetId() + "/" + version);
     }
 }

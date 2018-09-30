@@ -34,11 +34,11 @@ public class HttpHelperRecorder extends HttpHelper {
 
     @Override
     protected String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest) throws HttpException {
-        HttpHelperOperation op = new HttpHelperOperation(method.getMethod(),method.getURI().toString());
+        HttpHelperOperation op = new HttpHelperOperation(method.getMethod(), method.getURI().toString());
         recording.addOperation(op);
-        if( method instanceof HttpEntityEnclosingRequestBase ) {
+        if (method instanceof HttpEntityEnclosingRequestBase) {
             HttpEntity entity = ((HttpEntityEnclosingRequestBase) method).getEntity();
-            if(entity != null && entity.isRepeatable() ) {
+            if (entity != null && entity.isRepeatable()) {
                 ByteArrayOutputStream buf = new ByteArrayOutputStream();
                 try {
                     entity.writeTo(buf);

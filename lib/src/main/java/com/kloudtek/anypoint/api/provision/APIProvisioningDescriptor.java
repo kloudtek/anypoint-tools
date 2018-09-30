@@ -76,7 +76,7 @@ public class APIProvisioningDescriptor {
             if (policies != null) {
                 polList.addAll(policies);
             }
-            for (PolicyDescriptor policyDescriptor: polList) {
+            for (PolicyDescriptor policyDescriptor : polList) {
                 try {
                     Policy policy = api.findPolicyByAsset(policyDescriptor.getGroupId(), policyDescriptor.getAssetId(), policyDescriptor.getAssetVersion());
                     if (Objects.deepEquals(policy.getConfigurationData(), policyDescriptor.getData()) && Objects.deepEquals(policy.getPointcutData(), policyDescriptor.getPointcutData())) {
@@ -92,7 +92,7 @@ public class APIProvisioningDescriptor {
             }
             ClientApplication clientApplication = null;
             try {
-                clientApplication = environment.getOrganization().findClientApplication(clientAppName);
+                clientApplication = environment.getOrganization().findClientApplicationByName(clientAppName);
                 logger.debug("Client application found: " + clientAppName);
             } catch (NotFoundException e) {
                 //
@@ -102,12 +102,12 @@ public class APIProvisioningDescriptor {
                 clientApplication = environment.getOrganization().createClientApplication(clientAppName, clientApp.getUrl(), clientApp.getDescription());
             }
             result.setClientApplication(clientApplication);
-            if( slaTiers != null ) {
-                for (SLATierDescriptor slaTierDescriptor: slaTiers) {
+            if (slaTiers != null) {
+                for (SLATierDescriptor slaTierDescriptor : slaTiers) {
                     try {
                         SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
                     } catch (NotFoundException e) {
-                        api.createSLATier(slaTierDescriptor.getName(),slaTierDescriptor.getDescription(),slaTierDescriptor.isAutoApprove(),slaTierDescriptor.getLimits());
+                        api.createSLATier(slaTierDescriptor.getName(), slaTierDescriptor.getDescription(), slaTierDescriptor.isAutoApprove(), slaTierDescriptor.getLimits());
                     }
                 }
             }
@@ -115,7 +115,7 @@ public class APIProvisioningDescriptor {
                 if (clientApplication == null) {
                     throw new InvalidStateException("Client Application doesn't exist and automatic client application creation (createClientApplication) set to false");
                 }
-                for (APIAccessDescriptor accessDescriptor: access) {
+                for (APIAccessDescriptor accessDescriptor : access) {
                     API accessedAPI = environment.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
                             accessDescriptor.getAssetVersion(), accessDescriptor.getLabel());
                     APIContract contract;
@@ -126,7 +126,7 @@ public class APIProvisioningDescriptor {
                         contract = clientApplication.requestAPIAccess(accessedAPI, slaTier);
                     }
                     if (!contract.isApproved() && config.isAutoApproveAPIAccessRequest()) {
-                        if( contract.isRevoked() ) {
+                        if (contract.isRevoked()) {
                             contract.restoreAccess();
                         } else {
                             contract.approveAccess();
@@ -148,7 +148,7 @@ public class APIProvisioningDescriptor {
 //                }
 //                try {
 //                    logger.debug("Searching for existing client application {}", clientAppName);
-//                    clientApplication = org.findClientApplication(clientAppName);
+//                    clientApplication = org.findClientApplicationByName(clientAppName);
 //                    logger.debug("Found existing client application {}: {}", clientAppName, clientApplication.getId());
 //                    // TODO: update clientAppUrl & clientAppDescription
 //                } catch (NotFoundException e) {
@@ -299,11 +299,11 @@ public class APIProvisioningDescriptor {
     }
 
     public synchronized APIProvisioningDescriptor addSlaTier(String name, boolean autoApprove, SLATierLimits... limits) {
-        return addSlaTier(name,null,autoApprove, limits);
+        return addSlaTier(name, null, autoApprove, limits);
     }
 
     public synchronized APIProvisioningDescriptor addSlaTier(SLATierDescriptor slaTierDescriptor) {
-        if( slaTiers == null ) {
+        if (slaTiers == null) {
             slaTiers = new ArrayList<>();
         }
         slaTiers.add(slaTierDescriptor);

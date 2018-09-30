@@ -13,12 +13,12 @@ public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
     protected String groupId;
     protected String assetId;
     protected String assetVersion;
-    protected Map<String,Object> data;
+    protected Map<String, Object> data;
 
     public PolicyDescriptorJsonImpl() {
     }
 
-    public PolicyDescriptorJsonImpl(String groupId, String assetId, String assetVersion, Map<String,Object> data) {
+    public PolicyDescriptorJsonImpl(String groupId, String assetId, String assetVersion, Map<String, Object> data) {
         this.groupId = groupId;
         this.assetId = assetId;
         this.assetVersion = assetVersion;
@@ -51,11 +51,11 @@ public class PolicyDescriptorJsonImpl extends PolicyDescriptor {
     }
 
     @JsonRawValue
-    public Map<String,Object> getData() {
+    public Map<String, Object> getData() {
         return data;
     }
 
-    public void setData(Map<String,Object> data) {
+    public void setData(Map<String, Object> data) {
         this.data = data;
     }
 

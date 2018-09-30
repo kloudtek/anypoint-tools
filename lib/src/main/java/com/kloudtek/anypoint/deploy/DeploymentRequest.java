@@ -9,7 +9,6 @@ import com.kloudtek.anypoint.api.provision.APIProvisioningDescriptor;
 import com.kloudtek.anypoint.api.provision.APIProvisioningResult;
 import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
-import com.kloudtek.anypoint.runtime.HDeploymentResult;
 import com.kloudtek.unpack.FileType;
 import com.kloudtek.unpack.Unpacker;
 import com.kloudtek.unpack.transformer.SetPropertyTransformer;
@@ -36,13 +35,13 @@ public abstract class DeploymentRequest {
     protected File file;
     protected String filename;
     protected APIProvisioningConfig apiProvisioningConfig;
-    protected Map<String,String> properties;
+    protected Map<String, String> properties;
 
     public DeploymentRequest() {
     }
 
     public DeploymentRequest(Environment environment, String appName, File file, String filename,
-                             Map<String,String> properties,
+                             Map<String, String> properties,
                              APIProvisioningConfig apiProvisioningConfig) {
         this.environment = environment;
         this.appName = appName;
@@ -56,6 +55,8 @@ public abstract class DeploymentRequest {
         AnypointClient client = environment.getClient();
         boolean tmpFile = false;
         try {
+            APIProvisioningResult provisioningResult = null;
+            List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
                 ZipFile zipFile = new ZipFile(file);
                 ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
@@ -65,32 +66,29 @@ public abstract class DeploymentRequest {
                     try (InputStream is = zipFile.getInputStream(anypointJson)) {
                         apiProvisioningDescriptor = client.getJsonHelper().getJsonMapper().readValue(is, APIProvisioningDescriptor.class);
                     }
-                    APIProvisioningResult provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
-                    List<Transformer> transformers = new ArrayList<>();
+                    provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
                     if (apiProvisioningConfig.isInjectApiId()) {
-                        transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getInjectApiIdFile(),
-                                apiProvisioningConfig.getInjectApiIdKey(), Integer.toString(provisioningResult.getApi().getId())));
+                        properties.put(apiProvisioningConfig.getInjectApiIdKey(), Integer.toString(provisioningResult.getApi().getId()));
                     }
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
-                        HashMap<String, String> clientCreds = new HashMap<>();
-                        clientCreds.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApp.getClientId());
-                        clientCreds.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApp.getClientSecret());
-                        transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getInjectClientIdSecretFile(), clientCreds));
-                    }
-                    if (!transformers.isEmpty()) {
-                        try {
-                            File oldFile = file;
-                            file = new TempFile("tranformed", filename);
-                            Unpacker unpacker = new Unpacker(oldFile, FileType.ZIP, file, FileType.ZIP);
-                            unpacker.addTransformers(transformers);
-                            unpacker.unpack();
-                        } catch (Exception e) {
-                            throw new ProvisioningException("An error occurred while applying application " + appName + " transformations: " + e.getMessage(), e);
-                        }
-                        tmpFile = true;
+                        properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApp.getClientId());
+                        properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApp.getClientSecret());
                     }
                 }
+            }
+            preDeploy(provisioningResult, apiProvisioningConfig, transformers);
+            if (!transformers.isEmpty()) {
+                try {
+                    File oldFile = file;
+                    file = new TempFile("tranformed", filename);
+                    Unpacker unpacker = new Unpacker(oldFile, FileType.ZIP, file, FileType.ZIP);
+                    unpacker.addTransformers(transformers);
+                    unpacker.unpack();
+                } catch (Exception e) {
+                    throw new ProvisioningException("An error occurred while applying application " + appName + " transformations: " + e.getMessage(), e);
+                }
+                tmpFile = true;
             }
             return doDeploy();
         } finally {
@@ -99,6 +97,8 @@ public abstract class DeploymentRequest {
             }
         }
     }
+
+    protected abstract void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, List<Transformer> transformers);
 
     protected abstract DeploymentResult doDeploy() throws IOException, HttpException;
 

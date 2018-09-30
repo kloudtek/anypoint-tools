@@ -251,7 +251,7 @@ public class HttpHelper implements Closeable {
         HttpEntity toEntity() throws HttpException {
             try {
                 MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-                for (Map.Entry<String, Object> e: parts.entrySet()) {
+                for (Map.Entry<String, Object> e : parts.entrySet()) {
                     if (e.getValue() instanceof String) {
                         builder.addTextBody(e.getKey(), (String) e.getValue());
                     } else if (e.getValue() instanceof StreamSource) {
@@ -306,7 +306,7 @@ public class HttpHelper implements Closeable {
     }
 
     private static void setHeader(Map<String, String> headers, HttpRequestBase method) {
-        for (Map.Entry<String, String> entry: headers.entrySet()) {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
             method.setHeader(entry.getKey(), entry.getValue());
         }
     }

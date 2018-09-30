@@ -19,7 +19,7 @@ public class APIContractList extends PaginatedList<APIContract, API> {
     @NotNull
     @Override
     protected URLBuilder buildUrl() {
-        URLBuilder url = new URLBuilder("/apimanager/api/v1/organizations/"+parent.getParent().getParent().getId()+"/environments/"+parent.getParent().getId()+"/apis/"+parent.getId()+"/contracts")
+        URLBuilder url = new URLBuilder("/apimanager/api/v1/organizations/" + parent.getParent().getParent().getId() + "/environments/" + parent.getParent().getId() + "/apis/" + parent.getId() + "/contracts")
                 .param("ascending", "true");
         return url;
     }

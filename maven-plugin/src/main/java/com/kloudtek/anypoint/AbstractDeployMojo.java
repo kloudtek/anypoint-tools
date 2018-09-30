@@ -11,7 +11,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
-import java.util.Map;
 
 public abstract class AbstractDeployMojo extends AbstractMojo {
     /**
@@ -112,7 +111,7 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
                 Organization o = client.findOrganization(org);
                 log.debug("Found org " + org + " : " + o.getId());
                 log.debug("Searching for env " + env);
-                Environment e = o.findEnvironment(env);
+                Environment e = o.findEnvironmentByName(env);
                 log.debug("Found env " + env + " : " + e.getId());
                 APIProvisioningConfig apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
                 DeploymentResult app = deploy(e, apiProvisioningConfig);

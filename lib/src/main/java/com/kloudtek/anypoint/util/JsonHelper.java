@@ -82,7 +82,7 @@ public class JsonHelper implements Serializable {
     }
 
     public <X> X readJson(X obj, String json) {
-        return readJson(obj,json,(AnypointObject)null);
+        return readJson(obj, json, (AnypointObject) null);
     }
 
     @SuppressWarnings("unchecked")
@@ -91,7 +91,7 @@ public class JsonHelper implements Serializable {
             jsonMapper.readerForUpdating(obj).readValue(json);
             if (obj instanceof AnypointObject) {
                 ((AnypointObject) obj).setJson(json);
-                if( parent != null ) {
+                if (parent != null) {
                     ((AnypointObject) obj).setParent(parent);
                 }
             }

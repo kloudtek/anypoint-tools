@@ -22,7 +22,7 @@ public class RuntimeInstall {
     }
 
     public void install() {
-        if( archive == null ) {
+        if (archive == null) {
 
         }
     }

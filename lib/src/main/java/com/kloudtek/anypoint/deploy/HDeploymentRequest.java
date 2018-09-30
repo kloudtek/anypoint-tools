@@ -1,10 +1,10 @@
 package com.kloudtek.anypoint.deploy;
 
 import com.kloudtek.anypoint.AnypointClient;
-import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
+import com.kloudtek.anypoint.api.provision.APIProvisioningResult;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.runtime.HApplication;
 import com.kloudtek.anypoint.runtime.HDeploymentResult;
@@ -12,6 +12,8 @@ import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.anypoint.util.StreamSource;
+import com.kloudtek.unpack.transformer.SetPropertyTransformer;
+import com.kloudtek.unpack.transformer.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +33,14 @@ public class HDeploymentRequest extends DeploymentRequest {
     public HDeploymentRequest(Server target, String appName, File file, String filename, Map<String, String> properties, APIProvisioningConfig apiProvisioningConfig) {
         super(target.getParent(), appName, file, filename, properties, apiProvisioningConfig);
         this.target = target;
+    }
+
+    @Override
+    protected void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, List<Transformer> transformers) {
+        if( properties != null && ! properties.isEmpty() ) {
+            transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getConfigFile(),
+                    new HashMap<>(properties)));
+        }
     }
 
     @Override
@@ -45,29 +57,25 @@ public class HDeploymentRequest extends DeploymentRequest {
                     target.getParent());
         } catch (NotFoundException e) {
             logger.debug("Couldn't find application named {}", appName);
-            request = httpHelper.createMultiPartPostRequest("/cloudhub/api/v2/applications",environment);
+            request = httpHelper.createMultiPartPostRequest("/hybrid/api/v1/applications", environment);
         }
-        JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap()
-                .set("fileName", filename);
-
-        String appInfoJson = new String(client.getJsonHelper().toJson(appInfoBuilder
-                .toMap()));
-        String json = request.addText("appInfoJson", appInfoJson)
+        String json = request.addText("artifactName", appName)
+                .addText("targetId",target.getId())
                 .addBinary("file", new StreamSource() {
-            @Override
-            public String getFileName() {
-                return filename;
-            }
+                    @Override
+                    public String getFileName() {
+                        return filename;
+                    }
 
-            @Override
-            public InputStream createInputStream() throws IOException {
-                return new FileInputStream(file);
-            }
-        }).execute();
+                    @Override
+                    public InputStream createInputStream() throws IOException {
+                        return new FileInputStream(file);
+                    }
+                }).execute();
         if (logger.isDebugEnabled()) {
             logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
         }
         HApplication application = target.getClient().getJsonHelper().readJson(new HApplication(target), json, "/data");
-        return new HDeploymentResult(null);
+        return new HDeploymentResult(application);
     }
 }

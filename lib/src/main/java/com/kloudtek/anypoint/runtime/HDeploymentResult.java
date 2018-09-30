@@ -21,14 +21,14 @@ public class HDeploymentResult extends DeploymentResult {
     public void waitDeployed(long timeout, long retryDelay) throws HttpException, ApplicationDeploymentFailedException {
         ThreadUtils.sleep(2000);
         long expires = System.currentTimeMillis() + timeout;
-        for (;;) {
+        for (; ; ) {
             application = application.refresh();
-            if( application.getDesiredStatus().equalsIgnoreCase("UPDATED") ) {
+            if (application.getDesiredStatus().equalsIgnoreCase("UPDATED")) {
                 // app hasn't started yet
             } else if (application.isStarted()) {
                 return;
             } else if (DEPLOYMENT_FAILED.equals(application.getLastReportedStatus())) {
-                logger.debug("Deployment failed due to status: "+application.getLastReportedStatus());
+                logger.debug("Deployment failed due to status: " + application.getLastReportedStatus());
                 throw ApplicationDeploymentFailedException.create(application);
             } else {
                 if (expires > System.currentTimeMillis()) {

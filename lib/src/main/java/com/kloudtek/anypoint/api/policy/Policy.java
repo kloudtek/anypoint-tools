@@ -45,7 +45,7 @@ public class Policy extends AnypointObject<API> {
     public void update(PolicyDescriptor policyDescriptor) throws HttpException {
         configurationData = policyDescriptor.getData();
         pointcutData = policyDescriptor.getPointcutData();
-        httpHelper.httpPatch("https://anypoint.mulesoft.com/apimanager/api/v1/organizations/"+parent.getParent().getParent().getId()+"/environments/"+parent.getParent().getId()+"/apis/"+parent.getId()+"/policies/"+id,this);
+        httpHelper.httpPatch("https://anypoint.mulesoft.com/apimanager/api/v1/organizations/" + parent.getParent().getParent().getId() + "/environments/" + parent.getParent().getId() + "/apis/" + parent.getId() + "/policies/" + id, this);
     }
 
     public Integer getId() {

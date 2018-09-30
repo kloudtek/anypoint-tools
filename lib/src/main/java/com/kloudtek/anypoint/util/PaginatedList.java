@@ -6,6 +6,7 @@ import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,6 +57,12 @@ public abstract class PaginatedList<X, Z extends AnypointObject> implements Iter
 
     public int size() {
         return list != null ? list.size() : -1;
+    }
+
+    public List<X> getAll() {
+        List<X> l = new ArrayList<>();
+        this.forEach(l::add);
+        return l;
     }
 
     @NotNull

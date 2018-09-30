@@ -7,13 +7,10 @@ import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.APIAsset;
 import com.kloudtek.anypoint.api.APIList;
 import com.kloudtek.anypoint.api.APISpec;
-import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
-import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.cloudhub.CHMuleVersion;
 import com.kloudtek.anypoint.cloudhub.CHRegion;
 import com.kloudtek.anypoint.cloudhub.CHWorkerType;
 import com.kloudtek.anypoint.runtime.CHApplication;
-import com.kloudtek.anypoint.runtime.HDeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.runtime.ServerGroup;
 import com.kloudtek.util.UnexpectedException;
@@ -23,8 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -108,7 +103,7 @@ public class Environment extends AnypointObject<Organization> {
         return (String) jsonHelper.toJsonMap(json).get("data");
     }
 
-    public List<Server> getServers() throws HttpException {
+    public List<Server> findAllServers() throws HttpException {
         String json = client.getHttpHelper().httpGet("/armui/api/v1/servers", this);
         ArrayList<Server> list = new ArrayList<>();
         for (JsonNode node : jsonHelper.readJsonTree(json).at("/data")) {
@@ -136,8 +131,8 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     @NotNull
-    public Server findServer(@NotNull String name) throws NotFoundException, HttpException {
-        for (Server server : getServers()) {
+    public Server findServerByName(@NotNull String name) throws NotFoundException, HttpException {
+        for (Server server : findAllServers()) {
             if (name.equals(server.getName())) {
                 return server;
             }
@@ -151,7 +146,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public void delete() throws HttpException {
-        for (Server server : getServers()) {
+        for (Server server : findAllServers()) {
             server.delete();
         }
         httpHelper.httpDelete("/accounts/api/organizations/" + parent.getId() + "/environments/" + id);
@@ -178,7 +173,7 @@ public class Environment extends AnypointObject<Organization> {
                 "} " + super.toString();
     }
 
-    public APIList findAPIs() throws HttpException {
+    public APIList findAllAPIs() throws HttpException {
         return findAPIs(null);
     }
 
@@ -217,7 +212,7 @@ public class Environment extends AnypointObject<Organization> {
         if (isBlank(assetVersion)) {
             throw new IllegalArgumentException("assetVersion missing (null or blank)");
         }
-        for (APIAsset asset : findAPIs()) {
+        for (APIAsset asset : findAllAPIs()) {
             if (asset.getGroupId().equalsIgnoreCase(groupId) && asset.getAssetId().equalsIgnoreCase(assetId)) {
                 for (API api : asset.getApis()) {
                     if (api.getAssetVersion().equalsIgnoreCase(assetVersion) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
@@ -229,8 +224,8 @@ public class Environment extends AnypointObject<Organization> {
         throw new NotFoundException("API based on exchange asset not found: groupId=" + groupId + ", assetId=" + assetId + ", assetVersion=" + assetVersion + ", label=" + label);
     }
 
-    public CHApplication findCHApplication(String domain) throws HttpException, NotFoundException {
-        return CHApplication.find(this,domain);
+    public CHApplication findCHApplicationByDomain(String domain) throws HttpException, NotFoundException {
+        return CHApplication.find(this, domain);
     }
 
     public enum Type {
@@ -242,14 +237,14 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<Environment> getEnvironments(@NotNull AnypointClient client, @NotNull Organization organization) throws HttpException {
+    public static List<Environment> findEnvironmentsByOrg(@NotNull AnypointClient client, @NotNull Organization organization) throws HttpException {
         String json = client.getHttpHelper().httpGet("/accounts/api/organizations/" + organization.getId() + "/environments");
         return client.getJsonHelper().readJsonList((Class<Environment>) organization.getEnvironmentClass(), json, organization, "/data");
     }
 
     @NotNull
-    public static Environment getEnvironmentByName(@NotNull String name, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, NotFoundException {
-        for (Environment environment : getEnvironments(client, organization)) {
+    public static Environment fineEnvironmentByName(@NotNull String name, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, NotFoundException {
+        for (Environment environment : findEnvironmentsByOrg(client, organization)) {
             if (name.equals(environment.getName())) {
                 return environment;
             }
@@ -268,7 +263,7 @@ public class Environment extends AnypointObject<Organization> {
 
     public CHMuleVersion findDefaultCHMuleVersion() throws HttpException {
         for (CHMuleVersion version : findCHMuleVersions()) {
-            if( version.isDefaultVersion() ) {
+            if (version.isDefaultVersion()) {
                 return version;
             }
         }
@@ -277,45 +272,45 @@ public class Environment extends AnypointObject<Organization> {
 
     public CHMuleVersion findCHMuleVersion(String muleVersion) throws NotFoundException, HttpException {
         for (CHMuleVersion version : findCHMuleVersions()) {
-            if( version.getVersion().equalsIgnoreCase(muleVersion)) {
+            if (version.getVersion().equalsIgnoreCase(muleVersion)) {
                 return version;
             }
         }
-        throw new NotFoundException("Unable to find mule version "+muleVersion);
+        throw new NotFoundException("Unable to find mule version " + muleVersion);
     }
 
-    public List<CHRegion> findCHRegions() throws HttpException {
+    public List<CHRegion> findAllCHRegions() throws HttpException {
         String json = client.getHttpHelper().httpGet("/cloudhub/api/regions", this);
         return client.getJsonHelper().readJsonList(CHRegion.class, json, this);
     }
 
     public CHRegion findDefaultCHRegion() throws HttpException {
-        for (CHRegion region : findCHRegions()) {
-            if( region.isDefaultRegion() ) {
+        for (CHRegion region : findAllCHRegions()) {
+            if (region.isDefaultRegion()) {
                 return region;
             }
         }
         throw new UnexpectedException("No default mule version found");
     }
 
-    public List<CHWorkerType> findWorkerTypes() throws HttpException {
+    public List<CHWorkerType> findAllWorkerTypes() throws HttpException {
         String json = client.getHttpHelper().httpGet("/cloudhub/api/organization", this);
-        return client.getJsonHelper().readJsonList(CHWorkerType.class, json, this,"/plan/workerTypes");
+        return client.getJsonHelper().readJsonList(CHWorkerType.class, json, this, "/plan/workerTypes");
     }
 
-    public CHWorkerType findWorkerType(String name) throws HttpException, NotFoundException {
-        for (CHWorkerType workerType : findWorkerTypes()) {
-            if( workerType.getName().equalsIgnoreCase(name)) {
+    public CHWorkerType findWorkerTypeByName(String name) throws HttpException, NotFoundException {
+        for (CHWorkerType workerType : findAllWorkerTypes()) {
+            if (workerType.getName().equalsIgnoreCase(name)) {
                 return workerType;
             }
         }
-        throw new NotFoundException("Unable to find worker type in plan: "+name);
+        throw new NotFoundException("Unable to find worker type in plan: " + name);
     }
 
     public CHWorkerType findSmallestWorkerType() throws HttpException {
         CHWorkerType smallest = null;
-        for (CHWorkerType workerType : findWorkerTypes()) {
-            if( smallest == null || smallest.getWorkerVal().compareTo(workerType.getWorkerVal()) > 0 ) {
+        for (CHWorkerType workerType : findAllWorkerTypes()) {
+            if (smallest == null || smallest.getWorkerVal().compareTo(workerType.getWorkerVal()) > 0) {
                 smallest = workerType;
             }
         }

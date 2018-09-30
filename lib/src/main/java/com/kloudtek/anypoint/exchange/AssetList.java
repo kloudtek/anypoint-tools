@@ -28,7 +28,7 @@ public class AssetList extends PaginatedList<ExchangeAssetOverview, Organization
     @Override
     protected @NotNull URLBuilder buildUrl() {
         URLBuilder urlBuilder = new URLBuilder("/exchange/api/v1/assets")
-                .param("organizationId",parent.getId());
+                .param("organizationId", parent.getId());
         if (filter != null) {
             urlBuilder.param("search", filter);
         }
@@ -37,7 +37,7 @@ public class AssetList extends PaginatedList<ExchangeAssetOverview, Organization
 
     @Override
     protected void parseJson(String json, JsonHelper jsonHelper) {
-        list = jsonHelper.readJsonList(ExchangeAssetOverview.class,json,parent);
+        list = jsonHelper.readJsonList(ExchangeAssetOverview.class, json, parent);
     }
 
     public List<ExchangeAssetOverview> getAssets() {
@@ -49,8 +49,8 @@ public class AssetList extends PaginatedList<ExchangeAssetOverview, Organization
     }
 
     public void delete() throws HttpException {
-        for (ExchangeAssetOverview assetOverview: this) {
-            for (AssetVersion assetVersion: assetOverview.getAsset().getVersions()) {
+        for (ExchangeAssetOverview assetOverview : this) {
+            for (AssetVersion assetVersion : assetOverview.getAsset().getVersions()) {
                 assetVersion.delete();
             }
         }

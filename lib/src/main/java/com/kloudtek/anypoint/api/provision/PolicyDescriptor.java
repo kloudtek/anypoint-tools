@@ -33,5 +33,5 @@ public abstract class PolicyDescriptor {
 
     public abstract String getAssetVersion();
 
-    public abstract Map<String,Object> getData();
+    public abstract Map<String, Object> getData();
 }

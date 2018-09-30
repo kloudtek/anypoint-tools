@@ -37,6 +37,7 @@ public class ProvisionAPIMojo extends AbstractMojo {
      */
     @Parameter(name = "env", property = "anypoint.env", required = true)
     private String env;
+
     /**
      * If true API provisioning will be skipped
      */
@@ -45,6 +46,5 @@ public class ProvisionAPIMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-
     }
 }

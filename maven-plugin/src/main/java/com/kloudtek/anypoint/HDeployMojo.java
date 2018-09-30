@@ -1,12 +1,15 @@
 package com.kloudtek.anypoint;
 
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
+import com.kloudtek.anypoint.api.provision.ProvisioningException;
+import com.kloudtek.anypoint.deploy.HDeploymentRequest;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -23,7 +26,7 @@ public class HDeployMojo extends AbstractDeployMojo {
      * Properties to be injected into the archive (properties resulting from API provisioning will be included in those
      * properties)
      */
-    @Parameter(property = "anypoint.deploy.retrydelay", required = false)
+    @Parameter(property = "anypoint.deploy.properties", required = false)
     protected Map<String, String> properties;
     /**
      * Name of file which will contain injected properties
@@ -34,12 +37,13 @@ public class HDeployMojo extends AbstractDeployMojo {
     @Override
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
         try {
-            Server server = environment.findServer(target);
+            Server server = environment.findServerByName(target);
             APIProvisioningConfig config = new APIProvisioningConfig();
-//            new HDeploymentRequest(server, appName, file, filename,  )
+            return new HDeploymentRequest(server, appName, file, filename, properties, apiProvisioningConfig).deploy();
         } catch (NotFoundException e) {
             throw new MojoExecutionException("Target " + target + " not found in env " + env + " in business group " + org);
+        } catch (ProvisioningException | IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
-        return null;
     }
 }
