@@ -68,31 +68,28 @@ public class CHDeploymentRequest extends DeploymentRequest {
         long start = System.currentTimeMillis();
         AnypointClient client = environment.getClient();
         HttpHelper httpHelper = client.getHttpHelper();
-        String appInfoJson;
+        JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap()
+                .set("properties", properties);
         try {
             logger.debug("Searching for pre-existing application named " + appName);
             CHApplication application = environment.findCHApplicationByDomain(appName);
             logger.debug("Found application named {}", appName);
             request = httpHelper.createMultiPartPutRequest("/cloudhub/api/v2/applications/" + application.getDomain(),
                     environment);
-            appInfoJson = "{}";
         } catch (NotFoundException e) {
             logger.debug("Couldn't find application named {}", appName);
             request = httpHelper.createMultiPartPostRequest("/cloudhub/api/v2/applications", getEnvironment())
                     .addText("autoStart", "true");
-            JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap()
-                    .set("properties", properties)
-                    .set("region", region)
-                    .set("domain", appName)
+            appInfoBuilder.set("domain", appName)
                     .set("monitoringEnabled", true)
                     .set("monitoringAutoRestart", true)
                     .set("fileName", filename);
             appInfoBuilder.addMap("workers")
                     .set("amount", workerCount)
                     .set("type", workerType);
-            appInfoJson = new String(client.getJsonHelper().toJson(appInfoBuilder
-                    .toMap()));
+
         }
+        String appInfoJson = new String(client.getJsonHelper().toJson(appInfoBuilder.toMap()));
         String json = request.addText("appInfoJson", appInfoJson)
                 .addBinary("file", new StreamSource() {
                     @Override

@@ -113,9 +113,11 @@ When that file is present, the deployment will automatically perform the API pro
 After the provisioning is done, it will also add/modify a file "apiconfig.properties" in the application being deployed, and 
 include the following properties:
 
-- anypoint.apiId : (mule 4 only) The API Id (which is environment-specific)
-- anypoint.client.id : Client id for the Client Application generated for this API
-- anypoint.client.secret : Client secret for the Client Application generated for this API
+- anypoint.api.id : (mule 4 only) The API Id (which is environment-specific)
+- anypoint.api.client.id : Client id for the Client Application generated for this API
+- anypoint.api.client.secret : Client secret for the Client Application generated for this API
+- anypoint.platform.client_id : Environment client id (required by API Autodiscovery)
+- anypoint.platform.client_secret : Environment client secret (required by API Autodiscovery)
 
 # Maven Deploy (cloudhub)
 
@@ -128,11 +130,8 @@ Use the following plugin to deploy to cloudhub
     <artifactId>anypoint-maven-plugin</artifactId>
     <executions>
         <execution>
-            <id>hdeploy</id>
+            <id>deploy</id>
             <phase>deploy</phase>
-            <goals>
-                <goal>hdeploy</goal>
-            </goals>
             <execution>
                 <phase>deploy</phase>
                 <goals>

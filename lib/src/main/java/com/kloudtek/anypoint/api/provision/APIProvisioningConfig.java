@@ -20,12 +20,12 @@ public class APIProvisioningConfig {
     private boolean injectApiId = true;
     @JsonProperty(defaultValue = CONFIG_FILE)
     private String configFile = CONFIG_FILE;
-    @JsonProperty(defaultValue = "anypoint.apiId")
-    private String injectApiIdKey = "anypoint.apiId";
+    @JsonProperty(defaultValue = "anypoint.api.id")
+    private String injectApiIdKey = "anypoint.api.id";
     @JsonProperty(defaultValue = "true")
     private boolean injectClientIdSecret = true;
-    @JsonProperty(defaultValue = "anypoint.client")
-    private String injectClientIdSecretKey = "anypoint.client";
+    @JsonProperty(defaultValue = "anypoint.api.client")
+    private String injectClientIdSecretKey = "anypoint.api.client";
 
     public APIProvisioningConfig() {
     }

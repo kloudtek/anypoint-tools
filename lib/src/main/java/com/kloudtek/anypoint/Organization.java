@@ -63,12 +63,12 @@ public class Organization extends AnypointObject {
 
     @NotNull
     public Environment findEnvironmentByName(@NotNull String name) throws NotFoundException, HttpException {
-        return Environment.fineEnvironmentByName(name, client, this);
+        return Environment.findEnvironmentByName(name, client, this);
     }
 
     @NotNull
     public Environment findEnvironmentById(@NotNull String id) throws NotFoundException, HttpException {
-        return Environment.fineEnvironmentById(id, client, this);
+        return Environment.findEnvironmentById(id, client, this);
     }
 
     public String getParentId() {

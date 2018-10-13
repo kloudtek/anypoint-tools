@@ -48,7 +48,6 @@ public class CHDeployMojo extends AbstractDeployMojo {
             workerCount = 1;
         }
         try {
-            APIProvisioningConfig config = new APIProvisioningConfig();
             return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, file, filename, properties, apiProvisioningConfig).deploy();
         } catch (ProvisioningException | IOException | NotFoundException e) {
             throw new MojoExecutionException(e.getMessage(), e);
