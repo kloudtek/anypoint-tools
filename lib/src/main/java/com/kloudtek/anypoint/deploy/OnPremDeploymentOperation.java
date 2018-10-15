@@ -18,7 +18,7 @@ public class OnPremDeploymentOperation implements DeploymentOperation {
     }
 
     @Override
-    public HDeploymentResult deploy(Environment environment, String appName, String filename, File file) throws IOException, HttpException {
+    public HDeploymentResult deploy(Environment environment, String appName, String filename, File file) {
 //        Server target = new Server(null);
 //        HttpHelper.MultiPartRequest request;
 //        long start = System.currentTimeMillis();

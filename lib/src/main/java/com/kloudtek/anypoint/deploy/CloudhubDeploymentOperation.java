@@ -16,7 +16,7 @@ public class CloudhubDeploymentOperation implements DeploymentOperation {
     }
 
     @Override
-    public HDeploymentResult deploy(Environment environment, String appName, String filename, File file) throws IOException, HttpException {
+    public HDeploymentResult deploy(Environment environment, String appName, String filename, File file) {
 //        HttpHelper.MultiPartRequest request;
 //        long start = System.currentTimeMillis();
 //        AnypointClient client = environment.getClient();

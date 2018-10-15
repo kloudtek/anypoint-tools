@@ -45,6 +45,6 @@ public class ProvisionAPIMojo extends AbstractMojo {
     private boolean skipApiProvisioning;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() {
     }
 }

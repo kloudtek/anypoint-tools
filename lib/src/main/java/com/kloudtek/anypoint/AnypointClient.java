@@ -219,7 +219,7 @@ public class AnypointClient implements Closeable, Serializable {
         return deploymentService;
     }
 
-    public void applyAlerts(File alertsJsonFile) throws IOException, HttpException {
+    public void applyAlerts(File alertsJsonFile) {
         throw new RuntimeException("Not implemented");
     }
 

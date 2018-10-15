@@ -15,7 +15,7 @@ public class UpdateConfigCmd extends CliCommand<AnypointCli> {
     boolean usageHelpRequested;
 
     @Override
-    protected void execute() throws Exception {
+    protected void execute() {
         String username = CliHelper.read("Anypoint Username", parent.getUsername());
         String password = CliHelper.read("Anypoint Password", parent.getPassword(), true);
         if (StringUtils.isEmpty(password)) {

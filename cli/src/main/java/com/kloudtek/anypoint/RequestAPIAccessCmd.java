@@ -25,7 +25,7 @@ public class RequestAPIAccessCmd extends AbstractOrganizationalCmd {
     private String slaTier;
 
     @Override
-    protected void execute(Organization organization) throws Exception {
+    protected void execute(Organization organization) {
 //        switch (organization.requestAPIAccess(clientApplicationName, apiName, apiVersionName, autoApprove, autoRestore, slaTier)) {
 //            case RESTORED:
 //                logger.info("API access was restored");

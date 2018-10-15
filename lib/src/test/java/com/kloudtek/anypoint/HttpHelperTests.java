@@ -29,7 +29,7 @@ class HttpHelperTests {
         httpHelper.setRetryDelay(0L);
         Mockito.when(httpClient.execute(any(HttpRequestBase.class))).then(new Answer<Object>() {
             @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+            public Object answer(InvocationOnMock invocationOnMock) {
                 callCount++;
                 CloseableHttpResponse response = Mockito.mock(CloseableHttpResponse.class);
                 if (callCount == 1) {

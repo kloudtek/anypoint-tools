@@ -80,7 +80,7 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
     protected long deployRetryDelay = 2500L;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
         Log log = getLog();
         if (!skipDeploy) {
             try {
