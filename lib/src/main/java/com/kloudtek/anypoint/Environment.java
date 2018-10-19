@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -95,6 +96,15 @@ public class Environment extends AnypointObject<Organization> {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public String getClientSecret() throws HttpException {
+        String json = httpHelper.httpGet("/accounts/api/organizations/" + parent.getId() + "/clients/" + clientId);
+        try {
+            return jsonHelper.getJsonMapper().readTree(json).at("/client_secret").textValue();
+        } catch (IOException e) {
+            throw new UnexpectedException(e);
+        }
     }
 
     @NotNull
@@ -228,6 +238,13 @@ public class Environment extends AnypointObject<Organization> {
         return CHApplication.find(this, domain);
     }
 
+    /**
+     * Refresh environment data (this will retrieve extra data compared to an environment object obtained from an organization)
+     */
+    public Environment refresh() throws NotFoundException, HttpException {
+        return Environment.findEnvironmentById(id, client, parent);
+    }
+
     public enum Type {
         DESIGN, SANDBOX, PRODUCTION
     }
@@ -243,7 +260,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     @NotNull
-    public static Environment fineEnvironmentByName(@NotNull String name, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, NotFoundException {
+    public static Environment findEnvironmentByName(@NotNull String name, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, NotFoundException {
         for (Environment environment : findEnvironmentsByOrg(client, organization)) {
             if (name.equals(environment.getName())) {
                 return environment;
@@ -252,14 +269,20 @@ public class Environment extends AnypointObject<Organization> {
         throw new NotFoundException("Environment not found: " + name);
     }
 
+    @SuppressWarnings("unchecked")
     @NotNull
-    public static Environment fineEnvironmentById(@NotNull String id, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, NotFoundException {
-        for (Environment environment : findEnvironmentsByOrg(client, organization)) {
-            if (id.equals(environment.getId())) {
-                return environment;
+    public static Environment findEnvironmentById(@NotNull String id, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, NotFoundException {
+        String json = null;
+        try {
+            json = client.getHttpHelper().httpGet("/accounts/api/organizations/" + organization.getId() + "/environments/"+id);
+            return client.getJsonHelper().readJson(organization.createEnvironmentObject(), json, organization);
+        } catch (HttpException e) {
+            if (e.getStatusCode() == 404) {
+                throw new NotFoundException("Environment with id " + id + " not found within org " + organization.getId());
+            } else {
+                throw e;
             }
         }
-        throw new NotFoundException("Environment with id "+id+" not found within org "+organization.getId());
     }
 
     public String getNameOrId() {

@@ -3,6 +3,7 @@ package com.kloudtek.anypoint.deploy;
 import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
+import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.ClientApplication;
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.api.provision.APIProvisioningDescriptor;
@@ -14,6 +15,7 @@ import com.kloudtek.unpack.Unpacker;
 import com.kloudtek.unpack.transformer.SetPropertyTransformer;
 import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.TempFile;
+import com.kloudtek.util.UnexpectedException;
 import com.kloudtek.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +57,7 @@ public abstract class DeploymentRequest {
         AnypointClient client = environment.getClient();
         boolean tmpFile = false;
         try {
+            environment = environment.refresh();
             APIProvisioningResult provisioningResult = null;
             List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
@@ -69,6 +72,8 @@ public abstract class DeploymentRequest {
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
                     if (apiProvisioningConfig.isInjectApiId()) {
                         properties.put(apiProvisioningConfig.getInjectApiIdKey(), Integer.toString(provisioningResult.getApi().getId()));
+                        properties.put("anypoint.platform.client_id",environment.getClientId());
+                        properties.put("anypoint.platform.client_secret",environment.getClientSecret());
                     }
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
@@ -91,6 +96,8 @@ public abstract class DeploymentRequest {
                 tmpFile = true;
             }
             return doDeploy();
+        } catch (NotFoundException e) {
+            throw new UnexpectedException(e);
         } finally {
             if (tmpFile) {
                 IOUtils.close((TempFile) file);
