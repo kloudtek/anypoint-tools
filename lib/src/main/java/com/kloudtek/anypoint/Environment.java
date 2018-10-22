@@ -21,10 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.kloudtek.util.StringUtils.isBlank;
 
@@ -274,7 +271,7 @@ public class Environment extends AnypointObject<Organization> {
     public static Environment findEnvironmentById(@NotNull String id, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, NotFoundException {
         String json = null;
         try {
-            json = client.getHttpHelper().httpGet("/accounts/api/organizations/" + organization.getId() + "/environments/"+id);
+            json = client.getHttpHelper().httpGet("/accounts/api/organizations/" + organization.getId() + "/environments/" + id);
             return client.getJsonHelper().readJson(organization.createEnvironmentObject(), json, organization);
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
@@ -348,5 +345,21 @@ public class Environment extends AnypointObject<Organization> {
             }
         }
         return smallest;
+    }
+
+    public static Map<String, Environment> toMapIdxByName(Collection<Environment> envs) {
+        HashMap<String, Environment> map = new HashMap<>();
+        for (Environment env : envs) {
+            map.put(env.getName(), env);
+        }
+        return map;
+    }
+
+    public static Map<String, Environment> toMapIdxById(Collection<Environment> envs) {
+        HashMap<String, Environment> map = new HashMap<>();
+        for (Environment env : envs) {
+            map.put(env.getId(), env);
+        }
+        return map;
     }
 }

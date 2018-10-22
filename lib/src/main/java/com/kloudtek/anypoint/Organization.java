@@ -61,14 +61,6 @@ public class Organization extends AnypointObject {
         return Environment.findEnvironmentsByOrg(client, this);
     }
 
-    public Map<String,Environment> findAllEnvironmentsAsMap() throws HttpException {
-        HashMap<String ,Environment> map = new HashMap<>();
-        for (Environment environment : Environment.findEnvironmentsByOrg(client, this)) {
-            map.put(environment.getId(),environment);
-        }
-        return map;
-    }
-
     @NotNull
     public Environment findEnvironmentByName(@NotNull String name) throws NotFoundException, HttpException {
         return Environment.findEnvironmentByName(name, client, this);
