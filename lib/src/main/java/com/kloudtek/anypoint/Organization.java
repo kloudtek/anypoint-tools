@@ -28,6 +28,8 @@ public class Organization extends AnypointObject {
     protected String name;
     @JsonProperty
     protected String parentId;
+    @JsonProperty("isFederated")
+    protected boolean federated;
 
     public Organization() {
     }
@@ -55,6 +57,14 @@ public class Organization extends AnypointObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isFederated() {
+        return federated;
+    }
+
+    public void setFederated(boolean federated) {
+        this.federated = federated;
     }
 
     public List<Environment> findAllEnvironments() throws HttpException {
