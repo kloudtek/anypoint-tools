@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.kloudtek.anypoint.deploy.DeploymentService;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
+import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnexpectedException;
 import org.jetbrains.annotations.NotNull;
 
@@ -181,6 +182,12 @@ public class AnypointClient implements Closeable, Serializable {
     }
 
     public String authenticate(String username, String password) throws HttpException {
+        if(StringUtils.isBlank(username) ) {
+            throw new IllegalArgumentException("Username missing");
+        }
+        if(StringUtils.isBlank(password) ) {
+            throw new IllegalArgumentException("Username missing");
+        }
         Map<String, String> request = new HashMap<>();
         request.put("username", username);
         request.put("password", password);
