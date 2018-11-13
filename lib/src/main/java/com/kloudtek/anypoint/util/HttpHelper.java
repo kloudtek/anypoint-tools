@@ -6,10 +6,16 @@ import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +38,7 @@ public class HttpHelper implements Closeable {
     private String password;
     private int maxRetries = 4;
     private long retryDelay = 1000L;
+    private RequestConfig reqCfg;
 
     public HttpHelper() {
     }
@@ -212,6 +219,9 @@ public class HttpHelper implements Closeable {
             }
             method.setHeader(HEADER_AUTH, auth);
         }
+        if( reqCfg != null ) {
+            method.setConfig(reqCfg);
+        }
         try (CloseableHttpResponse response = httpClient.execute(method)) {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode < 200 || statusCode > 299) {
@@ -233,6 +243,27 @@ public class HttpHelper implements Closeable {
         } catch (IOException e) {
             throw new RuntimeIOException(e);
         }
+    }
+
+    public synchronized void setProxy(String scheme, String host, int port, String username, String password) {
+        HttpHost proxyHost = new HttpHost(host, port,scheme);
+        reqCfg = RequestConfig.custom().setProxy(proxyHost).build();
+        if( username != null && password != null ) {
+            if( httpClient != null ) {
+                IOUtils.close(httpClient);
+            }
+            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            credsProvider.setCredentials( new AuthScope(proxyHost), new UsernamePasswordCredentials(username, password));
+            httpClient = HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
+        }
+    }
+
+    public synchronized void unsetProxy() {
+        reqCfg = null;
+        if( httpClient != null ) {
+            IOUtils.close(httpClient);
+        }
+        httpClient = HttpClients.createMinimal();
     }
 
     public class MultiPartRequest {

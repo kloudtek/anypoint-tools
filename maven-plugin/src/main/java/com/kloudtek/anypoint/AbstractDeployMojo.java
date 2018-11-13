@@ -5,10 +5,11 @@ import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.util.MavenUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Proxy;
+import org.apache.maven.settings.Settings;
 
 import java.io.File;
 
@@ -79,6 +80,9 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
     @Parameter(property = "anypoint.deploy.retrydelay", required = false)
     protected long deployRetryDelay = 2500L;
 
+    @Parameter(defaultValue = "${settings}", readonly = true)
+    private Settings settings;
+
     @Override
     public void execute() throws MojoExecutionException {
         Log log = getLog();
@@ -107,6 +111,11 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
                     }
                 }
                 AnypointClient client = new AnypointClient(username, password);
+                Proxy proxy = settings.getActiveProxy();
+                if (proxy != null) {
+                    log.debug("Using proxy: " + proxy.getProtocol() + " " + proxy.getHost() + " " + proxy.getPort());
+                    client.setProxy(proxy.getProtocol(),proxy.getHost(),proxy.getPort(),proxy.getUsername(),proxy.getPassword());
+                }
                 log.debug("Searching for org " + org);
                 Organization o = client.findOrganization(org);
                 log.debug("Found org " + org + " : " + o.getId());

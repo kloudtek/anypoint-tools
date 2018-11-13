@@ -6,6 +6,7 @@ import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnexpectedException;
+import org.apache.http.client.config.RequestConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
@@ -31,6 +32,18 @@ public class AnypointClient implements Closeable, Serializable {
      * Contructor used for serialization only
      **/
     public AnypointClient() {
+        init();
+    }
+
+    public AnypointClient(String username, String password) {
+        this(username, password, 3);
+    }
+
+    public AnypointClient(String username, String password, int maxParallelDeployments) {
+        this.username = username;
+        this.password = password;
+        this.maxParallelDeployments = maxParallelDeployments;
+        httpHelper = new HttpHelper(this, username, password);
         init();
     }
 
@@ -64,18 +77,6 @@ public class AnypointClient implements Closeable, Serializable {
             ((Service) service).setClient(this);
         }
         return service;
-    }
-
-    public AnypointClient(String username, String password) {
-        this(username, password, 3);
-    }
-
-    public AnypointClient(String username, String password, int maxParallelDeployments) {
-        this.username = username;
-        this.password = password;
-        this.maxParallelDeployments = maxParallelDeployments;
-        httpHelper = new HttpHelper(this, username, password);
-        init();
     }
 
     private void readObject(java.io.ObjectInputStream in)
@@ -233,5 +234,13 @@ public class AnypointClient implements Closeable, Serializable {
     @NotNull
     protected Organization createOrganizationObject() {
         return new Organization(this);
+    }
+
+    public void setProxy(String scheme, String host, int port, String username, String password) {
+        httpHelper.setProxy(scheme,host,port,username,password);
+    }
+
+    public void unsetProxy() {
+        httpHelper.unsetProxy();
     }
 }
