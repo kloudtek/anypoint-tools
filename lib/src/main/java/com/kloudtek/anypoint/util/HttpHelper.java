@@ -10,14 +10,15 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -38,7 +39,6 @@ public class HttpHelper implements Closeable {
     private String password;
     private int maxRetries = 4;
     private long retryDelay = 1000L;
-    private RequestConfig reqCfg;
 
     public HttpHelper() {
     }
@@ -129,7 +129,7 @@ public class HttpHelper implements Closeable {
     }
 
     public String httpDelete(String path, Object data) throws HttpException {
-        logger.debug("HTTP DELETE " + path + " data="+data);
+        logger.debug("HTTP DELETE " + path + " data=" + data);
         return execute(new HttpDeleteWithBody(convertPath(path)), data);
     }
 
@@ -219,9 +219,6 @@ public class HttpHelper implements Closeable {
             }
             method.setHeader(HEADER_AUTH, auth);
         }
-        if( reqCfg != null ) {
-            method.setConfig(reqCfg);
-        }
         try (CloseableHttpResponse response = httpClient.execute(method)) {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode < 200 || statusCode > 299) {
@@ -245,22 +242,25 @@ public class HttpHelper implements Closeable {
         }
     }
 
-    public synchronized void setProxy(String scheme, String host, int port, String username, String password) {
-        HttpHost proxyHost = new HttpHost(host, port,scheme);
-        reqCfg = RequestConfig.custom().setProxy(proxyHost).build();
-        if( username != null && password != null ) {
-            if( httpClient != null ) {
-                IOUtils.close(httpClient);
-            }
-            CredentialsProvider credsProvider = new BasicCredentialsProvider();
-            credsProvider.setCredentials( new AuthScope(proxyHost), new UsernamePasswordCredentials(username, password));
-            httpClient = HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
+    public synchronized void setProxy(@NotNull String scheme, @NotNull String host, int port,
+                                      @Nullable String username, @Nullable String password) {
+        if (httpClient != null) {
+            IOUtils.close(httpClient);
         }
+        HttpClientBuilder builder = HttpClients.custom();
+        HttpHost proxyHost = new HttpHost(host, port, scheme);
+        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxyHost);
+        builder = builder.setRoutePlanner(routePlanner);
+        if (username != null && password != null) {
+            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            credsProvider.setCredentials(new AuthScope(proxyHost), new UsernamePasswordCredentials(username, password));
+            builder = builder.setDefaultCredentialsProvider(credsProvider);
+        }
+        httpClient = builder.build();
     }
 
     public synchronized void unsetProxy() {
-        reqCfg = null;
-        if( httpClient != null ) {
+        if (httpClient != null) {
             IOUtils.close(httpClient);
         }
         httpClient = HttpClients.createMinimal();
@@ -328,16 +328,13 @@ public class HttpHelper implements Closeable {
     }
 
     public class RuntimeIOException extends RuntimeException {
-        @NotNull
-        private IOException e;
-
         RuntimeIOException(@NotNull IOException ioException) {
-            this.e = ioException;
+            super(ioException.getMessage(), ioException);
         }
 
         @NotNull
         IOException getIOException() {
-            return e;
+            return (IOException) getCause();
         }
     }
 

@@ -12,6 +12,7 @@ import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Settings;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractDeployMojo extends AbstractMojo {
     /**
@@ -73,7 +74,7 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
      * Deployment timeout
      */
     @Parameter(property = "anypoint.deploy.timeout", required = false)
-    protected long deployTimeout = 120000L;
+    protected long deployTimeout = TimeUnit.MINUTES.toMillis(10);
     /**
      * Delay (in milliseconds) in retrying a deployment
      */
