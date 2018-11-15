@@ -34,7 +34,7 @@ public class HDeploymentResult extends DeploymentResult {
                 if (expires > System.currentTimeMillis()) {
                     ThreadUtils.sleep(retryDelay);
                 } else {
-                    logger.debug("Deployment failed due to timeout");
+                    logger.error("Deployment failed due to timeout");
                     throw ApplicationDeploymentFailedException.create(application);
                 }
             }
