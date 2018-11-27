@@ -113,9 +113,12 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
                 }
                 AnypointClient client = new AnypointClient(username, password);
                 Proxy proxy = settings.getActiveProxy();
+                log.debug("Checking debug settings");
                 if (proxy != null) {
                     log.debug("Using proxy: " + proxy.getProtocol() + " " + proxy.getHost() + " " + proxy.getPort());
                     client.setProxy(proxy.getProtocol(),proxy.getHost(),proxy.getPort(),proxy.getUsername(),proxy.getPassword());
+                } else {
+                    log.debug("No ");
                 }
                 log.debug("Searching for org " + org);
                 Organization o = client.findOrganization(org);

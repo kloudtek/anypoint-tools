@@ -20,6 +20,14 @@ exchange assets failing to see some assets which can leave an org in a state of 
 Because of all those issues (and some others), I've created anypoint-tools which includes both a command line tool as well
 a mule maven plugin for deployment.
 
+## Benefits of using anypoint-tools vs standard mule plugin
+
+- API Management provisioning
+- Support proxy
+- Can be used to deploy a project binary rather than having to build from sources
+- Automatic API Provisioning
+- Supports waiting for successful deployment for onprem as well as CH
+
 ## Automated API Management Provisioning
 
 The most important capability of anypoint-tools is the ability to automate API management.
