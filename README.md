@@ -34,7 +34,7 @@ The most important capability of anypoint-tools is the ability to automate API m
 
 This means 
 
-In order to do so, you will need to create a JSON file containing the API configuration details. For example:
+In order to do so, you will need to create a JSON file (anypoint.json, which needs to be located alongside your xml flow files) containing the API configuration details. For example:
 
 ```json
 {
