@@ -26,6 +26,8 @@ public class APIProvisioningConfig {
     private boolean injectClientIdSecret = true;
     @JsonProperty(defaultValue = "anypoint.api.client")
     private String injectClientIdSecretKey = "anypoint.api.client";
+    @JsonProperty(defaultValue = "false")
+    private boolean customLog4j;
 
     public APIProvisioningConfig() {
     }
@@ -132,6 +134,14 @@ public class APIProvisioningConfig {
         this.injectClientIdSecretKey = injectClientIdSecretKey;
     }
 
+    public boolean isCustomLog4j() {
+        return customLog4j;
+    }
+
+    public void setCustomLog4j(boolean customLog4j) {
+        this.customLog4j = customLog4j;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -146,12 +156,13 @@ public class APIProvisioningConfig {
                 Objects.equals(apiLabel, that.apiLabel) &&
                 Objects.equals(configFile, that.configFile) &&
                 Objects.equals(injectApiIdKey, that.injectApiIdKey) &&
+                Objects.equals(customLog4j, that.customLog4j) &&
                 Objects.equals(injectClientIdSecretKey, that.injectClientIdSecretKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel, autoApproveAPIAccessRequest, injectApiId, configFile, injectApiIdKey, injectClientIdSecret, injectClientIdSecretKey);
+        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel, autoApproveAPIAccessRequest, injectApiId, configFile, injectApiIdKey, injectClientIdSecret, injectClientIdSecretKey, customLog4j);
     }
 
     @Override
@@ -167,6 +178,7 @@ public class APIProvisioningConfig {
                 .add("injectApiIdKey='" + injectApiIdKey + "'")
                 .add("injectClientIdSecret=" + injectClientIdSecret)
                 .add("injectClientIdSecretKey='" + injectClientIdSecretKey + "'")
+                .add("customLog4j='" + customLog4j + "'")
                 .toString();
     }
 }

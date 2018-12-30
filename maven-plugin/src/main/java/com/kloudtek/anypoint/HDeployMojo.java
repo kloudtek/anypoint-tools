@@ -34,6 +34,7 @@ public class HDeployMojo extends AbstractDeployMojo {
     @Parameter(property = "anypoint.deploy.retrydelay", required = false)
     protected String propertiesFilename = "deployconfig.properties";
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
         try {

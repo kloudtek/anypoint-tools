@@ -42,6 +42,7 @@ public class CHDeployMojo extends AbstractDeployMojo {
     @Parameter(property = "anypoint.deploy.properties", required = false)
     protected Map<String, String> properties;
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
         if( workerCount == null ) {

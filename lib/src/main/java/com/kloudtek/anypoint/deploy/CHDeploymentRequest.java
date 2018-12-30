@@ -83,11 +83,12 @@ public class CHDeploymentRequest extends DeploymentRequest {
             appInfoBuilder.set("domain", appName)
                     .set("monitoringEnabled", true)
                     .set("monitoringAutoRestart", true)
+                    .set("loggingNgEnabled", true)
+                    .set("loggingCustomLog4JEnabled", apiProvisioningConfig.isCustomLog4j())
                     .set("fileName", filename);
             appInfoBuilder.addMap("workers")
                     .set("amount", workerCount)
                     .set("type", workerType);
-
         }
         String appInfoJson = new String(client.getJsonHelper().toJson(appInfoBuilder.toMap()));
         String json = request.addText("appInfoJson", appInfoJson)
