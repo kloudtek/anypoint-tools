@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -350,7 +352,15 @@ public class Organization extends AnypointObject {
         return Environment.class;
     }
 
-    public VPC provisionVPC(VPCProvisioningDescriptor vd) throws NotFoundException, HttpException {
+    public VPC provisionVPC(VPCProvisioningDescriptor vd, boolean deleteExisting) throws NotFoundException, HttpException {
+        if( deleteExisting ) {
+            try {
+                VPC preExistingVPC = findVPCByName(vd.getName());
+                preExistingVPC.delete();
+            } catch (NotFoundException e) {
+                logger.debug("No pre-existing VPC exists");
+            }
+        }
         VPC vpc = new VPC(vd.getName(), vd.getCidrBlock(), vd.isDefaultVpc(), vd.getRegion());
         List<String> envIds = new ArrayList<>();
         List<String> orgIds = new ArrayList<>();
@@ -379,6 +389,11 @@ public class Organization extends AnypointObject {
             }
         }
         return client.getJsonHelper().readJson(new VPC(), client.httpHelper.httpGet("/cloudhub/api/organizations/" + id + "/vpcs/" + vpc.getId()));
+    }
+
+    public void provisionVPC(File file, boolean deleteExisting) throws NotFoundException, HttpException, IOException {
+        VPCProvisioningDescriptor vpcProvisioningDescriptor = jsonHelper.getJsonMapper().readValue(file, VPCProvisioningDescriptor.class);
+        provisionVPC(vpcProvisioningDescriptor,deleteExisting);
     }
 
     public List<VPC> findVPCs() throws HttpException {

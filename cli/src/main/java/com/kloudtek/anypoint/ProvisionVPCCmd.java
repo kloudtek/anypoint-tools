@@ -18,7 +18,7 @@ public class ProvisionVPCCmd extends AbstractOrganizationalCmd {
     private boolean usageHelpRequested;
     @Option(names = {"-d", "--delete"}, description = "Delete pre-existing VPC with same name (and all applications in associated environments) if it exists prior to creation")
     private boolean delete;
-    @Option(description = "JSON vpc descriptor file", names = {"-f", "--file"})
+    @Option(description = "VPC descriptor file", names = {"-f", "--file"})
     private File file;
 
     @Override
@@ -26,16 +26,6 @@ public class ProvisionVPCCmd extends AbstractOrganizationalCmd {
         if( ! file.exists() ) {
             throw new UserDisplayableException("File doesn't exist: "+file.getPath());
         }
-        AnypointClient client = organization.getClient();
-        VPCProvisioningDescriptor vpcProvisioningDescriptor = client.getJsonHelper().getJsonMapper().readValue(file, VPCProvisioningDescriptor.class);
-        if( delete ) {
-            try {
-                VPC preExistingVPC = organization.findVPCByName(vpcProvisioningDescriptor.getName());
-                preExistingVPC.delete();
-            } catch (NotFoundException e) {
-                logger.debug("No pre-existing VPC exists");
-            }
-        }
-        organization.provisionVPC(vpcProvisioningDescriptor);
+        organization.provisionVPC(file, delete);
     }
 }

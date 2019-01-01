@@ -4,7 +4,6 @@ import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.deploy.ApplicationSource;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.util.MavenUtils;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -14,27 +13,7 @@ import org.apache.maven.settings.Settings;
 
 import java.util.concurrent.TimeUnit;
 
-public abstract class AbstractDeployMojo extends AbstractMojo {
-    /**
-     * Anypoint username
-     */
-    @Parameter(property = "anypoint.username", required = true)
-    protected String username;
-    /**
-     * Anypoint password
-     */
-    @Parameter(property = "anypoint.password", required = true)
-    protected String password;
-    /**
-     * Anypoint organization name
-     */
-    @Parameter(name = "org", property = "anypoint.org", required = true)
-    protected String org;
-    /**
-     * Anypoint Environment name
-     */
-    @Parameter(name = "env", property = "anypoint.env", required = true)
-    protected String env;
+public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
     /**
      * If true API provisioning will be skipped
      */
@@ -87,59 +66,48 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
     protected ApplicationSource source;
 
     @Override
-    public void execute() throws MojoExecutionException {
+    public void execute(AnypointClient client, Environment env) throws Exception {
         Log log = getLog();
         if (!skipDeploy) {
-            try {
-                MavenProject project = (MavenProject) getPluginContext().get("project");
-                if (MavenUtils.isTemplateOrExample(project) && !force) {
-                    log.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
-                    return;
-                }
-                if (file == null) {
-                    log.debug("No deploy file defined");
-                    if (project == null) {
-                        throw new MojoExecutionException("File not specified while running out of project");
-                    }
-                    file = MavenUtils.getProjectJar(project, log).getPath();
-                }
-                AnypointClient client = new AnypointClient(username, password);
-                source = ApplicationSource.create(client, file);
-                if (filename == null) {
-                    filename = source.getFileName();
-                }
-                if (appName == null) {
-                    if (project != null) {
-                        appName = project.getArtifactId();
-                    } else {
-                        appName = source.getArtifactId();
-                    }
-                }
-                Proxy proxy = settings.getActiveProxy();
-                log.debug("Checking debug settings");
-                if (proxy != null) {
-                    log.debug("Using proxy: " + proxy.getProtocol() + " " + proxy.getHost() + " " + proxy.getPort());
-                    client.setProxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
-                } else {
-                    log.debug("No ");
-                }
-                log.debug("Searching for org " + org);
-                Organization o = client.findOrganization(org);
-                log.debug("Found org " + org + " : " + o.getId());
-                log.debug("Searching for env " + env);
-                Environment e = o.findEnvironmentByName(env);
-                log.debug("Found env " + env + " : " + e.getId());
-                APIProvisioningConfig apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
-                DeploymentResult app = deploy(e, apiProvisioningConfig);
-                if (!skipWait) {
-                    log.info("Waiting for application start");
-                    app.waitDeployed(deployTimeout, deployRetryDelay);
-                    log.info("Application started successfully");
-                }
-                log.info("Deployment completed successfully");
-            } catch (Exception e) {
-                throw new MojoExecutionException(e.getMessage(), e);
+            MavenProject project = (MavenProject) getPluginContext().get("project");
+            if (MavenUtils.isTemplateOrExample(project) && !force) {
+                log.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
+                return;
             }
+            if (file == null) {
+                log.debug("No deploy file defined");
+                if (project == null) {
+                    throw new MojoExecutionException("File not specified while running out of project");
+                }
+                file = MavenUtils.getProjectJar(project, log).getPath();
+            }
+            source = ApplicationSource.create(client, file);
+            if (filename == null) {
+                filename = source.getFileName();
+            }
+            if (appName == null) {
+                if (project != null) {
+                    appName = project.getArtifactId();
+                } else {
+                    appName = source.getArtifactId();
+                }
+            }
+            Proxy proxy = settings.getActiveProxy();
+            log.debug("Checking debug settings");
+            if (proxy != null) {
+                log.debug("Using proxy: " + proxy.getProtocol() + " " + proxy.getHost() + " " + proxy.getPort());
+                client.setProxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
+            } else {
+                log.debug("No ");
+            }
+            APIProvisioningConfig apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
+            DeploymentResult app = deploy(env, apiProvisioningConfig);
+            if (!skipWait) {
+                log.info("Waiting for application start");
+                app.waitDeployed(deployTimeout, deployRetryDelay);
+                log.info("Application started successfully");
+            }
+            log.info("Deployment completed successfully");
         }
     }
 

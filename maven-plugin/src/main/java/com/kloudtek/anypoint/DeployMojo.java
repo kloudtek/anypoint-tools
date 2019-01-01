@@ -2,25 +2,18 @@ package com.kloudtek.anypoint;
 
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.api.provision.ProvisioningException;
+import com.kloudtek.anypoint.deploy.ApplicationSource;
 import com.kloudtek.anypoint.deploy.CHDeploymentRequest;
 import com.kloudtek.anypoint.deploy.HDeploymentRequest;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
-import com.kloudtek.anypoint.util.MavenUtils;
 import com.kloudtek.util.StringUtils;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.settings.Proxy;
-import org.apache.maven.settings.Settings;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Mojo(name = "deploy", requiresProject = false)
 public abstract class DeployMojo extends AbstractDeployMojo {
@@ -76,24 +69,25 @@ public abstract class DeployMojo extends AbstractDeployMojo {
     @SuppressWarnings("Duplicates")
     @Override
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
-        if(StringUtils.isBlank(target)) {
-            if( workerCount == null ) {
+        ApplicationSource applicationSource = ApplicationSource.create(environment.getClient(), file);
+        if (StringUtils.isBlank(target)) {
+            if (workerCount == null) {
                 workerCount = 1;
             }
             try {
-                if( customlog4j ) {
+                if (customlog4j) {
                     apiProvisioningConfig.setCustomLog4j(customlog4j);
                 }
-                return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, file, filename, properties, apiProvisioningConfig).deploy();
+                return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, applicationSource, filename, properties, apiProvisioningConfig).deploy();
             } catch (ProvisioningException | IOException | NotFoundException e) {
                 throw new MojoExecutionException(e.getMessage(), e);
             }
         } else {
             try {
                 Server server = environment.findServerByName(target);
-                return new HDeploymentRequest(server, appName, file, filename, properties, apiProvisioningConfig).deploy();
+                return new HDeploymentRequest(server, appName, applicationSource, filename, properties, apiProvisioningConfig).deploy();
             } catch (NotFoundException e) {
-                throw new MojoExecutionException("Target " + target + " not found in env " + env + " in business group " + org);
+                throw new MojoExecutionException("Target " + target + " not found in env " + environment + " in business group " + org);
             } catch (ProvisioningException | IOException e) {
                 throw new MojoExecutionException(e.getMessage(), e);
             }
