@@ -29,7 +29,7 @@ public class HDeployApplicationCmd extends AbstractDeployApplicationCmd {
         } catch (NotFoundException e) {
             throw new UserDisplayableException("Target "+target+" not found in env "+ environment.getName());
         }
-        HDeploymentRequest req = new HDeploymentRequest(server, appName, file, filename, appProperties, apiProvisioningConfig);
+        HDeploymentRequest req = new HDeploymentRequest(server, appName, source, filename, appProperties, apiProvisioningConfig);
         return req.deploy();
     }
 }

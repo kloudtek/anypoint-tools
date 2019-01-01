@@ -7,6 +7,8 @@ import com.kloudtek.anypoint.exchange.AssetList;
 import com.kloudtek.anypoint.exchange.AssetVersion;
 import com.kloudtek.anypoint.exchange.ExchangeAsset;
 import com.kloudtek.anypoint.exchange.ExchangeAssetOverview;
+import com.kloudtek.anypoint.provisioning.VPCOrgProvisioningDescriptor;
+import com.kloudtek.anypoint.provisioning.VPCProvisioningDescriptor;
 import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.util.ThreadUtils;
 import org.jetbrains.annotations.NotNull;
@@ -14,10 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Organization extends AnypointObject {
@@ -351,6 +350,50 @@ public class Organization extends AnypointObject {
         return Environment.class;
     }
 
+    public VPC provisionVPC(VPCProvisioningDescriptor vd) throws NotFoundException, HttpException {
+        VPC vpc = new VPC(vd.getName(), vd.getCidrBlock(), vd.isDefaultVpc(), vd.getRegion());
+        List<String> envIds = new ArrayList<>();
+        List<String> orgIds = new ArrayList<>();
+        for (String envName : vd.getEnvironments()) {
+            Environment env = findEnvironmentByName(envName);
+            envIds.add(env.getId());
+        }
+        for (VPCOrgProvisioningDescriptor o : vd.getOrganizations()) {
+            Organization subOrg = client.findOrganization(o.getName());
+            orgIds.add(subOrg.getId());
+        }
+        vpc.setAssociatedEnvironments(envIds);
+        vpc.setSharedWith(orgIds);
+        vpc.setFirewallRules(vd.getFirewallRules());
+        vpc.setInternalDns(new VPCInternalDns(vd.getDnsServers(), vd.getDnsDomains()));
+        String json = client.getHttpHelper().httpPost("/cloudhub/api/organizations/" + id + "/vpcs", vpc);
+        vpc = client.getJsonHelper().readJson(new VPC(), json);
+        for (VPCOrgProvisioningDescriptor o : vd.getOrganizations()) {
+            Organization subOrg = client.findOrganization(o.getName());
+            List<String> eId = new ArrayList<>();
+            for (String e : o.getEnvironments()) {
+                Environment env = subOrg.findEnvironmentByName(e);
+                eId.add(env.getId());
+                Map<String, Object> req = jsonHelper.buildJsonMap().set("id", vpc.getId()).set("isDefault", vpc.isDefaultVpc()).set("associatedEnvironments", eId).toMap();
+                client.httpHelper.httpPut("/cloudhub/api/organizations/" + subOrg.getId() + "/vpcs/" + vpc.getId(), req, env);
+            }
+        }
+        return client.getJsonHelper().readJson(new VPC(), client.httpHelper.httpGet("/cloudhub/api/organizations/" + id + "/vpcs/" + vpc.getId()));
+    }
+
+    public List<VPC> findVPCs() throws HttpException {
+        String json = httpHelper.httpGet("/cloudhub/api/organizations/" + id + "/vpcs/");
+        return jsonHelper.readJsonList(VPC.class,json,this,"/data");
+    }
+
+    public VPC findVPCByName( String name ) throws NotFoundException, HttpException {
+        for (VPC vpc : findVPCs()) {
+            if( vpc.getName().equals(name) ) {
+                return vpc;
+            }
+        }
+        throw new NotFoundException("VPC "+name+" not found");
+    }
 
     public enum RequestAPIAccessResult {
         GRANTED, RESTORED, PENDING

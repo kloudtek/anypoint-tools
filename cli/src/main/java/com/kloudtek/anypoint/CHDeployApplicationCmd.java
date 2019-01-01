@@ -3,7 +3,6 @@ package com.kloudtek.anypoint;
 import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.deploy.CHDeploymentRequest;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
-import com.kloudtek.anypoint.runtime.HDeploymentResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Command;
@@ -26,7 +25,7 @@ public class CHDeployApplicationCmd extends AbstractDeployApplicationCmd {
     @Override
     protected DeploymentResult deploy(Environment environment) throws ProvisioningException, IOException, HttpException, NotFoundException {
         CHDeploymentRequest req = new CHDeploymentRequest(muleVersion, region, workerType, workerCount, environment,
-                appName, file, filename, appProperties, apiProvisioningConfig);
+                appName, source, filename, appProperties, apiProvisioningConfig);
         return req.deploy();
     }
 }

@@ -10,7 +10,6 @@ import com.kloudtek.anypoint.runtime.HApplication;
 import com.kloudtek.anypoint.runtime.HDeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.util.HttpHelper;
-import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.anypoint.util.StreamSource;
 import com.kloudtek.unpack.transformer.SetPropertyTransformer;
 import com.kloudtek.unpack.transformer.Transformer;
@@ -30,7 +29,7 @@ public class HDeploymentRequest extends DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(HDeploymentRequest.class);
     private Server target;
 
-    public HDeploymentRequest(Server target, String appName, File file, String filename, Map<String, String> properties, APIProvisioningConfig apiProvisioningConfig) {
+    public HDeploymentRequest(Server target, String appName, ApplicationSource file, String filename, Map<String, String> properties, APIProvisioningConfig apiProvisioningConfig) {
         super(target.getParent(), appName, file, filename, properties, apiProvisioningConfig);
         this.target = target;
     }
@@ -59,19 +58,22 @@ public class HDeploymentRequest extends DeploymentRequest {
             logger.debug("Couldn't find application named {}", appName);
             request = httpHelper.createMultiPartPostRequest("/hybrid/api/v1/applications", environment);
         }
-        String json = request.addText("artifactName", appName)
-                .addText("targetId",target.getId())
-                .addBinary("file", new StreamSource() {
-                    @Override
-                    public String getFileName() {
-                        return filename;
-                    }
+        HttpHelper.MultiPartRequest multiPartRequest = request.addText("artifactName", appName)
+                .addText("targetId", target.getId());
+        if( source.getLocalFile() != null ) {
+            multiPartRequest.addBinary("file", new StreamSource() {
+                @Override
+                public String getFileName() {
+                    return filename;
+                }
 
-                    @Override
-                    public InputStream createInputStream() throws IOException {
-                        return new FileInputStream(file);
-                    }
-                }).execute();
+                @Override
+                public InputStream createInputStream() throws IOException {
+                    return new FileInputStream(source.getLocalFile());
+                }
+            });
+        }
+        String json = multiPartRequest.execute();
         if (logger.isDebugEnabled()) {
             logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
         }

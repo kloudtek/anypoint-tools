@@ -1,0 +1,13 @@
+{
+  "name": "testvpc",
+  "cidrBlock": "10.0.0.0/16",
+  "defaultVpc": false,
+  "region": "us-west-2",
+  "organizations": [
+    {
+      "name": "someotherorg",
+      "environments": ["Sandbox"]
+    }
+  ],
+  "environments": ["Sandbox"]
+}

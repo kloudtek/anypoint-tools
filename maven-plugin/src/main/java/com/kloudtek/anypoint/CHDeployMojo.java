@@ -44,11 +44,11 @@ public class CHDeployMojo extends AbstractDeployMojo {
 
     @Override
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
-        if( workerCount == null ) {
+        if (workerCount == null) {
             workerCount = 1;
         }
         try {
-            return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, file, filename, properties, apiProvisioningConfig).deploy();
+            return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, source, filename, properties, apiProvisioningConfig).deploy();
         } catch (ProvisioningException | IOException | NotFoundException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }

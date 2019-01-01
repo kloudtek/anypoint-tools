@@ -16,7 +16,6 @@ import com.kloudtek.unpack.transformer.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +40,7 @@ public class CHDeploymentRequest extends DeploymentRequest {
     }
 
     public CHDeploymentRequest(String muleVersionName, String regionName, String workerTypeName, int workerCount,
-                               Environment environment, String appName, File file, String filename,
+                               Environment environment, String appName, ApplicationSource file, String filename,
                                Map<String, String> properties, APIProvisioningConfig apiProvisioningConfig) throws HttpException, NotFoundException {
         super(environment, appName, file, filename, properties, apiProvisioningConfig);
         this.workerCount = workerCount;
@@ -90,18 +89,21 @@ public class CHDeploymentRequest extends DeploymentRequest {
 
         }
         String appInfoJson = new String(client.getJsonHelper().toJson(appInfoBuilder.toMap()));
-        String json = request.addText("appInfoJson", appInfoJson)
-                .addBinary("file", new StreamSource() {
-                    @Override
-                    public String getFileName() {
-                        return filename;
-                    }
+        HttpHelper.MultiPartRequest multiPartRequest = request.addText("appInfoJson", appInfoJson);
+        if( source.getLocalFile() != null ) {
+            multiPartRequest.addBinary("file", new StreamSource() {
+                @Override
+                public String getFileName() {
+                    return filename;
+                }
 
-                    @Override
-                    public InputStream createInputStream() throws IOException {
-                        return new FileInputStream(file);
-                    }
-                }).execute();
+                @Override
+                public InputStream createInputStream() throws IOException {
+                    return new FileInputStream(source.getLocalFile());
+                }
+            });
+        }
+        String json = multiPartRequest.execute();
         if (logger.isDebugEnabled()) {
             logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
         }

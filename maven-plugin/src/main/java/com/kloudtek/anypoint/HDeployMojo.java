@@ -38,7 +38,7 @@ public class HDeployMojo extends AbstractDeployMojo {
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
         try {
             Server server = environment.findServerByName(target);
-            return new HDeploymentRequest(server, appName, file, filename, properties, apiProvisioningConfig).deploy();
+            return new HDeploymentRequest(server, appName, source, filename, properties, apiProvisioningConfig).deploy();
         } catch (NotFoundException e) {
             throw new MojoExecutionException("Target " + target + " not found in env " + env + " in business group " + org);
         } catch (ProvisioningException | IOException e) {

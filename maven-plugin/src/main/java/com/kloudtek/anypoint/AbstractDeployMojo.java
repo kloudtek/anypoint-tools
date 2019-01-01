@@ -1,6 +1,7 @@
 package com.kloudtek.anypoint;
 
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
+import com.kloudtek.anypoint.deploy.ApplicationSource;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.util.MavenUtils;
 import org.apache.maven.plugin.AbstractMojo;
@@ -11,7 +12,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Settings;
 
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractDeployMojo extends AbstractMojo {
@@ -46,10 +46,11 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
     @Parameter(property = "anypoint.deploy.skip", required = false)
     protected boolean skipDeploy;
     /**
-     * File to deploy (only needed when invoking standalone without a valid pom)
+     * File to deploy (only needed when invoking standalone without a valid pom). To deploy from exchange use uri in the format
+     * of <pre>exchange://[orgId]:[groupId]:[artifactId]:[version]</pre> or <pre>exchange://[groupId]:[artifactId]:[version]</pre>
      */
     @Parameter(property = "anypoint.deploy.file", required = false)
-    protected File file;
+    protected String file;
     /**
      * Filename (if not specified the file's name will be used)
      */
@@ -83,6 +84,7 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${settings}", readonly = true)
     private Settings settings;
+    protected ApplicationSource source;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -99,24 +101,25 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
                     if (project == null) {
                         throw new MojoExecutionException("File not specified while running out of project");
                     }
-                    file = MavenUtils.getProjectJar(project, log);
+                    file = MavenUtils.getProjectJar(project, log).getPath();
                 }
+                AnypointClient client = new AnypointClient(username, password);
+                source = ApplicationSource.create(client, file);
                 if (filename == null) {
-                    filename = file.getName();
+                    filename = source.getFileName();
                 }
                 if (appName == null) {
                     if (project != null) {
                         appName = project.getArtifactId();
                     } else {
-                        appName = file.getName();
+                        appName = source.getArtifactId();
                     }
                 }
-                AnypointClient client = new AnypointClient(username, password);
                 Proxy proxy = settings.getActiveProxy();
                 log.debug("Checking debug settings");
                 if (proxy != null) {
                     log.debug("Using proxy: " + proxy.getProtocol() + " " + proxy.getHost() + " " + proxy.getPort());
-                    client.setProxy(proxy.getProtocol(),proxy.getHost(),proxy.getPort(),proxy.getUsername(),proxy.getPassword());
+                    client.setProxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
                 } else {
                     log.debug("No ");
                 }

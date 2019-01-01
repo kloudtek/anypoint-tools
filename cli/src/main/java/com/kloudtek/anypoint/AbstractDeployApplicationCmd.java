@@ -2,15 +2,14 @@ package com.kloudtek.anypoint;
 
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.api.provision.ProvisioningException;
+import com.kloudtek.anypoint.deploy.ApplicationSource;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
-import com.kloudtek.anypoint.runtime.HDeploymentResult;
 import com.kloudtek.util.UserDisplayableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +24,13 @@ public abstract class AbstractDeployApplicationCmd extends AbstractEnvironmentCm
      */
     @Option(description = "Skip API Provisioning", names = {"-sp", "--skip-api-provisioning"})
     protected boolean skipApiProvisioning = false;
-    /**
-     * File to deploy (only needed when invoking standalone without a valid pom)
+     /**
+     * File to deploy. This can either be a filename, or an uri in the format of exchange://[orgId]:[groupId]:[artifactId]:[version]
+      * or exchange://[groupId]:[artifactId]:[version]
      */
     @Parameters(description = "Application archive file", index = "0")
-    protected File file;
+    protected String sourcePath;
+    protected ApplicationSource source;
     /**
      * Application name
      */
@@ -64,11 +65,12 @@ public abstract class AbstractDeployApplicationCmd extends AbstractEnvironmentCm
 
     @Override
     protected void execute(Environment environment) throws Exception {
-        if (file == null) {
+        if (sourcePath == null) {
             throw new UserDisplayableException("File to deploy not specified");
         }
+        source = ApplicationSource.create(environment.getClient(),sourcePath);
         if (filename == null) {
-            filename = file.getName();
+            filename = source.getFileName();
         }
         apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
         if (apiProvisioningConfig != null) {

@@ -12,7 +12,6 @@ import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.unpack.FileType;
 import com.kloudtek.unpack.Unpacker;
-import com.kloudtek.unpack.transformer.SetPropertyTransformer;
 import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.TempFile;
 import com.kloudtek.util.UnexpectedException;
@@ -22,19 +21,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 public abstract class DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(DeploymentRequest.class);
     protected Environment environment;
     protected String appName;
-    protected File file;
+    protected ApplicationSource source;
     protected String filename;
     protected APIProvisioningConfig apiProvisioningConfig;
     protected Map<String, String> properties;
@@ -42,12 +37,12 @@ public abstract class DeploymentRequest {
     public DeploymentRequest() {
     }
 
-    public DeploymentRequest(Environment environment, String appName, File file, String filename,
+    public DeploymentRequest(Environment environment, String appName, ApplicationSource source, String filename,
                              Map<String, String> properties,
                              APIProvisioningConfig apiProvisioningConfig) {
         this.environment = environment;
         this.appName = appName;
-        this.file = file;
+        this.source = source;
         this.filename = filename;
         this.properties = properties;
         this.apiProvisioningConfig = apiProvisioningConfig;
@@ -61,35 +56,37 @@ public abstract class DeploymentRequest {
             APIProvisioningResult provisioningResult = null;
             List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
-                ZipFile zipFile = new ZipFile(file);
-                ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
-                if (anypointJson != null) {
+                APIProvisioningDescriptor apiProvisioningDescriptor = source.getAPIProvisioningDescriptor();
+                if (apiProvisioningDescriptor != null) {
                     logger.debug("Found anypoint.json, provisioning");
-                    APIProvisioningDescriptor apiProvisioningDescriptor;
-                    try (InputStream is = zipFile.getInputStream(anypointJson)) {
-                        apiProvisioningDescriptor = client.getJsonHelper().getJsonMapper().readValue(is, APIProvisioningDescriptor.class);
-                    }
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
                     if (apiProvisioningConfig.isInjectApiId()) {
                         properties.put(apiProvisioningConfig.getInjectApiIdKey(), Integer.toString(provisioningResult.getApi().getId()));
-                        properties.put("anypoint.platform.client_id",environment.getClientId());
-                        properties.put("anypoint.platform.client_secret",environment.getClientSecret());
+                        properties.put("anypoint.platform.client_id", environment.getClientId());
+                        properties.put("anypoint.platform.client_secret", environment.getClientSecret());
                     }
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
                         properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApp.getClientId());
                         properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApp.getClientSecret());
                     }
+                } else {
+                    logger.debug("no anypoint.json found, skipping provisioning");
                 }
             }
             preDeploy(provisioningResult, apiProvisioningConfig, transformers);
             if (!transformers.isEmpty()) {
                 try {
-                    File oldFile = file;
-                    file = new TempFile("tranformed", filename);
-                    Unpacker unpacker = new Unpacker(oldFile, FileType.ZIP, file, FileType.ZIP);
-                    unpacker.addTransformers(transformers);
-                    unpacker.unpack();
+                    if (source instanceof FileApplicationSource || source.getLocalFile() != null) {
+                        File oldFile = source.getLocalFile();
+                        File newFile = new TempFile("tranformed", filename);
+                        source = new FileApplicationSource(client, newFile);
+                        Unpacker unpacker = new Unpacker(oldFile, FileType.ZIP, newFile, FileType.ZIP);
+                        unpacker.addTransformers(transformers);
+                        unpacker.unpack();
+                    } else if (source instanceof ExchangeApplicationSource) {
+                        throw new ProvisioningException("Transformations on exchange sources not supported at this (so OnPrem provisioned deployments won't work with exchange sources until this feature is added)");
+                    }
                 } catch (Exception e) {
                     throw new ProvisioningException("An error occurred while applying application " + appName + " transformations: " + e.getMessage(), e);
                 }
@@ -100,7 +97,7 @@ public abstract class DeploymentRequest {
             throw new UnexpectedException(e);
         } finally {
             if (tmpFile) {
-                IOUtils.close((TempFile) file);
+                IOUtils.close((TempFile) source.getLocalFile());
             }
         }
     }
@@ -125,12 +122,12 @@ public abstract class DeploymentRequest {
         this.appName = appName;
     }
 
-    public File getFile() {
-        return file;
+    public ApplicationSource getSource() {
+        return source;
     }
 
-    public void setFile(File file) {
-        this.file = file;
+    public void setSource(ApplicationSource source) {
+        this.source = source;
     }
 
     public String getFilename() {
