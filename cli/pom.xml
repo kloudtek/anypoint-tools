@@ -19,9 +19,9 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.kloudtek.devmagic</groupId>
-            <artifactId>devmagic-core</artifactId>
-            <version>0.9.10</version>
+            <groupId>com.kloudtek.ktcli</groupId>
+            <artifactId>ktcli</artifactId>
+            <version>0.9.13</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

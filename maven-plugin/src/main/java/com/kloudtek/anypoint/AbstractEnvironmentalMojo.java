@@ -11,12 +11,12 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
     protected String envName;
 
     @Override
-    public void execute(AnypointClient client, Organization org) throws Exception {
+    public void execute(AnypointClient client, Organization organization) throws Exception {
         try {
-            Environment env = org.findEnvironmentByName(envName);
+            Environment env = organization.findEnvironmentByName(envName);
             execute(client, env);
         } catch (NotFoundException e) {
-            throw new UserDisplayableException("Unable to find environment " + envName + " in org " + org.getName());
+            throw new UserDisplayableException("Unable to find environment " + envName + " in org " + organization.getName());
         }
     }
 

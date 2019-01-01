@@ -23,9 +23,11 @@ public class ProvisionVPCCmd extends AbstractOrganizationalCmd {
 
     @Override
     protected void execute(Organization organization) throws IOException, NotFoundException, HttpException {
+        logger.info("Provisioning VPC");
         if( ! file.exists() ) {
             throw new UserDisplayableException("File doesn't exist: "+file.getPath());
         }
         organization.provisionVPC(file, delete);
+        logger.info("VPC Provisioning complete");
     }
 }

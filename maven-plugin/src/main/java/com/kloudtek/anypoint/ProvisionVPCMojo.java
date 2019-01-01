@@ -20,12 +20,12 @@ public class ProvisionVPCMojo extends AbstractOrganizationalMojo {
     private File file;
 
     @Override
-    public void execute(AnypointClient client, Organization org) throws Exception {
+    public void execute(AnypointClient client, Organization organization) throws Exception {
         getLog().info("Provisioning VPC");
         if (!file.exists()) {
             throw new UserDisplayableException("VPC descriptor file not found: " + file.getPath());
         }
-        org.provisionVPC(file, delete);
+        organization.provisionVPC(file, delete);
         getLog().info("VPC Provisioning complete");
     }
 }

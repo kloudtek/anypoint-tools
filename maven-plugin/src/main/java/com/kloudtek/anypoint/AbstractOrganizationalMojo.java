@@ -19,7 +19,7 @@ public abstract class AbstractOrganizationalMojo extends AbstractMojo {
     /**
      * Anypoint organization name
      */
-    @Parameter(name = "org", property = "anypoint.org", required = false)
+    @Parameter(property = "anypoint.org", required = true)
     protected String org;
 
     @Override
@@ -36,5 +36,5 @@ public abstract class AbstractOrganizationalMojo extends AbstractMojo {
         }
     }
 
-    public abstract void execute(AnypointClient client, Organization org) throws Exception;
+    public abstract void execute(AnypointClient client, Organization organization) throws Exception;
 }
