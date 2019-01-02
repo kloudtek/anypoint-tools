@@ -12,7 +12,8 @@ public class MavenUtils {
         if (log.isDebugEnabled()) {
             log.debug("Listing attached artifacts : " + project.getAttachedArtifacts());
         }
-        for (Artifact artifact : project.getAttachedArtifacts()) {
+        for (Object artifactObj : project.getAttachedArtifacts()) {
+            Artifact artifact = (Artifact) artifactObj;
             if (log.isDebugEnabled()) {
                 log.debug("Found : " + artifact.getFile() + " of classifier " + artifact.getClassifier());
             }
@@ -28,7 +29,8 @@ public class MavenUtils {
 
     public static boolean isTemplateOrExample(MavenProject project) {
         if (project != null) {
-            for (Artifact artifact : project.getAttachedArtifacts()) {
+            for (Object artifactObj : project.getAttachedArtifacts()) {
+                Artifact artifact = (Artifact) artifactObj;
                 String classifier = artifact.getClassifier();
                 if (classifier.equals("mule-application-template") || classifier.equals("mule-application-example")) {
                     return true;

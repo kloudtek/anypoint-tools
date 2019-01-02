@@ -1,0 +1,32 @@
+{
+  "name": "My API",
+  "version": "1.0.0",
+  "endpoint": "${url}/xxx",
+  "clientApp": {
+    "name": "myapp-${envtype}"
+  },
+  "policies": [
+    {
+      "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913",
+      "assetId": "header-injection",
+      "assetVersion": "1.0.0",
+      "policyTemplateId": "59",
+      "type": "json",
+      "data": {
+        "inboundHeaders": [
+          {
+            "key": "foo",
+            "value": "bar"
+          }
+        ]
+      }
+    }
+  ],
+  "access": [
+    {
+      "groupId": "68ef9520-24e9-4cf2-b2f5-620025690944",
+      "assetId": "otherapi",
+      "assetVersion": "1.0.0",
+    }
+  ]
+}
