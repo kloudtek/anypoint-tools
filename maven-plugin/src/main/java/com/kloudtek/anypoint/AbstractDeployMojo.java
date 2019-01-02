@@ -81,7 +81,7 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
                 }
                 file = MavenUtils.getProjectJar(project, log).getPath();
             }
-            source = ApplicationSource.create(client, file);
+            source = ApplicationSource.create(environment.getOrganization().getId(), client, file);
             if (filename == null) {
                 filename = source.getFileName();
             }

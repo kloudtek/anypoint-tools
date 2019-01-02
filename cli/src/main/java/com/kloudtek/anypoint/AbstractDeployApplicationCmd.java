@@ -26,7 +26,7 @@ public abstract class AbstractDeployApplicationCmd extends AbstractEnvironmentCm
     protected boolean skipApiProvisioning = false;
      /**
      * File to deploy. This can either be a filename, or an uri in the format of exchange://[orgId]:[groupId]:[artifactId]:[version]
-      * or exchange://[groupId]:[artifactId]:[version]
+      * or exchange://[groupId]:[artifactId]:[version], or exchange://[artifactId]:[version]
      */
     @Parameters(description = "Application archive file", index = "0")
     protected String sourcePath;
@@ -68,7 +68,7 @@ public abstract class AbstractDeployApplicationCmd extends AbstractEnvironmentCm
         if (sourcePath == null) {
             throw new UserDisplayableException("File to deploy not specified");
         }
-        source = ApplicationSource.create(environment.getClient(),sourcePath);
+        source = ApplicationSource.create(environment.getOrganization().getId(),environment.getClient(),sourcePath);
         if (filename == null) {
             filename = source.getFileName();
         }

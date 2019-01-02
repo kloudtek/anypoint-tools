@@ -10,20 +10,15 @@ import com.kloudtek.anypoint.runtime.HApplication;
 import com.kloudtek.anypoint.runtime.HDeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.util.HttpHelper;
-import com.kloudtek.anypoint.util.StreamSource;
 import com.kloudtek.unpack.transformer.SetPropertyTransformer;
 import com.kloudtek.unpack.transformer.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class HDeploymentRequest extends DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(HDeploymentRequest.class);
@@ -60,23 +55,7 @@ public class HDeploymentRequest extends DeploymentRequest {
         }
         HttpHelper.MultiPartRequest multiPartRequest = request.addText("artifactName", appName)
                 .addText("targetId", target.getId());
-        if( source.getLocalFile() != null ) {
-            multiPartRequest.addBinary("file", new StreamSource() {
-                @Override
-                public String getFileName() {
-                    return filename;
-                }
-
-                @Override
-                public InputStream createInputStream() throws IOException {
-                    return new FileInputStream(source.getLocalFile());
-                }
-            });
-        }
-        String json = multiPartRequest.execute();
-        if (logger.isDebugEnabled()) {
-            logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
-        }
+        String json = executeRequest(start, multiPartRequest);
         HApplication application = target.getClient().getJsonHelper().readJson(new HApplication(target), json, "/data");
         return new HDeploymentResult(application);
     }

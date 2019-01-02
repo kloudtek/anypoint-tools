@@ -69,7 +69,7 @@ public abstract class DeployMojo extends AbstractDeployMojo {
     @SuppressWarnings("Duplicates")
     @Override
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
-        ApplicationSource applicationSource = ApplicationSource.create(environment.getClient(), file);
+        ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file);
         if (StringUtils.isBlank(target)) {
             if (workerCount == null) {
                 workerCount = 1;

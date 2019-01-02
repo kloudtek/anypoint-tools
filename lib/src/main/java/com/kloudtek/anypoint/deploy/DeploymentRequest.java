@@ -10,6 +10,8 @@ import com.kloudtek.anypoint.api.provision.APIProvisioningDescriptor;
 import com.kloudtek.anypoint.api.provision.APIProvisioningResult;
 import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
+import com.kloudtek.anypoint.util.HttpHelper;
+import com.kloudtek.anypoint.util.StreamSource;
 import com.kloudtek.unpack.FileType;
 import com.kloudtek.unpack.Unpacker;
 import com.kloudtek.unpack.transformer.Transformer;
@@ -20,10 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public abstract class DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(DeploymentRequest.class);
@@ -144,5 +149,13 @@ public abstract class DeploymentRequest {
 
     public void setApiProvisioningConfig(APIProvisioningConfig apiProvisioningConfig) {
         this.apiProvisioningConfig = apiProvisioningConfig;
+    }
+
+    protected String executeRequest(long start, HttpHelper.MultiPartRequest multiPartRequest) throws HttpException, IOException {
+        String json = multiPartRequest.execute();
+        if (logger.isDebugEnabled()) {
+            logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
+        }
+        return json;
     }
 }

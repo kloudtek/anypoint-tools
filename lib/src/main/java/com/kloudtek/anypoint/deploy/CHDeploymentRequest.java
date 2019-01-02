@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -63,22 +64,13 @@ public class CHDeploymentRequest extends DeploymentRequest {
 
     @Override
     protected DeploymentResult doDeploy() throws IOException, HttpException {
-        HttpHelper.MultiPartRequest request;
         long start = System.currentTimeMillis();
         AnypointClient client = environment.getClient();
         HttpHelper httpHelper = client.getHttpHelper();
-        JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap()
-                .set("properties", properties);
-        try {
-            logger.debug("Searching for pre-existing application named " + appName);
-            CHApplication application = environment.findCHApplicationByDomain(appName);
-            logger.debug("Found application named {}", appName);
-            request = httpHelper.createMultiPartPutRequest("/cloudhub/api/v2/applications/" + application.getDomain(),
-                    environment);
-        } catch (NotFoundException e) {
-            logger.debug("Couldn't find application named {}", appName);
-            request = httpHelper.createMultiPartPostRequest("/cloudhub/api/v2/applications", getEnvironment())
-                    .addText("autoStart", "true");
+        JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap();
+        CHApplication existingApp = getExistingApp(appName);
+        if( existingApp == null) {
+            appInfoBuilder.set("properties", properties);
             appInfoBuilder.set("domain", appName)
                     .set("monitoringEnabled", true)
                     .set("monitoringAutoRestart", true)
@@ -89,25 +81,60 @@ public class CHDeploymentRequest extends DeploymentRequest {
                     .set("amount", workerCount)
                     .set("type", workerType);
         }
-        String appInfoJson = new String(client.getJsonHelper().toJson(appInfoBuilder.toMap()));
-        HttpHelper.MultiPartRequest multiPartRequest = request.addText("appInfoJson", appInfoJson);
+        Map<String, Object> appInfo = appInfoBuilder.toMap();
+        String deploymentJson;
         if( source.getLocalFile() != null ) {
-            multiPartRequest.addBinary("file", new StreamSource() {
-                @Override
-                public String getFileName() {
-                    return filename;
-                }
+            HttpHelper.MultiPartRequest req;
+            if( existingApp != null ) {
+                req = httpHelper.createMultiPartPutRequest("/cloudhub/api/v2/applications/" + existingApp.getDomain(),
+                        environment);
+            } else {
+                req = httpHelper.createMultiPartPostRequest("/cloudhub/api/v2/applications", getEnvironment());
+                req = req.addBinary("file", new StreamSource() {
+                    @Override
+                    public String getFileName() {
+                        return filename;
+                    }
 
-                @Override
-                public InputStream createInputStream() throws IOException {
-                    return new FileInputStream(source.getLocalFile());
+                    @Override
+                    public InputStream createInputStream() throws IOException {
+                        return new FileInputStream(source.getLocalFile());
+                    }
+                });
+                req = req.addText("autoStart", "true");
+                if( appInfo != null ) {
+                    String appInfoJson = new String(environment.getClient().getJsonHelper().toJson(appInfo));
+                    req = req.addText("appInfoJson", appInfoJson);
                 }
-            });
+            }
+            deploymentJson = req.execute();
+        } else {
+            Map<String,Object> deployJson = new HashMap<>();
+            deployJson.put("applicationInfo",appInfo);
+            deployJson.put("applicationSource",source.getSourceJson(client.getJsonHelper()));
+            if( existingApp != null ) {
+                deploymentJson = httpHelper.httpPut("/cloudhub/api/v2/applications/" + existingApp.getDomain(),environment);
+            } else {
+                deployJson.put("autoStart",true);
+                deploymentJson = httpHelper.httpPut("/cloudhub/api/v2/applications/",environment);
+            }
         }
-        String json = multiPartRequest.execute();
         if (logger.isDebugEnabled()) {
             logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
         }
-        return new CHDeploymentResult(client.getJsonHelper().readJson(new CHApplication(), json, environment));
+        return new CHDeploymentResult(client.getJsonHelper().readJson(new CHApplication(), deploymentJson, environment));
     }
+
+    private CHApplication getExistingApp(String appName) throws HttpException {
+        try {
+            logger.debug("Searching for pre-existing application named " + appName);
+            CHApplication application = environment.findCHApplicationByDomain(appName);
+            logger.debug("Found application named {}", appName);
+            return application;
+        } catch (NotFoundException e) {
+            logger.debug("Couldn't find application named {}", appName);
+            return null;
+        }
+    }
+
 }
