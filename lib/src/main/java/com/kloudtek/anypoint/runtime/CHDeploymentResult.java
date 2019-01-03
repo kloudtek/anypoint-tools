@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 public class CHDeploymentResult extends DeploymentResult {
     private static final Logger logger = LoggerFactory.getLogger(CHDeploymentResult.class);
     static final String DEPLOYMENT_FAILED = "DEPLOYMENT_FAILED";
+    static final String DEPLOY_FAILED = "DEPLOY_FAILED";
     static final String STARTED = "STARTED";
+    public static final String UNDEPLOYED = "UNDEPLOYED";
     private CHApplication application;
 
     public CHDeploymentResult(CHApplication application) {
@@ -24,8 +26,11 @@ public class CHDeploymentResult extends DeploymentResult {
         for (; ; ) {
             try {
                 application = application.refresh();
-                if (application.getStatus().equalsIgnoreCase(DEPLOYMENT_FAILED)) {
+                if (DEPLOYMENT_FAILED.equalsIgnoreCase(application.getStatus())) {
                     logger.debug("Deployment failed due to status: " + application.getStatus());
+                    throw new ApplicationDeploymentFailedException();
+                } else if (DEPLOY_FAILED.equalsIgnoreCase(application.getDeploymentUpdateStatus())) {
+                    logger.debug("Deployment failed due to deployment update status: " + application.getDeploymentUpdateStatus());
                     throw new ApplicationDeploymentFailedException();
                 } else if (application.getStatus().equalsIgnoreCase(STARTED)
                         && application.getDeploymentUpdateStatus() == null

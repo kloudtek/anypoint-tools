@@ -8,7 +8,9 @@ import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.api.provision.APIProvisioningResult;
 import com.kloudtek.anypoint.cloudhub.CHMuleVersion;
 import com.kloudtek.anypoint.cloudhub.CHWorkerType;
-import com.kloudtek.anypoint.runtime.*;
+import com.kloudtek.anypoint.runtime.CHApplication;
+import com.kloudtek.anypoint.runtime.CHDeploymentResult;
+import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.anypoint.util.StreamSource;
@@ -69,54 +71,55 @@ public class CHDeploymentRequest extends DeploymentRequest {
         HttpHelper httpHelper = client.getHttpHelper();
         JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap();
         CHApplication existingApp = getExistingApp(appName);
-        if( existingApp == null) {
-            appInfoBuilder.set("properties", properties);
-            appInfoBuilder.set("domain", appName)
-                    .set("monitoringEnabled", true)
-                    .set("monitoringAutoRestart", true)
-                    .set("loggingNgEnabled", true)
-                    .set("loggingCustomLog4JEnabled", apiProvisioningConfig.isCustomLog4j())
-                    .set("fileName", filename);
-            appInfoBuilder.addMap("workers")
-                    .set("amount", workerCount)
-                    .set("type", workerType);
-        }
+        appInfoBuilder.set("properties", properties)
+                .set("domain", appName)
+                .set("monitoringEnabled", true)
+                .set("monitoringAutoRestart", true)
+                .set("loggingNgEnabled", true)
+                .set("loggingCustomLog4JEnabled", apiProvisioningConfig.isCustomLog4j());
+        appInfoBuilder.addMap("muleVersion").set("version", muleVersion.getVersion()).set("updateId", muleVersion.getLatestUpdate().getId());
+        appInfoBuilder.addMap("workers")
+                .set("amount", workerCount)
+                .addMap("type")
+                .set("name", workerType.getName())
+                .set("weight", workerType.getWeight())
+                .set("cpu", workerType.getCpu())
+                .set("memory", workerType.getMemory());
+        appInfoBuilder.set("fileName", filename);
         Map<String, Object> appInfo = appInfoBuilder.toMap();
         String deploymentJson;
-        if( source.getLocalFile() != null ) {
+        if (source.getLocalFile() != null) {
             HttpHelper.MultiPartRequest req;
-            if( existingApp != null ) {
+            if (existingApp != null) {
                 req = httpHelper.createMultiPartPutRequest("/cloudhub/api/v2/applications/" + existingApp.getDomain(),
                         environment);
             } else {
                 req = httpHelper.createMultiPartPostRequest("/cloudhub/api/v2/applications", getEnvironment());
-                req = req.addBinary("file", new StreamSource() {
-                    @Override
-                    public String getFileName() {
-                        return filename;
-                    }
-
-                    @Override
-                    public InputStream createInputStream() throws IOException {
-                        return new FileInputStream(source.getLocalFile());
-                    }
-                });
                 req = req.addText("autoStart", "true");
-                if( appInfo != null ) {
-                    String appInfoJson = new String(environment.getClient().getJsonHelper().toJson(appInfo));
-                    req = req.addText("appInfoJson", appInfoJson);
-                }
             }
+            String appInfoJson = new String(environment.getClient().getJsonHelper().toJson(appInfo));
+            req = req.addText("appInfoJson", appInfoJson);
+            req = req.addBinary("file", new StreamSource() {
+                @Override
+                public String getFileName() {
+                    return filename;
+                }
+
+                @Override
+                public InputStream createInputStream() throws IOException {
+                    return new FileInputStream(source.getLocalFile());
+                }
+            });
             deploymentJson = req.execute();
         } else {
-            Map<String,Object> deployJson = new HashMap<>();
-            deployJson.put("applicationInfo",appInfo);
-            deployJson.put("applicationSource",source.getSourceJson(client.getJsonHelper()));
-            if( existingApp != null ) {
-                deploymentJson = httpHelper.httpPut("/cloudhub/api/v2/applications/" + existingApp.getDomain(),environment);
+            Map<String, Object> deployJson = new HashMap<>();
+            deployJson.put("applicationInfo", appInfo);
+            deployJson.put("applicationSource", source.getSourceJson(client.getJsonHelper()));
+            if (existingApp != null) {
+                deploymentJson = httpHelper.httpPut("/cloudhub/api/v2/applications/" + existingApp.getDomain(), deployJson, environment);
             } else {
-                deployJson.put("autoStart",true);
-                deploymentJson = httpHelper.httpPut("/cloudhub/api/v2/applications/",environment);
+                deployJson.put("autoStart", true);
+                deploymentJson = httpHelper.httpPost("/cloudhub/api/v2/applications/", deployJson, environment);
             }
         }
         if (logger.isDebugEnabled()) {

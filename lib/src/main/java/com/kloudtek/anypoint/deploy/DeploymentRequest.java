@@ -11,7 +11,6 @@ import com.kloudtek.anypoint.api.provision.APIProvisioningResult;
 import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.util.HttpHelper;
-import com.kloudtek.anypoint.util.StreamSource;
 import com.kloudtek.unpack.FileType;
 import com.kloudtek.unpack.Unpacker;
 import com.kloudtek.unpack.transformer.Transformer;
@@ -22,10 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -66,12 +64,14 @@ public abstract class DeploymentRequest {
                     logger.debug("Found anypoint.json, provisioning");
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
                     if (apiProvisioningConfig.isInjectApiId()) {
+                        initProperties();
                         properties.put(apiProvisioningConfig.getInjectApiIdKey(), Integer.toString(provisioningResult.getApi().getId()));
                         properties.put("anypoint.platform.client_id", environment.getClientId());
                         properties.put("anypoint.platform.client_secret", environment.getClientSecret());
                     }
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
+                        initProperties();
                         properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApp.getClientId());
                         properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApp.getClientSecret());
                     }
@@ -104,6 +104,12 @@ public abstract class DeploymentRequest {
             if (tmpFile) {
                 IOUtils.close((TempFile) source.getLocalFile());
             }
+        }
+    }
+
+    private void initProperties() {
+        if (properties == null) {
+            properties = new HashMap<>();
         }
     }
 

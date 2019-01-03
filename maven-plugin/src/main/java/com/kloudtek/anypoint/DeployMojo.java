@@ -8,6 +8,7 @@ import com.kloudtek.anypoint.deploy.HDeploymentRequest;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -16,7 +17,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @Mojo(name = "deploy", requiresProject = false)
-public abstract class DeployMojo extends AbstractDeployMojo {
+public class DeployMojo extends AbstractDeployMojo {
     /**
      * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
      */
@@ -70,27 +71,31 @@ public abstract class DeployMojo extends AbstractDeployMojo {
     @Override
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
         ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file);
-        if (StringUtils.isBlank(target)) {
-            if (workerCount == null) {
-                workerCount = 1;
-            }
-            try {
-                if (customlog4j) {
-                    apiProvisioningConfig.setCustomLog4j(customlog4j);
+        try {
+            if (StringUtils.isBlank(target)) {
+                if (workerCount == null) {
+                    workerCount = 1;
                 }
-                return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, applicationSource, filename, properties, apiProvisioningConfig).deploy();
-            } catch (ProvisioningException | IOException | NotFoundException e) {
-                throw new MojoExecutionException(e.getMessage(), e);
+                try {
+                    if (customlog4j) {
+                        apiProvisioningConfig.setCustomLog4j(customlog4j);
+                    }
+                    return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, applicationSource, filename, properties, apiProvisioningConfig).deploy();
+                } catch (ProvisioningException | IOException | NotFoundException e) {
+                    throw new MojoExecutionException(e.getMessage(), e);
+                }
+            } else {
+                try {
+                    Server server = environment.findServerByName(target);
+                    return new HDeploymentRequest(server, appName, applicationSource, filename, properties, apiProvisioningConfig).deploy();
+                } catch (NotFoundException e) {
+                    throw new MojoExecutionException("Target " + target + " not found in env " + environment + " in business group " + org);
+                } catch (ProvisioningException | IOException e) {
+                    throw new MojoExecutionException(e.getMessage(), e);
+                }
             }
-        } else {
-            try {
-                Server server = environment.findServerByName(target);
-                return new HDeploymentRequest(server, appName, applicationSource, filename, properties, apiProvisioningConfig).deploy();
-            } catch (NotFoundException e) {
-                throw new MojoExecutionException("Target " + target + " not found in env " + environment + " in business group " + org);
-            } catch (ProvisioningException | IOException e) {
-                throw new MojoExecutionException(e.getMessage(), e);
-            }
+        } finally {
+            IOUtils.close(applicationSource);
         }
     }
 }

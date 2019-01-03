@@ -4,6 +4,7 @@ import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
 import com.kloudtek.anypoint.deploy.ApplicationSource;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.anypoint.util.MavenUtils;
+import com.kloudtek.util.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -70,6 +71,9 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
         Log log = getLog();
         if (!skipDeploy) {
             MavenProject project = (MavenProject) getPluginContext().get("project");
+            if (project.getArtifactId().equals("standalone-pom") && project.getGroupId().equals("org.apache.maven")) {
+                project = null;
+            }
             if (MavenUtils.isTemplateOrExample(project) && !force) {
                 log.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
                 return;
@@ -81,33 +85,37 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
                 }
                 file = MavenUtils.getProjectJar(project, log).getPath();
             }
-            source = ApplicationSource.create(environment.getOrganization().getId(), client, file);
-            if (filename == null) {
-                filename = source.getFileName();
-            }
-            if (appName == null) {
-                if (project != null) {
-                    appName = project.getArtifactId();
-                } else {
-                    appName = source.getArtifactId();
+            source = ApplicationSource.create(env.getOrganization().getId(), client, file);
+            try {
+                if (filename == null) {
+                    filename = source.getFileName();
                 }
+                if (appName == null) {
+                    if (project != null) {
+                        appName = project.getArtifactId();
+                    } else {
+                        appName = source.getArtifactId();
+                    }
+                }
+                Proxy proxy = settings.getActiveProxy();
+                log.debug("Checking debug settings");
+                if (proxy != null) {
+                    log.debug("Using proxy: " + proxy.getProtocol() + " " + proxy.getHost() + " " + proxy.getPort());
+                    client.setProxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
+                } else {
+                    log.debug("No proxy specified");
+                }
+                APIProvisioningConfig apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
+                DeploymentResult app = deploy(env, apiProvisioningConfig);
+                if (!skipWait) {
+                    log.info("Waiting for application start");
+                    app.waitDeployed(deployTimeout, deployRetryDelay);
+                    log.info("Application started successfully");
+                }
+                log.info("Deployment completed successfully");
+            } finally {
+                IOUtils.close(source);
             }
-            Proxy proxy = settings.getActiveProxy();
-            log.debug("Checking debug settings");
-            if (proxy != null) {
-                log.debug("Using proxy: " + proxy.getProtocol() + " " + proxy.getHost() + " " + proxy.getPort());
-                client.setProxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
-            } else {
-                log.debug("No ");
-            }
-            APIProvisioningConfig apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
-            DeploymentResult app = deploy(env, apiProvisioningConfig);
-            if (!skipWait) {
-                log.info("Waiting for application start");
-                app.waitDeployed(deployTimeout, deployRetryDelay);
-                log.info("Application started successfully");
-            }
-            log.info("Deployment completed successfully");
         }
     }
 

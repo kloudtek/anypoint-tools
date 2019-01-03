@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:oauth="http://www.mulesoft.org/schema/mule/oauth" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
-http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
+
 http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
     <http:listener-config name="api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8888" />
     </http:listener-config>
     <apikit:config name="api-config" raml="api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-	<api-gateway:autodiscovery apiId="${api.id}" doc:name="API Autodiscovery" doc:id="7e9c6318-a04d-44dd-aaa5-dc0d11cb9fbb" flowRef="api-main" />
+    <api-gateway:autodiscovery apiId="${anypoint.api.id}" doc:name="API Autodiscovery"
+                               doc:id="7e9c6318-a04d-44dd-aaa5-dc0d11cb9fbb" flowRef="api-main"/>
 	<flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/*">
             <http:response statusCode="#[vars.httpStatus default 200]">

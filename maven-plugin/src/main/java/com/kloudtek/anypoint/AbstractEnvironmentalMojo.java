@@ -7,16 +7,16 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
     /**
      * Anypoint Environment name
      */
-    @Parameter(name = "env", property = "anypoint.env", required = true)
-    protected String envName;
+    @Parameter(property = "anypoint.env", required = true)
+    protected String env;
 
     @Override
     public void execute(AnypointClient client, Organization organization) throws Exception {
         try {
-            Environment env = organization.findEnvironmentByName(envName);
-            execute(client, env);
+            Environment environment = organization.findEnvironmentByName(env);
+            execute(client, environment);
         } catch (NotFoundException e) {
-            throw new UserDisplayableException("Unable to find environment " + envName + " in org " + organization.getName());
+            throw new UserDisplayableException("Unable to find environment " + env + " in org " + organization.getName());
         }
     }
 

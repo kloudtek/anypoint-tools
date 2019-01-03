@@ -3,9 +3,11 @@ package com.kloudtek.anypoint.util;
 import com.kloudtek.anypoint.AnypointClient;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.HttpException;
+import com.kloudtek.util.Base64;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -26,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,6 +67,21 @@ public class HttpHelper implements Closeable {
             throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         httpClient = HttpClients.createMinimal();
+    }
+
+    public void httpGetBasicAuth(String path, OutputStream outputStream) throws HttpException {
+        logger.debug("HTTP GET W/ BASIC AUTH: " + path);
+        HttpGet request = new HttpGet(convertPath(path));
+        setBasicAuthHeader(request);
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            verifyStatusCode(request, response);
+            if (response.getEntity() == null) {
+                throw new HttpException("Not body returned by url " + request.getURI());
+            }
+            IOUtils.copy(response.getEntity().getContent(), outputStream);
+        } catch (IOException e) {
+            throw new HttpException(e.getMessage(), e);
+        }
     }
 
     public String httpGet(String path, Environment env) throws HttpException {
@@ -220,16 +239,7 @@ public class HttpHelper implements Closeable {
             method.setHeader(HEADER_AUTH, auth);
         }
         try (CloseableHttpResponse response = httpClient.execute(method)) {
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode < 200 || statusCode > 299) {
-                String errMsg;
-                if (response.getEntity() != null && response.getEntity().getContent() != null) {
-                    errMsg = " : " + IOUtils.toString(response.getEntity().getContent());
-                } else {
-                    errMsg = "";
-                }
-                throw new HttpException("Anypoint returned status code " + statusCode + " - url: " + method.getURI() + " - err: " + errMsg, statusCode);
-            }
+            verifyStatusCode(method, response);
             if (response.getEntity() != null && response.getEntity().getContent() != null) {
                 String resStr = IOUtils.toString(response.getEntity().getContent());
                 logger.debug("RESULT CONTENT: " + resStr);
@@ -239,6 +249,19 @@ public class HttpHelper implements Closeable {
             }
         } catch (IOException e) {
             throw new RuntimeIOException(e);
+        }
+    }
+
+    private void verifyStatusCode(HttpRequestBase method, CloseableHttpResponse response) throws IOException, HttpException {
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode < 200 || statusCode > 299) {
+            String errMsg;
+            if (response.getEntity() != null && response.getEntity().getContent() != null) {
+                errMsg = " : " + IOUtils.toString(response.getEntity().getContent());
+            } else {
+                errMsg = "";
+            }
+            throw new HttpException("Anypoint returned status code " + statusCode + " - url: " + method.getURI() + " - err: " + errMsg, statusCode);
         }
     }
 
@@ -358,5 +381,17 @@ public class HttpHelper implements Closeable {
         headers.put("x-organization-id", orgId);
         headers.put("x-owner-id", ownerId);
         return headers;
+    }
+
+    private HttpRequestBase setBasicAuthHeader(HttpRequestBase request) {
+        String authStr = username + ":" + password;
+        byte[] encodedAuth = Base64.encodeBase64(authStr.getBytes(StandardCharsets.ISO_8859_1));
+        String authHeader = "Basic " + new String(encodedAuth);
+        request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+        return request;
+    }
+
+    public CloseableHttpClient getHttpClient() {
+        return httpClient;
     }
 }

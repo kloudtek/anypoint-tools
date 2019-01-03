@@ -73,6 +73,10 @@ w/ env headers
 }
 ```
 
+169.254.11.252/30
+169.254.11.252/30
+
+
 # Create
 
 POST https://anypoint.mulesoft.com/cloudhub/api/organizations/e31ffbce-99c8-49a7-be77-61cccdab240b/vpcs/vpc-09f2f6500f62ed1fd/ipsec

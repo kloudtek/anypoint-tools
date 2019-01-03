@@ -1,5 +1,5 @@
 {
-  "name": "My API",
+  "name": "testapp",
   "version": "1.0.0",
   "endpoint": "${url}/xxx",
   "clientApp": {
@@ -24,7 +24,7 @@
   ],
   "access": [
     {
-      "groupId": "68ef9520-24e9-4cf2-b2f5-620025690944",
+      "groupId": "d002eff8-84a5-452f-bce6-145f4a688311",
       "assetId": "otherapi",
       "assetVersion": "1.0.0"
     }

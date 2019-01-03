@@ -9,5 +9,10 @@
       "environments": ["Sandbox"]
     }
   ],
+  "vpn": [
+    {
+      "remoteIp":
+    }
+  ],
   "environments": ["Sandbox"]
 }

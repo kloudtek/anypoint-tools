@@ -5,6 +5,7 @@ import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.deploy.ApplicationSource;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
 import com.kloudtek.util.UserDisplayableException;
+import com.kloudtek.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Option;
@@ -69,20 +70,24 @@ public abstract class AbstractDeployApplicationCmd extends AbstractEnvironmentCm
             throw new UserDisplayableException("File to deploy not specified");
         }
         source = ApplicationSource.create(environment.getOrganization().getId(),environment.getClient(),sourcePath);
-        if (filename == null) {
-            filename = source.getFileName();
+        try {
+            if (filename == null) {
+                filename = source.getFileName();
+            }
+            apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
+            if (apiProvisioningConfig != null) {
+                apiProvisioningConfig.setVariables(provisioningVars);
+                apiProvisioningConfig.setAccessedBy(accessedBy);
+            }
+            DeploymentResult app = deploy(environment);
+            if (!skipWait) {
+                app.waitDeployed(waitForStartTimeout, redeployDelay);
+                logger.info("Application started successfully");
+            }
+            logger.info("Deployment completed successfully");
+        } finally {
+            IOUtils.close(source);
         }
-        apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
-        if (apiProvisioningConfig != null) {
-            apiProvisioningConfig.setVariables(provisioningVars);
-            apiProvisioningConfig.setAccessedBy(accessedBy);
-        }
-        DeploymentResult app = deploy(environment);
-        if (!skipWait) {
-            app.waitDeployed(waitForStartTimeout, redeployDelay);
-            logger.info("Application started successfully");
-        }
-        logger.info("Deployment completed successfully");
     }
 
     protected abstract DeploymentResult deploy(Environment environment) throws ProvisioningException, IOException, HttpException, NotFoundException;

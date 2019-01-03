@@ -4,20 +4,13 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.aether.repository.Authentication;
-import org.eclipse.aether.repository.AuthenticationSelector;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -35,7 +28,7 @@ public class PrepareProjectMojo extends AbstractOrganizationalMojo {
     private String mavenExchangeDomain;
     @Parameter(defaultValue = "true")
     private boolean updateGroupId;
-    @Parameter(defaultValue = "true",property = "anypoint.prepare.updateVersionIfSnapshot")
+    @Parameter(defaultValue = "true", property = "anypoint.prepare.updateVersionIfSnapshot")
     private boolean updateVersionIfSnapshot;
     @Parameter(defaultValue = "true")
     private boolean addDistributionManagement;
@@ -58,21 +51,21 @@ public class PrepareProjectMojo extends AbstractOrganizationalMojo {
         }
         if (updateVersionIfSnapshot && project.getArtifact() != null && project.getArtifact().isSnapshot()) {
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-            String version = project.getVersion() + "-"+timestamp;
+            String version = project.getVersion() + "-" + timestamp;
             project.setVersion(version);
 //            if (project.getAttachedArtifacts() != null) {
 //                for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
 //                    attachedArtifact.setVersion(version);
 //                }
 //            }
-            if( project.getArtifact() != null ) {
+            if (project.getArtifact() != null) {
                 project.getArtifact().setVersion(version);
                 project.getArtifact().setVersionRange(VersionRange.createFromVersion(version));
             }
         }
         if (addDistributionManagement) {
             MavenArtifactRepository repo = new MavenArtifactRepository();
-            repo.setAuthentication(new org.apache.maven.artifact.repository.Authentication(username,password));
+            repo.setAuthentication(new org.apache.maven.artifact.repository.Authentication(username, password));
             repo.setId("exchange-maven-" + organization.getId());
             repo.setUrl("https://" + mavenExchangeDomain + "/api/v1/organizations/" + organization.getId() + "/maven");
             repo.setLayout(new DefaultRepositoryLayout());
