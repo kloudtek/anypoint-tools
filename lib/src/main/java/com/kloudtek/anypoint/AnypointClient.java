@@ -6,7 +6,6 @@ import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnexpectedException;
-import org.apache.http.client.config.RequestConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
@@ -127,7 +126,7 @@ public class AnypointClient implements Closeable, Serializable {
         throw new NotFoundException("Organization not found: " + name);
     }
 
-    public Organization getOrganization(String id) throws HttpException, NotFoundException {
+    public Organization findOrganizationById(String id) throws HttpException, NotFoundException {
         Organization organization = createOrganizationObject();
         organization.setId(id);
         try {

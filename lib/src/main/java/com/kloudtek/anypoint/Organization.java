@@ -9,7 +9,9 @@ import com.kloudtek.anypoint.exchange.ExchangeAsset;
 import com.kloudtek.anypoint.exchange.ExchangeAssetOverview;
 import com.kloudtek.anypoint.provisioning.VPCOrgProvisioningDescriptor;
 import com.kloudtek.anypoint.provisioning.VPCProvisioningDescriptor;
+import com.kloudtek.anypoint.runtime.manifest.ReleaseManifest;
 import com.kloudtek.anypoint.util.JsonHelper;
+import com.kloudtek.util.BackendAccessException;
 import com.kloudtek.util.ThreadUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,8 +22,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Organization extends AnypointObject {
+    public static final Pattern MAJORVERSION_REGEX = Pattern.compile("(\\d*)\\..*");
     private static final Logger logger = LoggerFactory.getLogger(Organization.class);
     @JsonProperty
     protected String id;
@@ -93,7 +98,7 @@ public class Organization extends AnypointObject {
     public Organization getParentOrganization() throws HttpException {
         if (parentId != null) {
             try {
-                return client.getOrganization(parentId);
+                return client.findOrganizationById(parentId);
             } catch (NotFoundException e) {
                 throw (HttpException) e.getCause();
             }
@@ -353,7 +358,7 @@ public class Organization extends AnypointObject {
     }
 
     public VPC provisionVPC(VPCProvisioningDescriptor vd, boolean deleteExisting) throws NotFoundException, HttpException {
-        if( deleteExisting ) {
+        if (deleteExisting) {
             try {
                 VPC preExistingVPC = findVPCByName(vd.getName());
                 preExistingVPC.delete();
@@ -393,21 +398,53 @@ public class Organization extends AnypointObject {
 
     public void provisionVPC(File file, boolean deleteExisting) throws NotFoundException, HttpException, IOException {
         VPCProvisioningDescriptor vpcProvisioningDescriptor = jsonHelper.getJsonMapper().readValue(file, VPCProvisioningDescriptor.class);
-        provisionVPC(vpcProvisioningDescriptor,deleteExisting);
+        provisionVPC(vpcProvisioningDescriptor, deleteExisting);
     }
 
     public List<VPC> findVPCs() throws HttpException {
         String json = httpHelper.httpGet("/cloudhub/api/organizations/" + id + "/vpcs/");
-        return jsonHelper.readJsonList(VPC.class,json,this,"/data");
+        return jsonHelper.readJsonList(VPC.class, json, this, "/data");
     }
 
-    public VPC findVPCByName( String name ) throws NotFoundException, HttpException {
+    public VPC findVPCByName(String name) throws NotFoundException, HttpException {
         for (VPC vpc : findVPCs()) {
-            if( vpc.getName().equals(name) ) {
+            if (vpc.getName().equals(name)) {
                 return vpc;
             }
         }
-        throw new NotFoundException("VPC "+name+" not found");
+        throw new NotFoundException("VPC " + name + " not found");
+    }
+
+    public ReleaseManifest findExchangeReleaseManifest(String id) {
+        String name = "Release Manifest: " + id;
+        String artifactId = "relmanifest-" + id;
+        String version;
+        try {
+            logger.debug("Searching exchange assets " + id + " : " + artifactId);
+            ExchangeAsset asset = findExchangeAsset(id, artifactId);
+            int oldestVersion = 0;
+            for (AssetVersion assetVersion : asset.getVersions()) {
+                String v = assetVersion.getVersion();
+                Matcher m = MAJORVERSION_REGEX.matcher(v);
+                logger.debug("Found version" + v);
+                if (!m.find()) {
+                    throw new IllegalStateException("Invalid manifest version in exchange: " + v);
+                }
+                try {
+                    int vNb = Integer.parseInt(m.group(1));
+                    if (vNb > oldestVersion) {
+                        oldestVersion = vNb;
+                    }
+                } catch (NumberFormatException e) {
+                    throw new IllegalStateException("Invalid manifest version in exchange: " + v);
+                }
+            }
+            version = oldestVersion + ".0.0";
+        } catch (HttpException e) {
+            throw new BackendAccessException(e);
+        } catch (NotFoundException e) {
+            version = "1.0.0";
+        }
     }
 
     public enum RequestAPIAccessResult {
