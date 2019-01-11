@@ -1,6 +1,5 @@
 package com.kloudtek.anypoint;
 
-import com.kloudtek.anypoint.runtime.manifest.ReleaseManifestDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -26,7 +25,8 @@ public class UpdateReleaseManifestCmd extends AbstractOrganizationalCmd {
 
     @Override
     protected void execute(Organization organization) throws IOException, NotFoundException, HttpException {
-        ReleaseManifestDAO manifest = ReleaseManifestDAO.load(organization, manifestUri);
-        manifest.update(groupId, artifactId, version);
+//        organization.findExchangeReleaseManifest()
+//        ReleaseManifestDAO manifest = ReleaseManifestDAO.load(organization, manifestUri);
+//        manifest.(groupId, artifactId, version);
     }
 }

@@ -415,7 +415,7 @@ public class Organization extends AnypointObject {
         throw new NotFoundException("VPC " + name + " not found");
     }
 
-    public ReleaseManifest findExchangeReleaseManifest(String id) {
+    public ReleaseManifest findExchangeReleaseManifest(String uri) {
         String name = "Release Manifest: " + id;
         String artifactId = "relmanifest-" + id;
         String version;
@@ -445,6 +445,7 @@ public class Organization extends AnypointObject {
         } catch (NotFoundException e) {
             version = "1.0.0";
         }
+        return null;
     }
 
     public enum RequestAPIAccessResult {
