@@ -26,18 +26,18 @@ public class PrepareProjectMojo extends AbstractOrganizationalMojo {
      */
     @Parameter(defaultValue = "maven.anypoint.mulesoft.com")
     private String mavenExchangeDomain;
-    @Parameter(defaultValue = "true")
-    private boolean updateGroupId;
     @Parameter(defaultValue = "true", property = "anypoint.prepare.updateVersionIfSnapshot")
     private boolean updateVersionIfSnapshot;
     @Parameter(defaultValue = "true")
     private boolean addDistributionManagement;
     @Requirement
     private LegacySupport legacySupport;
+    @Parameter(defaultValue = "false", property = "anypoint.prepare.skip")
+    private boolean skip;
 
     @Override
     public void execute(AnypointClient client, Organization organization) throws Exception {
-        if (updateGroupId) {
+        if (!skip) {
             String groupId = organization.getId();
             project.setGroupId(groupId);
             if (project.getAttachedArtifacts() != null) {
