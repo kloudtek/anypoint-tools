@@ -10,7 +10,7 @@
     <description>Anypoint tools greatly facilitate interaction with mulesoft's anypoint services</description>
     <url>https://github.com/kloudtek/anypoint-tools</url>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.9.40</version>
 
     <organization>
         <name>Kloudtek</name>
