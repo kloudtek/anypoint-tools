@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
-import java.util.List;
 
 public abstract class ReleaseManifestDAO {
     protected Organization organization;
@@ -32,27 +31,27 @@ public abstract class ReleaseManifestDAO {
     }
 
     public synchronized void setArtifactVersion(@Nullable String groupId, @NotNull String artifactId, @NotNull String version) {
-        ReleaseManifestArtifact artifact = findArtifact(groupId, artifactId);
-        if (artifact == null) {
-            artifacts.add(new ReleaseManifestArtifact(orgId, groupId, artifactId, version));
-        } else {
-            artifact.setVersion(version);
-        }
+//        ReleaseManifestArtifact artifact = findArtifact(groupId, artifactId);
+//        if (artifact == null) {
+//            artifacts.add(new ReleaseManifestArtifact(orgId, groupId, artifactId, version));
+//        } else {
+//            artifact.setVersion(version);
+//        }
     }
 
     public synchronized void removeArtifact(String groupId, String artifactId) {
-        ReleaseManifestArtifact artifact = findArtifact(groupId, artifactId);
-        if (artifact != null) {
-            artifacts.remove(artifact);
-        }
+//        ReleaseManifestArtifact artifact = findArtifact(groupId, artifactId);
+//        if (artifact != null) {
+//            artifacts.remove(artifact);
+//        }
     }
 
     public ReleaseManifestArtifact findArtifact(String groupId, String artifactId) {
-        for (ReleaseManifestArtifact artifact : artifacts) {
-            if (artifact.getGroupId().equals(groupId) && artifact.getArtifactId().equals(artifactId)) {
-                return artifact;
-            }
-        }
+//        for (ReleaseManifestArtifact artifact : artifacts) {
+//            if (artifact.getGroupId().equals(groupId) && artifact.getArtifactId().equals(artifactId)) {
+//                return artifact;
+//            }
+//        }
         return null;
     }
 
@@ -101,12 +100,12 @@ public abstract class ReleaseManifestDAO {
         this.name = name;
     }
 
-    @JsonProperty
-    public List<ReleaseManifestArtifact> getArtifacts() {
-        return artifacts;
-    }
+//    @JsonProperty
+//    public List<ReleaseManifestArtifact> getArtifacts() {
+//        return artifacts;
+//    }
 
-    public void setArtifacts(List<ReleaseManifestArtifact> artifacts) {
-        this.artifacts = artifacts;
-    }
+//    public void setArtifacts(List<ReleaseManifestArtifact> artifacts) {
+//        this.artifacts = artifacts;
+//    }
 }
