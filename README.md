@@ -23,7 +23,7 @@ a mule maven plugin for deployment.
 ## Benefits of using anypoint-tools vs standard mule plugin
 
 - API Management provisioning
-- Support proxy
+- Support proxies
 - Can be used to deploy a project binary rather than having to build from sources
 - Automatic API Provisioning
 - Supports waiting for successful deployment for onprem as well as CH

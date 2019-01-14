@@ -2,6 +2,8 @@ package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 public class User extends AnypointObject {
     @JsonProperty
     private String id;
@@ -17,6 +19,8 @@ public class User extends AnypointObject {
     private String enabled;
     @JsonProperty
     private Organization organization;
+    @JsonProperty
+    private List<Organization> memberOfOrganizations;
 
     public User() {
     }
@@ -75,6 +79,14 @@ public class User extends AnypointObject {
 
     public void setOrganization(Organization organization) {
         this.organization = organization;
+    }
+
+    public List<Organization> getMemberOfOrganizations() {
+        return memberOfOrganizations;
+    }
+
+    public void setMemberOfOrganizations(List<Organization> memberOfOrganizations) {
+        this.memberOfOrganizations = memberOfOrganizations;
     }
 
     @Override

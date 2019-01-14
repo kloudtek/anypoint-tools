@@ -1,14 +1,11 @@
 package com.kloudtek.anypoint;
 
 import com.kloudtek.anypoint.api.provision.APIProvisioningConfig;
-import com.kloudtek.anypoint.api.provision.ProvisioningException;
 import com.kloudtek.anypoint.deploy.CHDeploymentRequest;
 import com.kloudtek.anypoint.runtime.DeploymentResult;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -44,14 +41,10 @@ public class CHDeployMojo extends AbstractDeployMojo {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
+    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws Exception {
         if (workerCount == null) {
             workerCount = 1;
         }
-        try {
-            return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, source, filename, properties, apiProvisioningConfig).deploy();
-        } catch (ProvisioningException | IOException | NotFoundException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        }
+        return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, source, filename, properties, apiProvisioningConfig).deploy();
     }
 }

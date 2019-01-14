@@ -69,7 +69,7 @@ public class DeployMojo extends AbstractDeployMojo {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
+    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws Exception {
         ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file);
         try {
             if (StringUtils.isBlank(target)) {

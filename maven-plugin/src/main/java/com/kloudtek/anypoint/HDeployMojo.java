@@ -36,7 +36,7 @@ public class HDeployMojo extends AbstractDeployMojo {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws MojoExecutionException, HttpException {
+    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws Exception {
         try {
             Server server = environment.findServerByName(target);
             return new HDeploymentRequest(server, appName, source, filename, properties, apiProvisioningConfig).deploy();
