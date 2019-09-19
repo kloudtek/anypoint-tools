@@ -157,7 +157,6 @@ Use the following plugin to deploy to cloudhub
 </plugin>
 ```
 
-
 # Anypoint Legacy Support
 
 ## Pre Design Center ([november 2017 release](https://blogs.mulesoft.com/dev/news-dev/anypoint-platform-nov-2017-release/))
@@ -172,4 +171,3 @@ Anypoint tools is licensed under the CPAL License: https://opensource.org/licens
 # Issues
 
 Report an issues here: https://github.com/Kloudtek/anypoint-tools/issues
-
