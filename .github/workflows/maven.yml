@@ -1,0 +1,11 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: kt-build-docker-image
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build with Maven
+      run: mvn package --file pom.xml
