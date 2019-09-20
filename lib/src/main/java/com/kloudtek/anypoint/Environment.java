@@ -237,6 +237,9 @@ public class Environment extends AnypointObject<Organization> {
 
     /**
      * Refresh environment data (this will retrieve extra data compared to an environment object obtained from an organization)
+     * @return Refreshed environment
+     * @throws NotFoundException If the environment isn't found
+     * @throws HttpException If an error occurs communicating with anypoint platform
      */
     public Environment refresh() throws NotFoundException, HttpException {
         return Environment.findEnvironmentById(id, client, parent);

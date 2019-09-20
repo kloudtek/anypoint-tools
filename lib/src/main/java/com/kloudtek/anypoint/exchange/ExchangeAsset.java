@@ -6,11 +6,15 @@ package com.kloudtek.anypoint.exchange;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.AnypointObject;
+import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.Organization;
+import com.kloudtek.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class ExchangeAsset extends AnypointObject<Organization> {
@@ -21,7 +25,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     @JsonProperty("metadata")
     private AssetMetadata metadata;
     @JsonProperty("instances")
-    private List instances;
+    private List<AssetInstance> instances;
     @JsonProperty("customFields")
     private List customFields;
     @JsonProperty("modifiedAt")
@@ -80,6 +84,31 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         super(organization);
     }
 
+    public AssetInstance findInstances(String name) throws NotFoundException {
+        if( instances != null ) {
+            Stream<AssetInstance> s = instances.stream().filter(i -> i.getEnvironmentId() != null);
+            boolean namedInstance = !StringUtils.isEmpty(name);
+            if(namedInstance) {
+                s = s.filter( i -> i.getName().equalsIgnoreCase(name));
+            }
+            List<AssetInstance> ilist = s.collect(Collectors.toList());
+            if(ilist.size() == 0 ) {
+                return null;
+            } else if( ilist.size() > 1) {
+                if( namedInstance ) {
+                    throw new NotFoundException("Found more than one instance for api "+groupId+":"+assetId+" while searching for instance "+name+
+                            ". This is very unexpected as there shouldn't be instances with the same name");
+                } else {
+                    List<String> instanceNames = instances.stream().map(AssetInstance::getName).collect(Collectors.toList());
+                    throw new NotFoundException("Found more than one instance for api "+groupId+":"+assetId+", please specify instance label: "+ instanceNames);
+                }
+            } else {
+                return ilist.iterator().next();
+            }
+        }
+        return null;
+    }
+
     public String getProductAPIVersion() {
         return productAPIVersion;
     }
@@ -104,11 +133,11 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         this.metadata = metadata;
     }
 
-    public List getInstances() {
+    public List<AssetInstance> getInstances() {
         return instances;
     }
 
-    public void setInstances(List instances) {
+    public void setInstances(List<AssetInstance> instances) {
         this.instances = instances;
     }
 

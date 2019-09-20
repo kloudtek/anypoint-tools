@@ -12,10 +12,6 @@
     <artifactId>anypoint-lib</artifactId>
     <name>Anypoint Tools Library</name>
 
-    <properties>
-        <skipTests>true</skipTests>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -33,6 +29,22 @@
                         <version>1.0.1</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skipITs>false</skipITs>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -71,7 +83,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.8</version>
+            <version>2.9.9.3</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -80,8 +92,8 @@
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.1.0</version>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.5.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

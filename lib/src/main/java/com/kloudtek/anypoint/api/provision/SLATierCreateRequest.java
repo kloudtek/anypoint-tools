@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SLATierCreateRequest {
     @JsonProperty
-    private int apiVersionId;
+    private String apiVersionId;
     @JsonProperty
     private String name;
     @JsonProperty
@@ -32,11 +32,11 @@ public class SLATierCreateRequest {
         this.limits = limits;
     }
 
-    public int getApiVersionId() {
+    public String getApiVersionId() {
         return apiVersionId;
     }
 
-    public void setApiVersionId(int apiVersionId) {
+    public void setApiVersionId(String apiVersionId) {
         this.apiVersionId = apiVersionId;
     }
 

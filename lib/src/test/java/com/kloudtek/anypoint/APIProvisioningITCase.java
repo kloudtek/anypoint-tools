@@ -10,9 +10,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class APIProvisioningTests extends AbstractAnypointTest {
-    @Test
+public class APIProvisioningITCase extends AbstractAnypointTest {
+//    @Test
     public void testProvisioning() throws Exception {
+        integrationTest = true;
         createAPIAsset(TESTAPI1, true);
         createAPIAsset(TESTAPI2, true);
         APIProvisioningConfig config = new APIProvisioningConfig();

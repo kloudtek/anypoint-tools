@@ -6,7 +6,7 @@
 
     <groupId>com.kloudtek.anypoint-tools</groupId>
     <artifactId>anypoint-tools</artifactId>
-    <name>Anypoint tools</name>
+    <name>Anypoint tools (Legacy)</name>
     <description>Anypoint tools greatly facilitate interaction with mulesoft's anypoint services</description>
     <url>https://github.com/kloudtek/anypoint-tools</url>
     <packaging>pom</packaging>
@@ -53,6 +53,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <reporting>

@@ -5,6 +5,8 @@ import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.NotFoundException;
 import com.kloudtek.anypoint.api.*;
 import com.kloudtek.anypoint.api.policy.Policy;
+import com.kloudtek.anypoint.exchange.AssetInstance;
+import com.kloudtek.anypoint.exchange.ExchangeAsset;
 import com.kloudtek.util.InvalidStateException;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.validation.ValidationUtils;
@@ -116,7 +118,10 @@ public class APIProvisioningDescriptor {
                     throw new InvalidStateException("Client Application doesn't exist and automatic client application creation (createClientApplication) set to false");
                 }
                 for (APIAccessDescriptor accessDescriptor : access) {
-                    API accessedAPI = environment.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
+                    AssetInstance instance = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getGroupId())
+                            .findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel());
+                    Environment apiEnv = environment.getClient().findOrganizationById(instance.getOrganizationId()).findEnvironmentById(instance.getEnvironmentId());
+                    API accessedAPI = apiEnv.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
                             accessDescriptor.getAssetVersion(), accessDescriptor.getLabel());
                     APIContract contract;
                     try {

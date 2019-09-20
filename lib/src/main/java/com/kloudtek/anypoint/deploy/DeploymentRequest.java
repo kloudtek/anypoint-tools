@@ -65,7 +65,7 @@ public abstract class DeploymentRequest {
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
                     if (apiProvisioningConfig.isInjectApiId()) {
                         initProperties();
-                        properties.put(apiProvisioningConfig.getInjectApiIdKey(), Integer.toString(provisioningResult.getApi().getId()));
+                        properties.put(apiProvisioningConfig.getInjectApiIdKey(), provisioningResult.getApi().getId());
                         properties.put("anypoint.platform.client_id", environment.getClientId());
                         properties.put("anypoint.platform.client_secret", environment.getClientSecret());
                     }

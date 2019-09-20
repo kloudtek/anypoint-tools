@@ -1,12 +1,17 @@
 package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kloudtek.anypoint.config.AnypointCliConfig;
 import com.kloudtek.anypoint.deploy.DeploymentService;
+import com.kloudtek.anypoint.ocli.OCliClient;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnexpectedException;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.File;
@@ -18,6 +23,7 @@ import java.util.concurrent.Executors;
 
 @SuppressWarnings("SameParameterValue")
 public class AnypointClient implements Closeable, Serializable {
+    private static final Logger logger = LoggerFactory.getLogger(AnypointClient.class);
     public static final String LOGIN_PATH = "/accounts/login";
     protected JsonHelper jsonHelper;
     protected HttpHelper httpHelper;
@@ -26,11 +32,15 @@ public class AnypointClient implements Closeable, Serializable {
     private String username;
     private String password;
     private DeploymentService deploymentService;
+    private OCliClient cliClient;
 
     /**
      * Contructor used for serialization only
      **/
     public AnypointClient() {
+        if( !loadAnypointCliConfig() ) {
+            throw new IllegalStateException("Unable to find/load configurations");
+        }
         init();
     }
 
@@ -47,9 +57,40 @@ public class AnypointClient implements Closeable, Serializable {
     }
 
     private void init() {
+        try {
+            cliClient = new OCliClient();
+        } catch (IllegalStateException e) {
+            logger.debug("Anypoint cli not available",e);
+        }
         jsonHelper = new JsonHelper(this);
         deploymentService = loadService(DeploymentService.class);
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
+    }
+
+    private boolean loadAnypointCliConfig() {
+        try {
+            File cfg = new File(System.getProperty("user.home")+File.separator+".anypoint"+File.separator+"credentials");
+            if( cfg.exists() ) {
+                logger.debug("Loading anypoint cli config file "+cfg.getPath());
+                JsonNode config = new ObjectMapper().readTree(cfg);
+                JsonNode def = config.get("default");
+                if( def != null && ! def.isNull() ) {
+                    JsonNode usernameNode = def.get("username");
+                    JsonNode passwordNode = def.get("password");
+                    if( usernameNode != null && passwordNode != null && !usernameNode.isNull() && ! passwordNode.isNull() ) {
+                        httpHelper = new HttpHelper(this, usernameNode.asText(), passwordNode.asText());
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Unable to load anypoint cli configuration",e);
+        }
+        return false;
+    }
+
+    public OCliClient getCliClient() {
+        return cliClient;
     }
 
     private <X> X loadService(Class<X> serviceClass) {
@@ -146,6 +187,7 @@ public class AnypointClient implements Closeable, Serializable {
      * Return details on the account used to administer anypoint
      *
      * @return User details
+     * @throws HttpException if an http exception occurs
      */
     public User getUser() throws HttpException {
         String json = httpHelper.httpGet("/accounts/api/me");

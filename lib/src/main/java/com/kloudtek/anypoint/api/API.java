@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class API extends AnypointObject<Environment> {
     private static final Logger logger = LoggerFactory.getLogger(API.class);
-    private int id;
+    private String id;
     private String assetVersion;
     private String productVersion;
     private String environmentId;
@@ -147,11 +147,11 @@ public class API extends AnypointObject<Environment> {
         return new APIContractList(this);
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
