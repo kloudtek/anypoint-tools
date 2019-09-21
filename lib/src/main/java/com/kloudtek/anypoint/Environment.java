@@ -275,6 +275,9 @@ public class Environment extends AnypointObject<Organization> {
         String json = null;
         try {
             json = client.getHttpHelper().httpGet("/accounts/api/organizations/" + organization.getId() + "/environments/" + id);
+            if( json.equalsIgnoreCase("null") ) {
+                throw new NotFoundException("Environment with id " + id + " not found (user probably doesn't has access to it)");
+            }
             return client.getJsonHelper().readJson(organization.createEnvironmentObject(), json, organization);
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
