@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class APIProvisioningITCase extends AbstractAnypointTest {
-    @Test
+//    @Test
     public void testProvisioning() throws Exception {
         integrationTest = true;
         createAPIAsset(TESTAPI1, true);
