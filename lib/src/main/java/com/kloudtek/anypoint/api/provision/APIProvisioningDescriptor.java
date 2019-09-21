@@ -120,6 +120,7 @@ public class APIProvisioningDescriptor {
                 for (APIAccessDescriptor accessDescriptor : access) {
                     AssetInstance instance = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getGroupId())
                             .findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel());
+                    logger.info("Found instance {}",instance);
                     Environment apiEnv = environment.getClient().findOrganizationById(instance.getOrganizationId()).findEnvironmentById(instance.getEnvironmentId());
                     API accessedAPI = apiEnv.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
                             accessDescriptor.getAssetVersion(), accessDescriptor.getLabel());

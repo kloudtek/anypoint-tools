@@ -99,7 +99,8 @@ public class ExchangeAsset extends AnypointObject<Organization> {
                     throw new NotFoundException("Found more than one instance for api "+groupId+":"+assetId+" while searching for instance "+name+
                             ". This is very unexpected as there shouldn't be instances with the same name");
                 } else {
-                    List<String> instanceNames = instances.stream().map(AssetInstance::getName).collect(Collectors.toList());
+                    List<String> instanceNames = instances.stream().filter(i -> i.getEnvironmentId() != null)
+                            .map(AssetInstance::getName).collect(Collectors.toList());
                     throw new NotFoundException("Found more than one instance for api "+groupId+":"+assetId+", please specify instance label: "+ instanceNames);
                 }
             } else {

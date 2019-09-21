@@ -2,6 +2,8 @@ package com.kloudtek.anypoint.exchange;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.StringJoiner;
+
 public class AssetInstance {
     @JsonProperty
     private String versionGroup;
@@ -33,6 +35,26 @@ public class AssetInstance {
     private String assetName;
 
     public AssetInstance() {
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", AssetInstance.class.getSimpleName() + "[", "]")
+                .add("versionGroup='" + versionGroup + "'")
+                .add("organizationId='" + organizationId + "'")
+                .add("id='" + id + "'")
+                .add("groupId='" + groupId + "'")
+                .add("assetId='" + assetId + "'")
+                .add("productAPIVersion='" + productAPIVersion + "'")
+                .add("version='" + version + "'")
+                .add("environmentId='" + environmentId + "'")
+                .add("endpointUri='" + endpointUri + "'")
+                .add("name='" + name + "'")
+                .add("isPublic=" + isPublic)
+                .add("type='" + type + "'")
+                .add("fullname='" + fullname + "'")
+                .add("assetName='" + assetName + "'")
+                .toString();
     }
 
     public String getVersionGroup() {
