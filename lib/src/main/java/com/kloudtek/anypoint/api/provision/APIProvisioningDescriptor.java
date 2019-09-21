@@ -123,15 +123,10 @@ public class APIProvisioningDescriptor {
                     AssetInstance instance = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getGroupId())
                             .findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel());
                     logger.info("Found instance {}",instance);
-                    Environment apiEnv = null;
-                    try {
-                        apiEnv = environment.getClient().findOrganizationById(instance.getOrganizationId()).findEnvironmentById(instance.getEnvironmentId());
-                    } catch (NotFoundException e) {
-                        apiEnv = new Environment(new Organization(environment.getClient(),instance.getOrganizationId()),instance.getEnvironmentId());
-                    }
+                    Environment apiEnv = new Environment(new Organization(environment.getClient(),instance.getOrganizationId()),instance.getEnvironmentId());
+                    API accessedAPI = new API(apiEnv);
+                    accessedAPI.setId(instance.getId());
                     logger.info("Found apiEnv {} with id {}",apiEnv,apiEnv.getId());
-                    API accessedAPI = apiEnv.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
-                            accessDescriptor.getAssetVersion(), accessDescriptor.getLabel());
                     APIContract contract;
                     try {
                         contract = accessedAPI.findContract(clientApplication);
