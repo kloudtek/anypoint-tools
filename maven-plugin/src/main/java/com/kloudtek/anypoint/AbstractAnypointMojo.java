@@ -22,7 +22,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     protected String password;
     @Parameter(defaultValue = "${settings}", readonly = true)
     private Settings settings;
-    protected Log logger;
+    protected Log logger = getLog();
 
     public synchronized AnypointClient getClient() {
         logger = getLog();
