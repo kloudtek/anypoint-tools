@@ -2,7 +2,9 @@ package com.kloudtek.anypoint.api.provision;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.Environment;
+import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.NotFoundException;
+import com.kloudtek.anypoint.Organization;
 import com.kloudtek.anypoint.api.*;
 import com.kloudtek.anypoint.api.policy.Policy;
 import com.kloudtek.anypoint.exchange.AssetInstance;
@@ -121,7 +123,12 @@ public class APIProvisioningDescriptor {
                     AssetInstance instance = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getGroupId())
                             .findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel());
                     logger.info("Found instance {}",instance);
-                    Environment apiEnv = environment.getClient().findOrganizationById(instance.getOrganizationId()).findEnvironmentById(instance.getEnvironmentId());
+                    Environment apiEnv = null;
+                    try {
+                        apiEnv = environment.getClient().findOrganizationById(instance.getOrganizationId()).findEnvironmentById(instance.getEnvironmentId());
+                    } catch (NotFoundException e) {
+                        apiEnv = new Environment(new Organization(environment.getClient(),instance.getOrganizationId()),instance.getEnvironmentId());
+                    }
                     logger.info("Found apiEnv {} with id {}",apiEnv,apiEnv.getId());
                     API accessedAPI = apiEnv.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
                             accessDescriptor.getAssetVersion(), accessDescriptor.getLabel());
