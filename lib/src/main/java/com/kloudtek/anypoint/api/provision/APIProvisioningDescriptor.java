@@ -122,6 +122,7 @@ public class APIProvisioningDescriptor {
                             .findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel());
                     logger.info("Found instance {}",instance);
                     Environment apiEnv = environment.getClient().findOrganizationById(instance.getOrganizationId()).findEnvironmentById(instance.getEnvironmentId());
+                    logger.info("Found apiEnv {} with id {}",apiEnv,apiEnv.getId());
                     API accessedAPI = apiEnv.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
                             accessDescriptor.getAssetVersion(), accessDescriptor.getLabel());
                     APIContract contract;
